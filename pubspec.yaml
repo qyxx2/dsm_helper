@@ -101,7 +101,7 @@ dependencies:
   event_bus: ^2.0.0
 #  fplayer: ^1.0.4
   fplayer:
-    path: fplayer
+    git: https://github.com/ApaipaiLtd/fplayer.git
   easy_app_installer: ^1.0.0
   quiver: ^3.2.1
 
