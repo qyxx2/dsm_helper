@@ -1,3 +1,4 @@
+import 'package:dsm_helper/apis/api.dart';
 import 'package:dsm_helper/models/Syno/Docker/Container/ContainerResource.dart';
 import 'package:dsm_helper/models/base_model.dart';
 import 'package:dsm_helper/pages/docker/enums/docker_status_enum.dart';
@@ -102,6 +103,69 @@ class Containers {
     this.upStatus,
     this.upTime,
   });
+
+  Future<bool?> start() async {
+    DsmResponse res = await Api.dsm.entry(
+      "SYNO.Docker.Container",
+      "start",
+      version: 1,
+      data: {
+        "name": name,
+      },
+    );
+    return res.success;
+  }
+
+  Future<bool?> restart() async {
+    DsmResponse res = await Api.dsm.entry(
+      "SYNO.Docker.Container",
+      "restart",
+      version: 1,
+      data: {
+        "name": name,
+      },
+    );
+    return res.success;
+  }
+
+  Future<bool?> stop() async {
+    DsmResponse res = await Api.dsm.entry(
+      "SYNO.Docker.Container",
+      "stop",
+      version: 1,
+      data: {
+        "name": name,
+      },
+    );
+    return res.success;
+  }
+
+  Future<bool?> signal() async {
+    DsmResponse res = await Api.dsm.entry(
+      "SYNO.Docker.Container",
+      "signal",
+      version: 1,
+      data: {
+        "name": name,
+        "signal": 9,
+      },
+    );
+    return res.success;
+  }
+
+  Future<bool?> delete({bool preserveProfile = false}) async {
+    DsmResponse res = await Api.dsm.entry(
+      "SYNO.Docker.Container",
+      "delete",
+      version: 1,
+      data: {
+        "name": name,
+        "force": false,
+        "preserve_profile": preserveProfile,
+      },
+    );
+    return res.success;
+  }
 
   Containers.fromJson(dynamic json) {
     state = json['State'] != null ? State.fromJson(json['State']) : null;

@@ -1,18 +1,22 @@
+import 'dart:ui';
+
 import 'package:dsm_helper/apis/api.dart';
 import 'package:dsm_helper/models/Syno/Core/System/Utilization.dart';
 import 'package:dsm_helper/models/Syno/Docker/Container/ContainerResource.dart';
 import 'package:dsm_helper/models/Syno/Docker/DockerContainer.dart' hide State;
-import 'package:dsm_helper/pages/docker/detail.dart';
+import 'package:dsm_helper/pages/docker/container_detail.dart';
 import 'package:dsm_helper/pages/docker/enums/docker_status_enum.dart';
 import 'package:dsm_helper/providers/utilization_provider.dart';
 import 'package:dsm_helper/themes/app_theme.dart';
 import 'package:dsm_helper/utils/extensions/navigator_ext.dart';
 import 'package:dsm_helper/utils/utils.dart' hide Api;
 import 'package:dsm_helper/widgets/dot_widget.dart';
+import 'package:dsm_helper/widgets/empty_widget.dart';
 import 'package:dsm_helper/widgets/line_progress_bar.dart';
 import 'package:dsm_helper/widgets/loading_widget.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:kumi_popup_window/kumi_popup_window.dart';
 import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_gauges/gauges.dart';
 
@@ -27,16 +31,16 @@ class _ContainerPageState extends State<ContainerPage> with AutomaticKeepAliveCl
   DockerContainer containers = DockerContainer();
   ContainerResource resource = ContainerResource();
   bool loading = true;
+  Map<Containers, bool> containerLoading = {};
   @override
   void initState() {
     getData();
     super.initState();
   }
 
-  getData() async {
+  getData({bool loop = true}) async {
     List<DsmResponse> batchRes = await Api.dsm.batch(apis: [DockerContainer(), ContainerResource()]);
     batchRes.forEach((element) {
-      print(element.data.runtimeType.toString());
       switch (element.data.runtimeType.toString()) {
         case "DockerContainer":
           containers = element.data;
@@ -46,12 +50,18 @@ class _ContainerPageState extends State<ContainerPage> with AutomaticKeepAliveCl
           resource = element.data;
       }
     });
-    setState(() {
-      containers.containers!.forEach((container) {
-        container.resource = resource.resources!.firstWhere((element) => element.name == container.name);
+    if (mounted) {
+      setState(() {
+        containers.containers!.forEach((container) {
+          container.resource = resource.resources!.firstWhere((element) => element.name == container.name);
+        });
+        loading = false;
       });
-      loading = false;
-    });
+    }
+    if (loop) {
+      await Future.delayed(Duration(seconds: 10));
+      getData();
+    }
   }
 
   @override
@@ -131,7 +141,7 @@ class _ContainerPageState extends State<ContainerPage> with AutomaticKeepAliveCl
                                   value: (utilization.cpu?.totalLoad ?? 0).toDouble(),
                                   width: 8,
                                   cornerStyle: CornerStyle.bothCurve,
-                                  gradient: SweepGradient(colors: <Color>[Color(0xFF00BAAD), Color(0xFF4BD6CD)]),
+                                  gradient: SweepGradient(colors: (utilization.cpu?.totalLoad ?? 0) < 80 ? [Color(0xFF00BAAD), Color(0xFF4BD6CD)] : [AppTheme.of(context)!.errorColor!, AppTheme.of(context)!.warningColor!]),
                                 ),
                                 // MarkerPointer(
                                 //   value: utilization.cpu!.totalLoad.toDouble() - 3,
@@ -207,7 +217,7 @@ class _ContainerPageState extends State<ContainerPage> with AutomaticKeepAliveCl
                                   value: (utilization.memory?.realUsage ?? 0).toDouble(),
                                   width: 8,
                                   cornerStyle: CornerStyle.bothCurve,
-                                  gradient: SweepGradient(colors: <Color>[AppTheme.of(context)!.primaryColor!, Color(0xFF75ACFF)]),
+                                  gradient: SweepGradient(colors: (utilization.memory?.realUsage ?? 0) < 80 ? [AppTheme.of(context)!.primaryColor!, Color(0xFF75ACFF)] : [AppTheme.of(context)!.errorColor!, AppTheme.of(context)!.warningColor!]),
                                 ),
                                 // MarkerPointer(
                                 //   value: utilization.cpu!.totalLoad.toDouble() - 3,
@@ -224,280 +234,287 @@ class _ContainerPageState extends State<ContainerPage> with AutomaticKeepAliveCl
                   ],
                 ),
                 SizedBox(height: 20),
-                ...containers.containers!.map(_buildContainerItem).toList(),
+                if (containers.containers != null && containers.containers!.isNotEmpty) ...containers.containers!.map(_buildContainerItem).toList() else EmptyWidget(text: "未添加容器"),
               ],
             ),
           );
   }
 
   Widget _buildContainerItem(Containers container) {
-    // if (powerLoading[container['id']] == null) {
-    //   powerLoading[container['id']] = false;
-    // }
-    return GestureDetector(
-      onTap: () {
-        context.push(ContainerDetail(container.name!), name: 'docker_container_detail');
-      },
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(22),
-        ),
-        margin: EdgeInsets.only(bottom: 10),
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Padding(
-                        padding: EdgeInsets.only(right: 6),
-                        child: DotWidget(
-                          color: container.statusEnum.color,
-                        ),
-                      ),
-                      Text(
-                        container.statusEnum.label,
-                        style: TextStyle(color: container.statusEnum.color, fontSize: 13),
-                      ),
-                      SizedBox(width: 10),
-                      if (container.statusEnum == DockerStatusEnum.running)
-                        Text(
-                          DateTime.fromMillisecondsSinceEpoch(container.upTime! * 1000).timeAgo,
-                          style: TextStyle(fontSize: 13, color: Colors.grey),
-                        ),
-                      Spacer(),
-                      SizedBox(
-                        height: 10,
-                        child: Transform.scale(
-                          scale: 0.8,
-                          child: CupertinoSwitch(
-                            value: container.statusEnum == DockerStatusEnum.running,
-                            onChanged: (v) {},
-                          ),
-                        ),
-                      ),
-                      GestureDetector(
-                        onTap: () async {
-                          // if (powerLoading[container['id']] == null || powerLoading[container['id']]!) {
-                          //   return;
-                          // }
-
-                          // showCupertinoModalPopup(
-                          //   context: context,
-                          //   builder: (context) {
-                          //     return Material(
-                          //       color: Colors.transparent,
-                          //       child: Container(
-                          //         width: double.infinity,
-                          //         padding: EdgeInsets.all(22),
-                          //         decoration: BoxDecoration(color: Theme.of(context).scaffoldBackgroundColor, borderRadius: BorderRadius.vertical(top: Radius.circular(22))),
-                          //         child: SafeArea(
-                          //           top: false,
-                          //           child: Column(
-                          //             mainAxisSize: MainAxisSize.min,
-                          //             children: <Widget>[
-                          //               Text(
-                          //                 "选择操作",
-                          //                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
-                          //               ),
-                          //               SizedBox(
-                          //                 height: 12,
-                          //               ),
-                          //               if (container['status'] == "stopped") ...[
-                          //                 CupertinoButton(
-                          //                   onPressed: () async {
-                          //                     Navigator.of(context).pop();
-                          //                     power(container, "start");
-                          //                   },
-                          //                   color: Theme.of(context).scaffoldBackgroundColor,
-                          //                   borderRadius: BorderRadius.circular(25),
-                          //                   padding: EdgeInsets.symmetric(vertical: 10),
-                          //                   child: Text(
-                          //                     "启动",
-                          //                     style: TextStyle(fontSize: 18),
-                          //                   ),
-                          //                 ),
-                          //                 SizedBox(
-                          //                   height: 22,
-                          //                 ),
-                          //                 CupertinoButton(
-                          //                   onPressed: () async {
-                          //                     Navigator.of(context).pop();
-                          //                     power(container, "delete", preserveProfile: true);
-                          //                   },
-                          //                   color: Theme.of(context).scaffoldBackgroundColor,
-                          //                   borderRadius: BorderRadius.circular(25),
-                          //                   padding: EdgeInsets.symmetric(vertical: 10),
-                          //                   child: Text(
-                          //                     "清除",
-                          //                     style: TextStyle(fontSize: 18, color: Colors.redAccent),
-                          //                   ),
-                          //                 ),
-                          //                 SizedBox(
-                          //                   height: 22,
-                          //                 ),
-                          //                 CupertinoButton(
-                          //                   onPressed: () async {
-                          //                     Navigator.of(context).pop();
-                          //                     power(container, "delete", preserveProfile: false);
-                          //                   },
-                          //                   color: Theme.of(context).scaffoldBackgroundColor,
-                          //                   borderRadius: BorderRadius.circular(25),
-                          //                   padding: EdgeInsets.symmetric(vertical: 10),
-                          //                   child: Text(
-                          //                     "删除",
-                          //                     style: TextStyle(fontSize: 18, color: Colors.redAccent),
-                          //                   ),
-                          //                 ),
-                          //               ] else ...[
-                          //                 CupertinoButton(
-                          //                   onPressed: () async {
-                          //                     Navigator.of(context).pop();
-                          //                     power(container, "stop");
-                          //                   },
-                          //                   color: Theme.of(context).scaffoldBackgroundColor,
-                          //                   borderRadius: BorderRadius.circular(25),
-                          //                   padding: EdgeInsets.symmetric(vertical: 10),
-                          //                   child: Text(
-                          //                     "停止",
-                          //                     style: TextStyle(fontSize: 18, color: Colors.redAccent),
-                          //                   ),
-                          //                 ),
-                          //                 SizedBox(
-                          //                   height: 22,
-                          //                 ),
-                          //                 CupertinoButton(
-                          //                   onPressed: () async {
-                          //                     Navigator.of(context).pop();
-                          //                     power(container, "signal");
-                          //                   },
-                          //                   color: Theme.of(context).scaffoldBackgroundColor,
-                          //                   borderRadius: BorderRadius.circular(25),
-                          //                   padding: EdgeInsets.symmetric(vertical: 10),
-                          //                   child: Text(
-                          //                     "强制停止",
-                          //                     style: TextStyle(fontSize: 18, color: Colors.redAccent),
-                          //                   ),
-                          //                 ),
-                          //                 SizedBox(
-                          //                   height: 22,
-                          //                 ),
-                          //                 CupertinoButton(
-                          //                   onPressed: () async {
-                          //                     Navigator.of(context).pop();
-                          //                     power(container, "restart");
-                          //                   },
-                          //                   color: Theme.of(context).scaffoldBackgroundColor,
-                          //                   borderRadius: BorderRadius.circular(25),
-                          //                   padding: EdgeInsets.symmetric(vertical: 10),
-                          //                   child: Text(
-                          //                     "重新启动",
-                          //                     style: TextStyle(fontSize: 18, color: Colors.redAccent),
-                          //                   ),
-                          //                 ),
-                          //               ],
-                          //               SizedBox(
-                          //                 height: 8,
-                          //               ),
-                          //             ],
-                          //           ),
-                          //         ),
-                          //       ),
-                          //     );
-                          //   },
-                          // );
-                        },
-                        child: Image.asset(
-                          "assets/icons/more_vertical.png",
-                          width: 20,
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(
-                    height: 10,
-                  ),
-                  Text(
-                    container.name!,
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-                  ),
-                  Text(
-                    container.image!,
-                    style: TextStyle(fontSize: 12, color: AppTheme.of(context)?.placeholderColor),
-                  ),
-                ],
-              ),
-              if (container.statusEnum == DockerStatusEnum.running) ...[
-                SizedBox(
-                  height: 10,
-                ),
+    GlobalKey actionButtonKey = GlobalKey();
+    return Padding(
+      padding: EdgeInsets.only(bottom: 10),
+      child: CupertinoButton(
+        onPressed: containerLoading[container] == true
+            ? null
+            : () {
+                context.push(ContainerDetail(container.name!), name: 'docker_container_detail');
+              },
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(22),
+        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
                 Row(
                   children: [
-                    Expanded(
-                      child: Column(
-                        children: [
-                          Row(
-                            children: [
-                              Text(
-                                "CPU",
-                                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                              ),
-                              Spacer(),
-                              Text(
-                                "${container.resource?.cpu == null ? '-' : container.resource!.cpu!.toStringAsFixed(2)}%",
-                                style: TextStyle(color: Colors.blue, fontWeight: FontWeight.w600),
-                              ),
-                            ],
-                          ),
-                          SizedBox(
-                            height: 10,
-                          ),
-                          LineProgressBar(
-                            value: container.resource?.cpu ?? 0,
-                            backgroundColor: Theme.of(context).dividerColor,
-                          ),
-                        ],
+                    Padding(
+                      padding: EdgeInsets.only(right: 6),
+                      child: DotWidget(
+                        color: container.statusEnum.color,
                       ),
                     ),
-                    SizedBox(
-                      width: 20,
+                    Text(
+                      container.statusEnum.label,
+                      style: TextStyle(color: container.statusEnum.color, fontSize: 13),
                     ),
-                    Expanded(
-                      child: Column(
-                        children: [
-                          Row(
-                            children: [
-                              Text(
-                                "内存",
-                                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                              ),
-                              Spacer(),
-                              Text(
-                                "${Utils.formatSize(container.resource?.memory ?? 0, fixed: 0)}",
-                                style: TextStyle(color: Colors.green, fontWeight: FontWeight.w600),
-                              ),
-                            ],
-                          ),
-                          SizedBox(
-                            height: 10,
-                          ),
-                          LineProgressBar(
-                            value: container.resource?.memoryPercent ?? 0,
-                            backgroundColor: Theme.of(context).dividerColor,
-                          ),
-                        ],
+                    SizedBox(width: 10),
+                    if (container.statusEnum == DockerStatusEnum.running)
+                      Text(
+                        DateTime.fromMillisecondsSinceEpoch(container.upTime! * 1000).timeAgo,
+                        style: TextStyle(fontSize: 13, color: Colors.grey),
+                      ),
+                    Spacer(),
+                    SizedBox(
+                      height: 10,
+                      child: Transform.scale(
+                        scale: 0.8,
+                        child: CupertinoSwitch(
+                          value: container.statusEnum == DockerStatusEnum.running,
+                          onChanged: containerLoading[container] == true
+                              ? null
+                              : (v) async {
+                                  setState(() {
+                                    containerLoading[container] = true;
+                                  });
+                                  try {
+                                    if (v) {
+                                      await container.start();
+                                    } else {
+                                      await container.stop();
+                                    }
+                                    getData(loop: false);
+                                  } catch (e) {
+                                    Utils.toast("操作失败");
+                                  }
+                                  setState(() {
+                                    containerLoading[container] = false;
+                                  });
+                                },
+                        ),
+                      ),
+                    ),
+                    CupertinoButton(
+                      key: actionButtonKey,
+                      onPressed: containerLoading[container] == true
+                          ? null
+                          : () async {
+                              showPopupWindow(
+                                context,
+                                gravity: KumiPopupGravity.leftTop,
+                                bgColor: Colors.transparent,
+                                clickOutDismiss: true,
+                                clickBackDismiss: true,
+                                customAnimation: false,
+                                customPop: false,
+                                customPage: false,
+                                underStatusBar: true,
+                                underAppBar: true,
+                                needSafeDisplay: true,
+                                offsetX: 30,
+                                offsetY: 30,
+                                // curve: Curves.easeInSine,
+                                duration: Duration(milliseconds: 200),
+                                targetRenderBox: actionButtonKey.currentContext!.findRenderObject() as RenderBox,
+                                childFun: (pop) {
+                                  return BackdropFilter(
+                                    key: GlobalKey(),
+                                    filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                                    child: Container(
+                                      width: 150,
+                                      padding: EdgeInsets.symmetric(vertical: 8),
+                                      margin: EdgeInsets.only(top: 50),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.circular(23),
+                                      ),
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          PopupMenuItem(
+                                            enabled: container.statusEnum == DockerStatusEnum.running,
+                                            onTap: () async {
+                                              setState(() {
+                                                containerLoading[container] = true;
+                                              });
+                                              try {
+                                                await container.signal();
+                                                getData(loop: false);
+                                              } catch (e) {
+                                                print(e);
+                                                Utils.toast("强制停止失败");
+                                              }
+                                              setState(() {
+                                                containerLoading[container] = false;
+                                              });
+                                            },
+                                            child: Text("强制停止"),
+                                          ),
+                                          PopupMenuItem(
+                                            enabled: container.statusEnum == DockerStatusEnum.running,
+                                            onTap: () async {
+                                              setState(() {
+                                                containerLoading[container] = true;
+                                              });
+                                              try {
+                                                await container.restart();
+                                                getData(loop: false);
+                                              } catch (e) {
+                                                print(e);
+                                                Utils.toast("重启失败");
+                                              }
+                                              setState(() {
+                                                containerLoading[container] = false;
+                                              });
+                                            },
+                                            child: Text("重新启动"),
+                                          ),
+                                          PopupMenuItem(
+                                            onTap: () async {
+                                              setState(() {
+                                                containerLoading[container] = true;
+                                              });
+                                              try {
+                                                await container.delete(preserveProfile: true);
+                                                getData(loop: false);
+                                              } catch (e) {
+                                                print(e);
+                                                Utils.toast("操作失败");
+                                              }
+                                              setState(() {
+                                                containerLoading[container] = false;
+                                              });
+                                            },
+                                            child: Text("重置"),
+                                          ),
+                                          PopupMenuItem(
+                                            onTap: () async {
+                                              setState(() {
+                                                containerLoading[container] = true;
+                                              });
+                                              try {
+                                                await container.delete(preserveProfile: false);
+                                                getData(loop: false);
+                                              } catch (e) {
+                                                print(e);
+                                                Utils.toast("操作失败");
+                                              }
+                                              setState(() {
+                                                containerLoading[container] = false;
+                                              });
+                                            },
+                                            child: Text(
+                                              "删除",
+                                              style: TextStyle(color: AppTheme.of(context)?.errorColor),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                },
+                              );
+                            },
+                      padding: EdgeInsets.zero,
+                      minSize: 20,
+                      child: Image.asset(
+                        "assets/icons/more_vertical.png",
+                        width: 20,
                       ),
                     ),
                   ],
                 ),
+                SizedBox(
+                  height: 10,
+                ),
+                Text(
+                  container.name!,
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Theme.of(context).primaryColor),
+                ),
+                Text(
+                  container.image!,
+                  style: TextStyle(fontSize: 12, color: AppTheme.of(context)?.placeholderColor),
+                ),
               ],
+            ),
+            if (container.statusEnum == DockerStatusEnum.running) ...[
+              SizedBox(
+                height: 10,
+              ),
+              Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      children: [
+                        Row(
+                          children: [
+                            Text(
+                              "CPU",
+                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Theme.of(context).primaryColor),
+                            ),
+                            Spacer(),
+                            Text(
+                              "${container.resource?.cpu == null ? '-' : container.resource!.cpu!.toStringAsFixed(2)}%",
+                              style: TextStyle(color: AppTheme.of(context)?.primaryColor, fontWeight: FontWeight.w600),
+                            ),
+                          ],
+                        ),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        LineProgressBar(
+                          value: container.resource?.cpu ?? 0,
+                          backgroundColor: Theme.of(context).dividerColor,
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(
+                    width: 20,
+                  ),
+                  Expanded(
+                    child: Column(
+                      children: [
+                        Row(
+                          children: [
+                            Text(
+                              "RAM",
+                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Theme.of(context).primaryColor),
+                            ),
+                            Spacer(),
+                            Text(
+                              "${Utils.formatSize(container.resource?.memory ?? 0, fixed: 0)}",
+                              style: TextStyle(color: AppTheme.of(context)?.successColor, fontWeight: FontWeight.w600),
+                            ),
+                          ],
+                        ),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        LineProgressBar(
+                          value: container.resource?.memoryPercent ?? 0,
+                          backgroundColor: Theme.of(context).dividerColor,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ],
-          ),
+          ],
         ),
       ),
     );

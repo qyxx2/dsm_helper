@@ -6,12 +6,15 @@ import 'package:dsm_helper/database/tables.dart';
 import 'package:dsm_helper/models/api_model.dart';
 import 'package:dsm_helper/models/synology/qcid_model.dart' hide Server;
 import 'package:dsm_helper/pages/login/login.dart';
+import 'package:dsm_helper/themes/app_theme.dart';
 import 'package:dsm_helper/utils/db_utils.dart';
 import 'package:dsm_helper/utils/extensions/datetime_ext.dart';
 import 'package:dsm_helper/utils/extensions/navigator_ext.dart';
 import 'package:dsm_helper/utils/utils.dart' hide Api, DateTimeExt;
 import 'package:dsm_helper/widgets/button.dart';
+import 'package:dsm_helper/widgets/glass/glass_app_bar.dart';
 import 'package:dsm_helper/widgets/glass/glass_dialog.dart';
+import 'package:dsm_helper/widgets/glass/glass_scaffold.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -202,8 +205,8 @@ class _AddServerState extends State<AddServer> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
+    return GlassScaffold(
+      appBar: GlassAppBar(
         title: Text("${widget.server == null ? '添加' : '修改'}服务器"),
         actions: [
           CupertinoButton(
@@ -229,11 +232,12 @@ class _AddServerState extends State<AddServer> {
             child: Icon(
               Icons.help,
               size: 24,
+              color: Theme.of(context).primaryColor,
             ),
           ),
         ],
       ),
-      body: Column(
+      body: ListView(
         children: [
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 40),
@@ -249,18 +253,18 @@ class _AddServerState extends State<AddServer> {
                 Row(
                   children: [
                     Button(
+                      width: 110,
                       child: Text(
                         "HTTPS",
                         strutStyle: StrutStyle(
                           forceStrutHeight: true,
                         ),
                       ),
-                      color: ssl ? Colors.green : null,
+                      color: ssl ? AppTheme.of(context)?.successColor : Theme.of(context).primaryColor,
                       fill: ssl,
-                      borderColor: ssl ? Colors.green : Colors.black,
+                      borderColor: ssl ? AppTheme.of(context)?.successColor : Theme.of(context).primaryColor,
                       icon: Icon(
                         ssl ? Icons.lock_outline : Icons.lock_open,
-                        color: ssl ? Colors.white : Colors.black,
                         size: 16,
                       ),
                       onPressed: () {
@@ -273,6 +277,7 @@ class _AddServerState extends State<AddServer> {
                       width: 20,
                     ),
                     Button(
+                      width: 150,
                       child: Text(
                         "校验SSL证书",
                         strutStyle: StrutStyle(
@@ -280,12 +285,11 @@ class _AddServerState extends State<AddServer> {
                         ),
                       ),
                       disabled: !ssl,
-                      color: checkSsl ? Colors.green : null,
+                      color: checkSsl ? AppTheme.of(context)?.successColor : Theme.of(context).primaryColor,
                       fill: checkSsl,
-                      borderColor: checkSsl ? Colors.green : Colors.black,
+                      borderColor: checkSsl ? AppTheme.of(context)?.successColor : Theme.of(context).primaryColor,
                       icon: Icon(
                         checkSsl ? Icons.check_circle : Icons.check_circle_outline,
-                        color: checkSsl ? Colors.white : Colors.black,
                         size: 16,
                       ),
                       onPressed: () {
@@ -310,7 +314,6 @@ class _AddServerState extends State<AddServer> {
                         keyboardType: TextInputType.url,
                         decoration: InputDecoration(
                           hintText: "网址/IP/QC ID",
-                          iconColor: Colors.red,
                           suffixIcon: domain.isNotEmpty
                               ? GestureDetector(
                                   child: Icon(Icons.highlight_remove),
@@ -357,7 +360,6 @@ class _AddServerState extends State<AddServer> {
                   keyboardType: TextInputType.url,
                   decoration: InputDecoration(
                     hintText: "备注",
-                    iconColor: Colors.red,
                     suffixIcon: remark.isNotEmpty
                         ? GestureDetector(
                             child: Icon(Icons.highlight_remove),

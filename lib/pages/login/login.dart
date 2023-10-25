@@ -247,7 +247,6 @@ class _LoginState extends State<Login> {
                       keyboardType: TextInputType.url,
                       decoration: InputDecoration(
                         hintText: "账号",
-                        iconColor: Colors.red,
                         suffixIcon: account.isNotEmpty
                             ? CupertinoButton(
                                 child: Image.asset(
@@ -278,7 +277,6 @@ class _LoginState extends State<Login> {
                       keyboardType: TextInputType.visiblePassword,
                       decoration: InputDecoration(
                         hintText: "密码",
-                        iconColor: Colors.red,
                         suffixIcon: password.isNotEmpty
                             ? Row(
                                 mainAxisSize: MainAxisSize.min,

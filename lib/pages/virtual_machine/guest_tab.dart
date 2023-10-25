@@ -135,19 +135,7 @@ class _GuestTabState extends State<GuestTab> {
                               children: [
                                 PopupMenuItem(
                                   onTap: () {},
-                                  child: Row(
-                                    children: [
-                                      // Image.asset(
-                                      //   "assets/icons/share.png",
-                                      //   width: 20,
-                                      //   height: 20,
-                                      // ),
-                                      // SizedBox(
-                                      //   width: 10,
-                                      // ),
-                                      Text("开机"),
-                                    ],
-                                  ),
+                                  child: Text("开机"),
                                 ),
                                 PopupMenuItem(
                                   onTap: () async {
@@ -156,19 +144,7 @@ class _GuestTabState extends State<GuestTab> {
                                       getData(loop: false);
                                     }
                                   },
-                                  child: Row(
-                                    children: [
-                                      // Image.asset(
-                                      //   "assets/icons/upload_cloud.png",
-                                      //   width: 20,
-                                      //   height: 20,
-                                      // ),
-                                      // SizedBox(
-                                      //   width: 10,
-                                      // ),
-                                      Text("关机"),
-                                    ],
-                                  ),
+                                  child: Text("关机"),
                                 ),
                                 PopupMenuItem(
                                   onTap: () async {
@@ -177,19 +153,7 @@ class _GuestTabState extends State<GuestTab> {
                                       getData(loop: false);
                                     }
                                   },
-                                  child: Row(
-                                    children: [
-                                      // Image.asset(
-                                      //   "assets/icons/star.png",
-                                      //   width: 20,
-                                      //   height: 20,
-                                      // ),
-                                      // SizedBox(
-                                      //   width: 10,
-                                      // ),
-                                      Text("强制关机"),
-                                    ],
-                                  ),
+                                  child: Text("强制关机"),
                                 ),
                                 PopupMenuItem(
                                   onTap: () async {
@@ -198,19 +162,7 @@ class _GuestTabState extends State<GuestTab> {
                                       getData(loop: false);
                                     }
                                   },
-                                  child: Row(
-                                    children: [
-                                      // Image.asset(
-                                      //   "assets/icons/archive.png",
-                                      //   width: 20,
-                                      //   height: 20,
-                                      // ),
-                                      // SizedBox(
-                                      //   width: 10,
-                                      // ),
-                                      Text("重新启动"),
-                                    ],
-                                  ),
+                                  child: Text("重新启动"),
                                 ),
                                 PopupMenuItem(
                                   onTap: () async {
@@ -234,69 +186,21 @@ class _GuestTabState extends State<GuestTab> {
                                       hide();
                                     }
                                   },
-                                  child: Row(
-                                    children: [
-                                      // Image.asset(
-                                      //   "assets/icons/unzip.png",
-                                      //   width: 20,
-                                      //   height: 20,
-                                      // ),
-                                      // SizedBox(
-                                      //   width: 10,
-                                      // ),
-                                      Text("暂停"),
-                                    ],
-                                  ),
+                                  child: Text("暂停"),
                                 ),
                                 PopupMenuItem(
                                   onTap: () async {},
-                                  child: Row(
-                                    children: [
-                                      // Image.asset(
-                                      //   "assets/icons/unzip.png",
-                                      //   width: 20,
-                                      //   height: 20,
-                                      // ),
-                                      // SizedBox(
-                                      //   width: 10,
-                                      // ),
-                                      Text("恢复"),
-                                    ],
-                                  ),
+                                  child: Text("恢复"),
                                 ),
                                 PopupMenuItem(
                                   onTap: () async {},
-                                  child: Row(
-                                    children: [
-                                      // Image.asset(
-                                      //   "assets/icons/rename.png",
-                                      //   width: 20,
-                                      //   height: 20,
-                                      // ),
-                                      // SizedBox(
-                                      //   width: 10,
-                                      // ),
-                                      Text("重置"),
-                                    ],
-                                  ),
+                                  child: Text("重置"),
                                 ),
                                 PopupMenuItem(
                                   onTap: () async {},
-                                  child: Row(
-                                    children: [
-                                      // Image.asset(
-                                      //   "assets/icons/delete.png",
-                                      //   width: 20,
-                                      //   height: 20,
-                                      // ),
-                                      // SizedBox(
-                                      //   width: 10,
-                                      // ),
-                                      Text(
-                                        "删除",
-                                        style: TextStyle(color: AppTheme.of(context)?.errorColor),
-                                      ),
-                                    ],
+                                  child: Text(
+                                    "删除",
+                                    style: TextStyle(color: AppTheme.of(context)?.errorColor),
                                   ),
                                 ),
                               ],

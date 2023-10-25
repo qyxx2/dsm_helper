@@ -3,6 +3,7 @@ import 'package:dsm_helper/apis/dsm_api/dsm_response.dart';
 import 'package:dsm_helper/models/Syno/Docker/DockerImage.dart';
 import 'package:dsm_helper/themes/app_theme.dart';
 import 'package:dsm_helper/utils/utils.dart';
+import 'package:dsm_helper/widgets/empty_widget.dart';
 import 'package:dsm_helper/widgets/label.dart';
 import 'package:dsm_helper/widgets/loading_widget.dart';
 import 'package:extended_text/extended_text.dart';
@@ -39,18 +40,22 @@ class _ImagePageState extends State<ImagePage> with AutomaticKeepAliveClientMixi
         ? LoadingWidget(
             size: 30,
           )
-        : Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-            child: ListView.separated(
-              itemCount: dockerImage.images!.length,
-              itemBuilder: (context, i) {
-                return _buildImageItem(dockerImage.images![i]);
-              },
-              separatorBuilder: (context, i) {
-                return SizedBox(height: 10);
-              },
-            ),
-          );
+        : dockerImage.images != null && dockerImage.images!.isNotEmpty
+            ? Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                child: ListView.separated(
+                  itemCount: dockerImage.images!.length,
+                  itemBuilder: (context, i) {
+                    return _buildImageItem(dockerImage.images![i]);
+                  },
+                  separatorBuilder: (context, i) {
+                    return SizedBox(height: 10);
+                  },
+                ),
+              )
+            : EmptyWidget(
+                text: "未添加镜像",
+              );
   }
 
   Widget _buildImageItem(Images image) {

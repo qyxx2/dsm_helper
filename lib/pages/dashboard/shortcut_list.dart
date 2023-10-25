@@ -1,7 +1,7 @@
 import 'package:dsm_helper/models/Syno/Core/Desktop/InitData.dart';
 import 'package:dsm_helper/pages/common/browser.dart';
 import 'package:dsm_helper/pages/control_panel/control_panel.dart';
-import 'package:dsm_helper/pages/docker/detail.dart';
+import 'package:dsm_helper/pages/docker/container_detail.dart';
 import 'package:dsm_helper/pages/docker/docker.dart';
 import 'package:dsm_helper/pages/download_station/download_station.dart';
 import 'package:dsm_helper/pages/log_center/log_center.dart';

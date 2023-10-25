@@ -1,5 +1,7 @@
+import 'package:dsm_helper/apis/api.dart';
 import 'package:dsm_helper/models/Syno/Docker/DockerRegistry.dart';
 import 'package:dsm_helper/themes/app_theme.dart';
+import 'package:dsm_helper/widgets/empty_widget.dart';
 import 'package:dsm_helper/widgets/loading_widget.dart';
 import 'package:extended_text/extended_text.dart';
 import 'package:flutter/cupertino.dart';
@@ -17,6 +19,7 @@ class RepositoryPage extends StatefulWidget {
 class _RepositoryPageState extends State<RepositoryPage> with AutomaticKeepAliveClientMixin {
   bool loading = true;
   DockerRegistry dockerRegistry = DockerRegistry();
+  String? errorMessage;
   @override
   void initState() {
     getData();
@@ -24,7 +27,15 @@ class _RepositoryPageState extends State<RepositoryPage> with AutomaticKeepAlive
   }
 
   getData() async {
-    dockerRegistry = await DockerRegistry.search();
+    try {
+      dockerRegistry = await DockerRegistry.search();
+    } on DsmException catch (e) {
+      if (e.code == 1052) {
+        setState(() {
+          errorMessage = "查询注册表失败";
+        });
+      }
+    } catch (e) {}
     setState(() {
       loading = false;
     });
@@ -35,18 +46,22 @@ class _RepositoryPageState extends State<RepositoryPage> with AutomaticKeepAlive
     super.build(context);
     return loading
         ? LoadingWidget(size: 30)
-        : Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-            child: ListView.separated(
-              itemCount: dockerRegistry.data!.length,
-              itemBuilder: (context, i) {
-                return _buildImageItem(dockerRegistry.data![i]);
-              },
-              separatorBuilder: (context, i) {
-                return SizedBox(height: 10);
-              },
-            ),
-          );
+        : dockerRegistry.data != null && dockerRegistry.data!.isNotEmpty
+            ? Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                child: ListView.separated(
+                  itemCount: dockerRegistry.data!.length,
+                  itemBuilder: (context, i) {
+                    return _buildImageItem(dockerRegistry.data![i]);
+                  },
+                  separatorBuilder: (context, i) {
+                    return SizedBox(height: 10);
+                  },
+                ),
+              )
+            : EmptyWidget(
+                text: errorMessage ?? '未查询到注册表',
+              );
   }
 
   Widget _buildImageItem(DockerRegistryData registry) {
