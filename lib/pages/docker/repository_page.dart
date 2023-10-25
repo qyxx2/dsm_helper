@@ -48,7 +48,7 @@ class _RepositoryPageState extends State<RepositoryPage> with AutomaticKeepAlive
         ? LoadingWidget(size: 30)
         : dockerRegistry.data != null && dockerRegistry.data!.isNotEmpty
             ? Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                padding: EdgeInsets.symmetric(horizontal: 16),
                 child: ListView.separated(
                   itemCount: dockerRegistry.data!.length,
                   itemBuilder: (context, i) {
@@ -66,11 +66,12 @@ class _RepositoryPageState extends State<RepositoryPage> with AutomaticKeepAlive
 
   Widget _buildImageItem(DockerRegistryData registry) {
     return Container(
+      margin: EdgeInsets.only(top: 14),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
       ),
-      padding: EdgeInsets.all(16),
+      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       child: Row(
         children: [
           Expanded(

@@ -52,22 +52,6 @@ class Api {
 //    var res = await Utils.post("base/update", data: {"platform": Platform.isAndroid ? "android" : "ios", "build": buildNumber});
   }
 
-  static Future<Map> login({String? host, String? account, String? password, String otpCode = "", CancelToken? cancelToken, bool rememberDevice = false, String? cookie}) async {
-    var data = {
-      "account": account,
-      "passwd": password,
-      "otp_code": otpCode,
-      "version": 4,
-      "api": "SYNO.API.Auth",
-      "method": "login",
-      "session": "FileStation",
-      "enable_device_token": rememberDevice ? "yes" : "no",
-      "enable_sync_token": "yes",
-      "isIframeLogin": "yes",
-    };
-    return await Utils.get("auth.cgi", host: host, data: data, cancelToken: cancelToken, cookie: cookie);
-  }
-
   static Future<Map> shareList({List<String> additional = const ["perm", "time", "size"], CancelToken? cancelToken, String? sid, bool? checkSsl, String? cookie, String? host}) async {
     return await Utils.post(
       "entry.cgi",
@@ -182,30 +166,6 @@ class Api {
     });
   }
 
-  ///webapi/FileStation/file_delete.cgi?api=SYNO.FileStation.Delete&version=1&method=start&path=%2Fvideo%2Fdel_folder
-  static Future<Map> deleteTask(List<String> path) async {
-    var data = {
-      "api": '"SYNO.FileStation.Delete"',
-      "method": '"start"',
-      "accurate_progress": "true",
-      // "recursive": "true",
-      "version": 2,
-      "_sid": Utils.sid,
-      "path": json.encode(path),
-    };
-    return await Utils.post("entry.cgi", data: data);
-  }
-
-  static Future<Map> deleteResult(String taskId) async {
-    return await Utils.post("entry.cgi", data: {
-      "taskid": taskId,
-      "api": '"SYNO.FileStation.Delete"',
-      "method": '"status"',
-      "version": 2,
-      "_sid": Utils.sid,
-    });
-  }
-
 //searchType: simple,dir,file,advance
   //doc:docx,wri,rtf,xla,xlb,xlc,xld,xlk,xll,xlm,xlt,xlv,xlw,xlsx,xlsm,xlsb,xltm,xlam,pptx,pps,ppsx,pdf,txt,doc,xls,ppt,odt,ods,odp,odg,odc,odf,odb,odi,odm,ott,ots,otp,otg,otc,otf,oti,oth,potx,pptm,ppsm,potm,dotx,dot,pot,ppa,xltx,docm,dotm,eml,msgc,c,cc,cpp,cs,cxx,ada,coffee,cs,css,js,json,lisp,markdown,ocaml,pl,py,rb,sass,scala,r,tex,conf,csv,sub,srt,md,log
   //video: 3gp,3g2,asf,dat,divx,dvr-ms,m2t,m2ts,m4v,mkv,mp4,mts,mov,qt,tp,trp,ts,vob,wmv,xvid,ac3,amr,rm,rmvb,ifo,mpeg,mpg,mpe,m1v,m2v,mpeg1,mpeg2,mpeg4,ogv,webm,flv,avi,swf,f4v,
@@ -245,16 +205,6 @@ class Api {
     return await Utils.post("entry.cgi", data: data);
   }
 
-  static Future<Map> compressResult(String taskId) async {
-    return await Utils.post("entry.cgi", data: {
-      "taskid": taskId,
-      "api": '"SYNO.FileStation.Compress"',
-      "method": '"status"',
-      "version": 2,
-      "_sid": Utils.sid,
-    });
-  }
-
   static Future<Map> copyMoveTask(List path, String destFolderPath, bool remove) async {
     return await Utils.post("entry.cgi", data: {
       "overwrite": "true",
@@ -267,50 +217,6 @@ class Api {
       "_sid": Utils.sid,
       "path": jsonEncode(path),
     });
-  }
-
-  static Future<Map> backgroundTask() async {
-    return await Utils.post("entry.cgi", data: {
-      "is_list_sharemove": true,
-      "is_vfs": true,
-      "bkg_info": true,
-      "api": 'SYNO.FileStation.BackgroundTask',
-      "method": 'list',
-      "version": 3,
-      "_sid": Utils.sid,
-    });
-  }
-
-  static Future<Map> copyMoveResult(String taskId) async {
-    return await Utils.post("entry.cgi", data: {
-      "taskid": taskId,
-      "api": '"SYNO.FileStation.CopyMove"',
-      "method": '"status"',
-      "version": 3,
-      "_sid": Utils.sid,
-    });
-  }
-
-  static Future<Map> dirSizeTask(String path) async {
-    var task = await Utils.post("entry.cgi", data: {
-      "api": '"SYNO.FileStation.DirSize"',
-      "method": '"start"',
-      "version": 1,
-      "_sid": Utils.sid,
-      "path": path,
-    });
-    return task;
-  }
-
-  static Future<Map> dirSizeResult(String taskId) async {
-    var result = await Utils.post("entry.cgi", data: {
-      "api": '"SYNO.FileStation.DirSize"',
-      "method": '"status"',
-      "version": 1,
-      "_sid": Utils.sid,
-      "taskid": taskId,
-    });
-    return result;
   }
 
   static Future<Map> extractTask(String filePath, String folderPath, {String? password}) async {
@@ -343,128 +249,6 @@ class Api {
     return result;
   }
 
-  static Future<Map> systemInfo(List widgets) async {
-    List apis = [];
-    if (widgets.contains("SYNO.SDS.ResourceMonitor.Widget")) {
-      apis.add({
-        "api": "SYNO.Core.System.Utilization",
-        "method": "get",
-        "version": 1,
-        "type": "current",
-        "resource": ["cpu", "memory", "network", "disk"]
-      });
-      if (widgets.contains("SYNO.SDS.SystemInfoApp.StorageUsageWidget")) {
-        apis.add({
-          "api": "SYNO.Storage.CGI.Storage",
-          "method": "load_info",
-          "version": 1,
-        });
-      }
-      if (widgets.contains("SYNO.SDS.SystemInfoApp.ConnectionLogWidget")) {
-        apis.add({
-          "api": "SYNO.Core.CurrentConnection",
-          "method": "list",
-          "sort_direction": "DESC",
-          "sort_by": "time",
-          "version": 1,
-        });
-      }
-      if (widgets.contains("SYNO.SDS.TaskScheduler.TaskSchedulerWidget")) {
-        apis.add({
-          "api": "SYNO.Core.TaskScheduler",
-          "sort_by": "next_trigger_time",
-          "sort_direction": "ASC",
-          "start": 0,
-          "limit": 50,
-          "method": "list",
-          "version": 1,
-        });
-      }
-      if (widgets.contains("SYNO.SDS.SystemInfoApp.RecentLogWidget")) {
-        apis.add({
-          "api": "SYNO.Core.SyslogClient.Status",
-          "start": 0,
-          "limit": 50,
-          "widget": true,
-          "dir": "desc",
-          "method": "latestlog_get",
-          "version": 1,
-        });
-      }
-      if (widgets.contains("SYNO.SDS.SystemInfoApp.FileChangeLogWidget")) {
-        apis.add({
-          "start": 0,
-          "limit": 50,
-          "target": "LOCAL",
-          "logtype": "ftp,filestation,webdav,cifs,tftp,afp",
-          "dir": "desc",
-          "api": "SYNO.Core.SyslogClient.Log",
-          "method": "list",
-          "version": 1,
-        });
-      }
-    }
-    apis.add({
-      "api": "SYNO.Core.System",
-      "method": "info",
-      "version": 1,
-    });
-    apis.add({
-      "action": "load",
-      "lastRead": DateTime.now().secondsSinceEpoch,
-      "lastSeen": DateTime.now().secondsSinceEpoch,
-      "api": "SYNO.Core.DSMNotify",
-      "method": "notify",
-      "version": 1,
-    });
-    apis.add({
-      "api": "SYNO.Core.AppNotify",
-      "method": "get",
-      "version": 1,
-    });
-    var result = await Utils.post("entry.cgi", data: {
-      "api": 'SYNO.Entry.Request',
-      "method": 'request',
-      "mode": '"parallel"',
-      "compound": jsonEncode(apis),
-      "version": 1,
-      "_sid": Utils.sid,
-    });
-    return result;
-  }
-
-  static Future<Map> notifyStrings() async {
-    var result = await Utils.post("entry.cgi", data: {
-      "pkgName": '""',
-      "lang": '"chs"',
-      "api": "SYNO.Core.DSMNotify.Strings",
-      "method": "get",
-      "version": 1,
-    });
-    return result;
-  }
-
-  static Future<Map> notify() async {
-    var result = await Utils.post("entry.cgi", data: {
-      "action": "load",
-      "lastRead": DateTime.now().secondsSinceEpoch,
-      "lastSeen": DateTime.now().secondsSinceEpoch,
-      "api": "SYNO.Core.DSMNotify",
-      "method": "notify",
-      "version": 1,
-    });
-    return result;
-  }
-
-  static Future<Map> storage() async {
-    var result = await Utils.post("entry.cgi", data: {
-      "api": "SYNO.Storage.CGI.Storage",
-      "method": "load_info",
-      "version": 1,
-    });
-    return result;
-  }
-
   static Future<Map> kickConnection(Map connection) async {
     var result = await Utils.post("entry.cgi", data: {
       "api": '"SYNO.Core.CurrentConnection"',
@@ -473,29 +257,6 @@ class Api {
       "_sid": Utils.sid,
       "http_conn": jsonEncode(connection),
       "service_conn": "[]",
-    });
-    return result;
-  }
-
-  static Future<Map> clearNotify() async {
-    var result = await Utils.post("entry.cgi", data: {
-      "api": '"SYNO.Core.DSMNotify"',
-      "method": '"notify"',
-      "version": 1,
-      "_sid": Utils.sid,
-      "action": '"apply"',
-      "clean": '"all"',
-    });
-    return result;
-  }
-
-  static Future<Map> networkInfo() async {
-    var result = await Utils.post("entry.cgi", data: {
-      "api": '"SYNO.Core.System"',
-      "method": '"info"',
-      "version": 1,
-      "type": "network",
-      "_sid": Utils.sid,
     });
     return result;
   }
@@ -794,23 +555,6 @@ class Api {
     return await Utils.post("entry.cgi", data: data);
   }
 
-  static Future<Map> taskEnable(int task, bool enable) async {
-    var status = [
-      {
-        "id": task,
-        "enable": enable,
-      }
-    ];
-    var data = {
-      "api": "SYNO.Core.TaskScheduler",
-      "version": 1,
-      "method": "set_enable",
-      "status": jsonEncode(status),
-      "_sid": Utils.sid,
-    };
-    return await Utils.post("entry.cgi", data: data);
-  }
-
   static Future<Map> users() async {
     var data = {
       "api": "SYNO.Core.User",
@@ -893,66 +637,6 @@ class Api {
     return await Utils.post("entry.cgi", data: data);
   }
 
-  static Future<Map> cluster(String method) async {
-    var data = {
-      "api": "SYNO.Virtualization.Cluster",
-      "method": method,
-      "version": 1,
-      "_sid": Utils.sid,
-    };
-    return await Utils.post("entry.cgi", data: data);
-  }
-
-  static Future<Map> checkPowerOn(String guestId) async {
-    var data = {
-      "api": '"SYNO.Virtualization.Guest.Action"',
-      "method": '"check_poweron"',
-      "guest_id": '"$guestId"',
-      "version": 1,
-      "_sid": Utils.sid,
-    };
-    return await Utils.post("entry.cgi", data: data);
-  }
-
-  static Future<Map> vmmPower(String guestId, String action) async {
-    var data = {
-      "api": '"SYNO.Virtualization.Guest.Action"',
-      "method": '"pwr_ctl"',
-      "guest_id": '"$guestId"',
-      "action": action,
-      "version": 1,
-      "_sid": Utils.sid,
-    };
-    return await Utils.post("entry.cgi", data: data);
-  }
-
-  static Future<Map> dockerImageInfo() async {
-    List apis = [
-      {"api": "SYNO.Docker.Image", "method": "list", "version": 1, "limit": -1, "offset": 0, "show_dsm": false},
-      {"api": "SYNO.Docker.Registry", "method": "get", "version": 1, "limit": -1, "offset": 0}
-    ];
-    var result = await Utils.post("entry.cgi", data: {
-      "api": 'SYNO.Entry.Request',
-      "method": 'request',
-      "mode": '"parallel"',
-      "compound": jsonEncode(apis),
-      "version": 1,
-      "_sid": Utils.sid,
-    });
-    return result;
-  }
-
-  static Future<Map> dockerDetail(String name, String method) async {
-    var data = {
-      "api": 'SYNO.Docker.Container',
-      "method": method,
-      "name": '"$name"',
-      "version": 1,
-      "_sid": Utils.sid,
-    };
-    return await Utils.post("entry.cgi", data: data);
-  }
-
   static Future<Map> dockerLog(String name, String method, {String? date}) async {
     var data = {
       "api": 'SYNO.Docker.Container.Log',
@@ -966,23 +650,6 @@ class Api {
       data['date'] = '"$date"';
       data['limit'] = 1000;
       data['offset'] = 0;
-    }
-    return await Utils.post("entry.cgi", data: data);
-  }
-
-  static Future<Map> dockerPower(String name, String action, {bool? preserveProfile}) async {
-    var data = {
-      "api": 'SYNO.Docker.Container',
-      "method": action,
-      "name": '"$name"',
-      "version": 1,
-      "_sid": Utils.sid,
-    };
-    if (action == "signal") {
-      data['signal'] = 9;
-    }
-    if (action == "delete" && preserveProfile != null) {
-      data['preserve_profile'] = preserveProfile;
     }
     return await Utils.post("entry.cgi", data: data);
   }
@@ -1216,58 +883,6 @@ class Api {
     return await Utils.post("entry.cgi", data: data);
   }
 
-  //SYNO.Core.NormalUser
-  static Future<Map> normalUser(String method, {Map<String, dynamic>? changedData}) async {
-    Map<String, dynamic> data = {
-      "api": 'SYNO.Core.NormalUser',
-      "method": method,
-      "version": method == "get" ? 1 : 2,
-      "_sid": Utils.sid,
-    };
-    if (changedData != null) {
-      data.addAll(changedData);
-    }
-    return await Utils.post("entry.cgi", data: data);
-  }
-
-  static Future<Map> externalDevice() async {
-    List apis = [
-      {
-        "api": "SYNO.Core.ExternalDevice.Storage.USB",
-        "method": "list",
-        "version": 1,
-        "additional": ["all"]
-      },
-      {
-        "api": "SYNO.Core.ExternalDevice.Storage.eSATA",
-        "method": "list",
-        "version": 1,
-        "additional": ["all"]
-      },
-      // {"api": "SYNO.Core.ExternalDevice.Storage.EUnit", "method": "list", "version": 1},
-    ];
-    var result = await Utils.post("entry.cgi", data: {
-      "api": 'SYNO.Entry.Request',
-      "method": 'request',
-      "mode": '"sequential"',
-      "compound": jsonEncode(apis),
-      "version": 1,
-      "_sid": Utils.sid,
-    });
-    return result;
-  }
-
-  static Future<Map> ejectEsata(String id) async {
-    var data = {
-      "dev_id": '"$id"',
-      "api": 'SYNO.Core.ExternalDevice.Storage.eSATA',
-      "method": "eject",
-      "version": 1,
-      "_sid": Utils.sid,
-    };
-    return await Utils.post("entry.cgi", data: data);
-  }
-
   static Future<Map> smart(String device) async {
     var data = {
       "device": '"$device"',
@@ -1461,15 +1076,6 @@ class Api {
       "_sid": Utils.sid,
     });
     return result;
-  }
-
-  static Future<void> pingpong(String host, Function callback) async {
-    var res = await Utils.get("${host}webman/pingpong.cgi");
-    if (res['success']) {
-      callback(host);
-    } else {
-      callback(null);
-    }
   }
 
   static Future<Map> powerStatus() async {

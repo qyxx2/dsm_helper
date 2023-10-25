@@ -92,25 +92,25 @@ class _ImagePreviewState extends State<ImagePreview> with SingleTickerProviderSt
                         child: CupertinoButton(
                           onPressed: () async {
                             Navigator.of(context).pop();
-                            var res = await Api.deleteTask([widget.paths![index]]);
-                            if (res['success']) {
-                              Utils.toast("文件删除成功");
-                              if (widget.thumbs != null && widget.thumbs!.length > index) {
-                                widget.thumbs?.removeAt(index);
-                              }
-
-                              if (widget.images.length > index) {
-                                widget.images.removeAt(index);
-                              }
-                              if (widget.paths != null && widget.paths!.length > index) {
-                                widget.paths?.removeAt(index);
-                              }
-                              if (widget.names != null && widget.names!.length > index) {
-                                widget.names?.removeAt(index);
-                              }
-                              setState(() {});
-                              widget.onDelete?.call();
-                            }
+                            // var res = await Api.deleteTask([widget.paths![index]]);
+                            // if (res['success']) {
+                            //   Utils.toast("文件删除成功");
+                            //   if (widget.thumbs != null && widget.thumbs!.length > index) {
+                            //     widget.thumbs?.removeAt(index);
+                            //   }
+                            //
+                            //   if (widget.images.length > index) {
+                            //     widget.images.removeAt(index);
+                            //   }
+                            //   if (widget.paths != null && widget.paths!.length > index) {
+                            //     widget.paths?.removeAt(index);
+                            //   }
+                            //   if (widget.names != null && widget.names!.length > index) {
+                            //     widget.names?.removeAt(index);
+                            //   }
+                            //   setState(() {});
+                            //   widget.onDelete?.call();
+                            // }
                           },
                           color: Theme.of(context).scaffoldBackgroundColor,
                           borderRadius: BorderRadius.circular(25),

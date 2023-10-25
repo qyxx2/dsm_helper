@@ -251,30 +251,6 @@ class FilesState extends State<Files> {
     }
   }
 
-  getCompressTaskResult(String taskId) async {
-    //获取压缩进度
-    try {
-      var result = await Api.compressResult(taskId);
-      if (result['success'] != null && result['success']) {
-        if (result['data']['finished']) {
-          // if (showProcessList = true) {
-          //   Utils.toast("文件压缩完成");
-          // }
-
-          backgroundProcess[taskId]['timer']?.cancel();
-          backgroundProcess[taskId]['timer'] = null;
-          backgroundProcess.remove(taskId);
-          refresh();
-        }
-      }
-    } catch (e) {
-      Utils.toast("文件压缩出错");
-      backgroundProcess[taskId]['timer']?.cancel();
-      backgroundProcess[taskId]['timer'] = null;
-      backgroundProcess.remove(taskId);
-    }
-  }
-
   initFloating() {
     if (audioPlayerFloating == null) {
       var audioPlayerProvider = context.read<AudioPlayerProvider>();

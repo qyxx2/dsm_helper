@@ -4,7 +4,7 @@ import 'package:dsm_helper/apis/api.dart';
 import 'package:dsm_helper/models/Syno/Core/System/Utilization.dart';
 import 'package:dsm_helper/models/Syno/Docker/Container/ContainerResource.dart';
 import 'package:dsm_helper/models/Syno/Docker/DockerContainer.dart' hide State;
-import 'package:dsm_helper/pages/docker/container_detail.dart';
+import 'package:dsm_helper/pages/docker/container_detail/container_detail.dart';
 import 'package:dsm_helper/pages/docker/enums/docker_status_enum.dart';
 import 'package:dsm_helper/providers/utilization_provider.dart';
 import 'package:dsm_helper/themes/app_theme.dart';
@@ -74,9 +74,10 @@ class _ContainerPageState extends State<ContainerPage> with AutomaticKeepAliveCl
             size: 30,
           )
         : Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            padding: EdgeInsets.symmetric(horizontal: 16),
             child: ListView(
               children: [
+                SizedBox(height: 14),
                 Row(
                   children: [
                     Expanded(
@@ -235,6 +236,7 @@ class _ContainerPageState extends State<ContainerPage> with AutomaticKeepAliveCl
                 ),
                 SizedBox(height: 20),
                 if (containers.containers != null && containers.containers!.isNotEmpty) ...containers.containers!.map(_buildContainerItem).toList() else EmptyWidget(text: "未添加容器"),
+                SizedBox(height: 10),
               ],
             ),
           );
@@ -243,7 +245,7 @@ class _ContainerPageState extends State<ContainerPage> with AutomaticKeepAliveCl
   Widget _buildContainerItem(Containers container) {
     GlobalKey actionButtonKey = GlobalKey();
     return Padding(
-      padding: EdgeInsets.only(bottom: 10),
+      padding: EdgeInsets.only(bottom: 14),
       child: CupertinoButton(
         onPressed: containerLoading[container] == true
             ? null

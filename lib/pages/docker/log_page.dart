@@ -34,9 +34,8 @@ class _LogPageState extends State<LogPage> with AutomaticKeepAliveClientMixin {
         ? LoadingWidget(size: 30)
         : dockerLog.logs != null && dockerLog.logs!.isNotEmpty
             ? Padding(
-                padding: EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+                padding: EdgeInsets.only(left: 16, right: 16, top: 14),
                 child: Timeline.tileBuilder(
-                  // padding: EdgeInsets.symmetric(vertical: 14, horizontal: 16),
                   theme: TimelineThemeData(
                     nodePosition: 0,
                     color: Color(0xff989898),
@@ -52,7 +51,7 @@ class _LogPageState extends State<LogPage> with AutomaticKeepAliveClientMixin {
                     connectionDirection: ConnectionDirection.before,
                     contentsAlign: ContentsAlign.basic,
                     contentsBuilder: (context, index) => Padding(
-                      padding: const EdgeInsets.only(left: 14.0, bottom: 18),
+                      padding: const EdgeInsets.only(left: 16.0, bottom: 14),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [

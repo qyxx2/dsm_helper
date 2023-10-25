@@ -37,19 +37,14 @@ class _ImagePageState extends State<ImagePage> with AutomaticKeepAliveClientMixi
   Widget build(BuildContext context) {
     super.build(context);
     return loading
-        ? LoadingWidget(
-            size: 30,
-          )
+        ? LoadingWidget(size: 30)
         : dockerImage.images != null && dockerImage.images!.isNotEmpty
             ? Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                child: ListView.separated(
+                padding: EdgeInsets.symmetric(horizontal: 16),
+                child: ListView.builder(
                   itemCount: dockerImage.images!.length,
                   itemBuilder: (context, i) {
                     return _buildImageItem(dockerImage.images![i]);
-                  },
-                  separatorBuilder: (context, i) {
-                    return SizedBox(height: 10);
                   },
                 ),
               )
@@ -60,6 +55,7 @@ class _ImagePageState extends State<ImagePage> with AutomaticKeepAliveClientMixi
 
   Widget _buildImageItem(Images image) {
     return Container(
+      margin: EdgeInsets.only(top: 14),
       decoration: BoxDecoration(
         color: AppTheme.of(context)?.cardColor,
         borderRadius: BorderRadius.circular(20),
