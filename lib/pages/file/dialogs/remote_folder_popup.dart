@@ -52,14 +52,18 @@ class _RemoteFolderPopupContentState extends State<RemoteFolderPopupContent> {
 
 class RemoteFolderPopup {
   static show({required BuildContext context}) {
-    showGlassModalPopup(context, content: RemoteFolderPopupContent(), buttons: [
-      Button(
-        onPressed: () async {
-          context.pop();
-        },
-        color: Theme.of(context).disabledColor,
-        child: Text("关闭"),
-      ),
-    ]);
+    showGlassModalPopup(
+      context,
+      content: RemoteFolderPopupContent(),
+      buttons: [
+        Button(
+          onPressed: () async {
+            Navigator.of(context, rootNavigator: true).pop();
+          },
+          color: Theme.of(context).disabledColor,
+          child: Text("关闭"),
+        ),
+      ],
+    );
   }
 }

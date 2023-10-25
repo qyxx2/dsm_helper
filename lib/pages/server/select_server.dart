@@ -6,9 +6,11 @@ import 'package:dsm_helper/apis/dsm_api/dsm_api.dart';
 import 'package:dsm_helper/database/table_extension.dart';
 import 'package:dsm_helper/database/tables.dart';
 import 'package:dsm_helper/models/Syno/Api/auth.dart';
+import 'package:dsm_helper/models/Syno/Core/NormalUser.dart';
 import 'package:dsm_helper/models/Syno/FileStation/FileStationList.dart';
 import 'package:dsm_helper/models/api_model.dart';
 import 'package:dsm_helper/pages/home.dart';
+import 'package:dsm_helper/pages/login/dialogs/otp_code_dialog.dart';
 import 'package:dsm_helper/pages/login/login.dart';
 import 'package:dsm_helper/pages/server/add_server.dart';
 import 'package:dsm_helper/pages/server/dialogs/delete_account_dialog.dart';
@@ -530,13 +532,66 @@ class _SelectServerState extends State<SelectServer> {
           ),
           Padding(
             padding: EdgeInsets.symmetric(vertical: 10),
-            child: Column(
-              children: serverAccounts.map((account) => _buildAccountItem(account, server)).toList(),
-            ),
+            child: serverAccounts.isNotEmpty
+                ? Column(
+                    children: serverAccounts.map((account) => _buildAccountItem(account, server)).toList(),
+                  )
+                : Center(
+                    child: Button(
+                      width: 200,
+                      fill: false,
+                      icon: Image.asset(
+                        "assets/icons/plus_circle.png",
+                        width: 20,
+                        height: 20,
+                      ),
+                      child: Text("添加用户"),
+                      onPressed: () async {
+                        var hide = showWeuiLoadingToast(context: context);
+                        Api.dsm = DsmApi(baseUrl: server.url);
+                        ApiModel.apiInfo = await ApiModel.info();
+                        hide();
+                        context.push(Login(server));
+                      },
+                    ),
+                  ),
           ),
         ],
       ),
     );
+  }
+
+  login(Account account, Server server, {String? otpCode}) async {
+    var hide = showWeuiLoadingToast(context: context);
+    try {
+      Auth authModel = await Auth.login(account: account.account, password: account.password);
+      DbUtils.db.updateAccount(account.copyWith(
+        sid: authModel.sid!,
+      ));
+      Api.dsm = DsmApi(baseUrl: server.url, deviceId: account.deviceId, sid: account.sid);
+      hide();
+      context.push(Home(), replace: true);
+    } on DsmException catch (e) {
+      hide();
+      if (e.code == 400) {
+        Utils.toast("用户名/密码有误");
+      } else if ([403, 404, 414].contains(e.code)) {
+        String message = e.code == 403
+            ? "您已开启双重认证，请输入验证码"
+            : e.code == 404
+                ? "错误的验证码。请再试一次"
+                : "为确认这是您本人登录，系统已将验证码发送到${e.source?['errors']['email']}，请查看您的邮箱，并在5分钟内输入验证码";
+        String? optCode = await OtpCodeDialog.show(context, message: message);
+        if (optCode != null) {
+          login(account, server, otpCode: otpCode);
+        }
+      } else {
+        Utils.toast("登录失败，代码：${e.code}");
+      }
+    } catch (e) {
+      hide();
+      Utils.toast("登录失败");
+    }
   }
 
   Widget _buildAccountItem(Account account, Server server) {
@@ -547,29 +602,13 @@ class _SelectServerState extends State<SelectServer> {
         Api.dsm = DsmApi(baseUrl: server.url, deviceId: account.deviceId, sid: account.sid);
         ApiModel.apiInfo = await ApiModel.info();
         try {
-          await FileStationList.shareList();
+          await NormalUser.get();
           hide();
           context.push(Home(), replace: true);
         } on DsmException catch (e) {
+          hide();
           if (e.code == 119) {
-            try {
-              Auth authModel = await Auth.login(account: account.account, password: account.password);
-              DbUtils.db.updateAccount(account.copyWith(
-                sid: authModel.sid!,
-              ));
-              Api.dsm = DsmApi(baseUrl: server.url, deviceId: account.deviceId, sid: account.sid);
-              hide();
-              context.push(Home(), replace: true);
-            } on DsmException catch (e) {
-              if (e.code == 400) {
-                Utils.toast("用户名/密码有误");
-              } else if (e.code == 403) {
-              } else if (e.code == 404) {
-                Utils.toast("错误的验证代码。请再试一次。");
-              } else if (e.code == 414) {
-                // 需要二次验证
-              }
-            }
+            login(account, server);
           }
         }
       },
@@ -584,7 +623,9 @@ class _SelectServerState extends State<SelectServer> {
               minSize: 0,
               onPressed: () {
                 DeleteAccountDialog.show(context, account: account).then((res) {
-                  DbUtils.db.deleteAccount(account);
+                  if (res == true) {
+                    DbUtils.db.deleteAccount(account);
+                  }
                 });
               },
               padding: EdgeInsets.zero,

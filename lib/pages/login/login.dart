@@ -7,6 +7,7 @@ import 'package:dsm_helper/database/tables.dart';
 import 'package:dsm_helper/models/Syno/Api/auth.dart';
 import 'package:dsm_helper/models/Syno/SDS/Session/SessionData.dart';
 import 'package:dsm_helper/pages/home.dart';
+import 'package:dsm_helper/pages/login/dialogs/otp_code_dialog.dart';
 import 'package:dsm_helper/pages/server/select_server.dart';
 import 'package:dsm_helper/themes/app_theme.dart';
 import 'package:dsm_helper/utils/db_utils.dart';
@@ -14,7 +15,6 @@ import 'package:dsm_helper/utils/extensions/media_query_ext.dart';
 import 'package:dsm_helper/utils/extensions/navigator_ext.dart';
 import 'package:dsm_helper/utils/utils.dart' hide Api;
 import 'package:dsm_helper/widgets/button.dart';
-import 'package:dsm_helper/widgets/glass/glass_dialog.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -30,10 +30,8 @@ class Login extends StatefulWidget {
 class _LoginState extends State<Login> {
   final TextEditingController _accountController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _otpCodeController = TextEditingController();
   String account = '';
   String password = '';
-  String otpCode = '';
   bool rememberDevice = true;
   bool loading = false;
   bool showPassword = false;
@@ -72,117 +70,51 @@ class _LoginState extends State<Login> {
     } catch (e) {}
   }
 
-  login() async {
+  login({String? otpCode}) async {
     setState(() {
       loading = true;
     });
 
     try {
-      try {
-        Auth authModel = await Auth.login(account: account, password: password, optCode: otpCode);
-        await DbUtils.db.into(DbUtils.db.accounts).insertReturning(
-              AccountsCompanion.insert(
-                account: account,
-                serverId: widget.server.id,
-                password: password,
-                remark: "",
-                createTime: DateTime.now().secondsSinceEpoch,
-                lastLoginTime: DateTime.now().secondsSinceEpoch,
-                isDefault: isDefault,
-                deviceId: authModel.deviceId!,
-                ikMessage: authModel.ikMessage!,
-                sid: authModel.sid!,
-                synoToken: authModel.synotoken!,
-              ),
-            );
-        Api.dsm = DsmApi(baseUrl: widget.server.url, deviceId: authModel.deviceId!, sid: authModel.sid!);
-        context.push(Home(), replace: true);
-      } on DsmException catch (e) {
-        if (e.code == 400) {
-          Utils.toast("用户名/密码有误");
-        } else if (e.code == 403) {
-        } else if (e.code == 404) {
-          Utils.toast("错误的验证代码。请再试一次。");
-        } else if (e.code == 414) {
-          // 需要二次验证
-          showOptCodeDialog("为确认这是您本人登录，系统已将验证码发送到${e.source?['errors']['email']}，请查看您的邮箱，并在5分钟内输入验证码");
+      Auth authModel = await Auth.login(account: account, password: password, optCode: otpCode);
+      await DbUtils.db.into(DbUtils.db.accounts).insertReturning(
+            AccountsCompanion.insert(
+              account: account,
+              serverId: widget.server.id,
+              password: password,
+              remark: "",
+              createTime: DateTime.now().secondsSinceEpoch,
+              lastLoginTime: DateTime.now().secondsSinceEpoch,
+              isDefault: isDefault,
+              deviceId: authModel.deviceId!,
+              ikMessage: authModel.ikMessage!,
+              sid: authModel.sid!,
+              synoToken: authModel.synotoken!,
+            ),
+          );
+      Api.dsm = DsmApi(baseUrl: widget.server.url, deviceId: authModel.deviceId!, sid: authModel.sid!);
+      context.push(Home(), replace: true);
+    } on DsmException catch (e) {
+      if (e.code == 400) {
+        Utils.toast("用户名/密码有误");
+      } else if ([403, 404, 414].contains(e.code)) {
+        String message = e.code == 403
+            ? "您已开启双重验证，请输入验证码"
+            : e.code == 404
+                ? "错误的验证码。请再试一次"
+                : "为确认这是您本人登录，系统已将验证码发送到${e.source?['errors']['email']}，请查看您的邮箱，并在5分钟内输入验证码";
+        String? optCode = await OtpCodeDialog.show(context, message: message);
+        if (optCode != null) {
+          login(otpCode: otpCode);
         }
+      } else {
+        Utils.toast("登录失败，代码：${e.code}");
       }
     } finally {
       setState(() {
         loading = false;
       });
     }
-  }
-
-  showOptCodeDialog(String message) {
-    otpCode = '';
-    _otpCodeController.clear();
-    showGlassDialog(
-        context: context,
-        barrierDismissible: true,
-        builder: (context) {
-          return AlertDialog(
-            title: Text("验证您的身份"),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(message),
-                SizedBox(
-                  height: 10,
-                ),
-                TextField(
-                  onChanged: (v) => setState(() {
-                    otpCode = v;
-                  }),
-                  controller: _otpCodeController,
-                  keyboardType: TextInputType.number,
-                  decoration: InputDecoration(
-                    hintText: "输入验证码",
-                    // suffixIconColor: Colors.red,
-                  ),
-                ),
-              ],
-            ),
-            actions: [
-              Row(
-                children: [
-                  Expanded(
-                    child: Button(
-                      child: Text("取消"),
-                      onPressed: () {
-                        context.pop();
-                      },
-                      fill: false,
-                      borderColor: Colors.black,
-                    ),
-                  ),
-                  SizedBox(
-                    width: 20,
-                  ),
-                  Expanded(
-                    child: Button(
-                      child: Text("登录"),
-                      onPressed: () {
-                        login();
-                        context.pop();
-                      },
-                    ),
-                  ),
-                ],
-              )
-            ],
-          );
-        });
-    // showCustomDialog(context: context, builder: (context){
-    //   return AlertDialog(
-    //     title: Text("验证您的身份"),
-    //     content: Text("$message"),
-    //     actions: [
-    //
-    //     ],
-    //   );
-    // });
   }
 
   @override
@@ -247,16 +179,17 @@ class _LoginState extends State<Login> {
               ),
             if (sessionDataModel?.loginFooterMsg != null && sessionDataModel?.loginFooterEnableHtml == false)
               Positioned(
-                  top: context.width / 16 * 9 - 70,
-                  child: SizedBox(
-                    width: context.width,
-                    child: Center(
-                      child: Text(
-                        "${sessionDataModel?.loginFooterMsg}",
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.white),
-                      ),
+                top: context.width / 16 * 9 - 70,
+                child: SizedBox(
+                  width: context.width,
+                  child: Center(
+                    child: Text(
+                      "${sessionDataModel?.loginFooterMsg}",
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.white),
                     ),
-                  )),
+                  ),
+                ),
+              ),
             Positioned(
               top: 200,
               left: 0,
@@ -391,6 +324,7 @@ class _LoginState extends State<Login> {
                     Row(
                       children: [
                         Button(
+                          width: 150,
                           child: Text(
                             "设为默认",
                             strutStyle: StrutStyle(

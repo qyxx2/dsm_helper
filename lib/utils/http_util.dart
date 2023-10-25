@@ -39,8 +39,8 @@ class HttpUtil {
         return handler.next(response);
       }, onError: (DioException error, handler) async {
         return handler.reject(error);
-      }))
-      ..add(LogInterceptor(request: false, requestBody: true, responseBody: true, responseHeader: false, requestHeader: false));
+      }));
+    // ..add(LogInterceptor(request: false, requestBody: true, responseBody: true, responseHeader: false, requestHeader: false));
     // ..add(CookieManager(cookieJar));
   }
 

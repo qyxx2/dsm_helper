@@ -6,7 +6,8 @@ import 'package:flutter/material.dart';
 class LineProgressBar extends StatelessWidget {
   final num value;
   final Color? backgroundColor;
-  const LineProgressBar({required this.value, this.backgroundColor, super.key});
+  final Color? progressColor;
+  const LineProgressBar({required this.value, this.backgroundColor, this.progressColor, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -17,7 +18,7 @@ class LineProgressBar extends StatelessWidget {
           child: Container(
             height: 6,
             decoration: BoxDecoration(
-              color: value > 80 ? AppTheme.of(context)?.errorColor : AppTheme.of(context)?.primaryColor,
+              color: progressColor ?? (value > 80 ? AppTheme.of(context)?.errorColor : AppTheme.of(context)?.primaryColor),
               borderRadius: BorderRadius.circular(2),
             ),
           ),

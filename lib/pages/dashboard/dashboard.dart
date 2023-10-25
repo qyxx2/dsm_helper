@@ -10,8 +10,6 @@ import 'package:dsm_helper/models/Syno/Core/Notify/DsmNotifyStrings.dart';
 import 'package:dsm_helper/models/Syno/Core/System.dart';
 import 'package:dsm_helper/models/Syno/Core/System/Utilization.dart';
 import 'package:dsm_helper/models/Syno/Storage/Cgi/Storage.dart' hide Size;
-import 'package:dsm_helper/pages/control_panel/external_device/dialogs/eject_external_device_dialog.dart';
-import 'package:dsm_helper/pages/control_panel/external_device/external_device.dart';
 import 'package:dsm_helper/pages/dashboard/bus/eject_external_device_bus.dart';
 import 'package:dsm_helper/pages/dashboard/dialogs/external_device_popup.dart';
 import 'package:dsm_helper/pages/dashboard/media_converter.dart';
@@ -38,7 +36,6 @@ import 'package:dsm_helper/utils/utils.dart' hide Api;
 import 'package:dsm_helper/widgets/empty_widget.dart';
 import 'package:dsm_helper/widgets/glass/glass_app_bar.dart';
 import 'package:dsm_helper/widgets/glass/glass_scaffold.dart';
-import 'package:dsm_helper/widgets/label.dart';
 import 'package:dsm_helper/widgets/loading_widget.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -101,6 +98,7 @@ class DashboardState extends State<Dashboard> {
   }
 
   getExternalDeviceTask({bool loop = true}) async {
+    if (!mounted) return;
     try {
       List<DsmResponse> batchRes = await Api.dsm.batch(apis: [Device(api: "SYNO.Core.ExternalDevice.Storage.USB"), Device(api: "SYNO.Core.ExternalDevice.Storage.eSATA")]);
       ExternalDeviceProvider externalDeviceProvider = context.read<ExternalDeviceProvider>();
@@ -125,6 +123,8 @@ class DashboardState extends State<Dashboard> {
   }
 
   getUtilizationTask() async {
+    if (!mounted) return;
+
     UtilizationProvider utilizationProvider = context.read<UtilizationProvider>();
     try {
       Utilization utilization = await Utilization.get();
@@ -135,6 +135,7 @@ class DashboardState extends State<Dashboard> {
   }
 
   getNotifyTask({bool loop = true}) async {
+    if (!mounted) return;
     try {
       dsmNotify = await DsmNotify.notify();
       setState(() {});
@@ -147,6 +148,7 @@ class DashboardState extends State<Dashboard> {
   }
 
   getSystemInfoTask({bool loop = true}) async {
+    if (!mounted) return;
     try {
       List<DsmResponse> batchRes = await api.Api.dsm.batch(apis: [System()]);
       batchRes.forEach((element) {

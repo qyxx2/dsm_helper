@@ -11,25 +11,25 @@ import 'package:dio/dio.dart';
 import 'package:draggable_scrollbar/draggable_scrollbar.dart';
 import 'package:dsm_helper/models/Syno/FileStation/FileStationList.dart';
 import 'package:dsm_helper/pages/control_panel/shared_folders/add_shared_folder.dart';
+import 'package:dsm_helper/pages/file/bus/refresh_background_task_bus.dart';
+import 'package:dsm_helper/pages/file/dialogs/background_task_popup.dart';
 import 'package:dsm_helper/pages/file/dialogs/create_folder_dialog.dart';
 import 'package:dsm_helper/pages/file/dialogs/delete_file_dialog.dart';
 import 'package:dsm_helper/pages/file/dialogs/favorite_popup.dart';
 import 'package:dsm_helper/pages/file/dialogs/remote_folder_popup.dart';
 import 'package:dsm_helper/pages/file/enums/list_type_enums.dart';
 import 'package:dsm_helper/pages/file/enums/sort_enums.dart';
-import 'package:dsm_helper/pages/file/remote_folder.dart';
+import 'package:dsm_helper/pages/file/mount_remote_folder.dart';
 import 'package:dsm_helper/pages/file/widgets/file_grid_item_widget.dart';
 import 'package:dsm_helper/pages/file/widgets/file_list_item_widget.dart';
 import 'package:dsm_helper/pages/transfer/bus/download_file_bus.dart';
+import 'package:dsm_helper/providers/background_task_provider.dart';
 import 'package:dsm_helper/utils/bus/bus.dart';
 import 'package:dsm_helper/utils/extensions/media_query_ext.dart';
 import 'package:dsm_helper/utils/extensions/navigator_ext.dart';
-import 'package:dsm_helper/utils/log.dart';
 import 'package:dsm_helper/utils/overlay_util.dart';
-import 'package:dsm_helper/widgets/glass/glass_dialog.dart';
 import 'package:dsm_helper/widgets/empty_widget.dart';
 import 'package:dsm_helper/widgets/glass/glass_app_bar.dart';
-import 'package:dsm_helper/widgets/glass/glass_modal_popup.dart';
 import 'package:dsm_helper/widgets/glass/glass_scaffold.dart';
 import 'package:dsm_helper/widgets/loading_widget.dart';
 import 'package:flutter_floating/floating/listener/event_listener.dart';
@@ -47,7 +47,6 @@ import 'package:dsm_helper/pages/file/upload.dart';
 import 'package:dsm_helper/providers/audio_player_provider.dart';
 import 'package:dsm_helper/themes/app_theme.dart';
 import 'package:dsm_helper/utils/utils.dart';
-import 'package:dsm_helper/widgets/animation_progress_bar.dart';
 import 'package:dsm_helper/widgets/transparent_router.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/cupertino.dart';
@@ -132,95 +131,7 @@ class FilesState extends State<Files> {
     // getFtpFolder();
     // getSftpFolder();
     // getDavFolder();
-    // processingTimer = Timer.periodic(Duration(seconds: 10), (timer) {
-    //   getBackgroundTask();
-    // });
-
     super.initState();
-  }
-
-  getBackgroundTask() async {
-    var res = await Api.backgroundTask();
-    if (res['success']) {
-      if (res['data']['tasks'] != null && res['data']['tasks'].length > 0) {
-        for (var task in res['data']['tasks']) {
-          if (backgroundProcess[task['taskid']] == null) {
-            String type = "";
-            switch (task['api']) {
-              case 'SYNO.FileStation.CopyMove':
-                if (task['params']['remove_src']) {
-                  type = "move";
-                } else {
-                  type = "copy";
-                }
-                break;
-              case 'SYNO.FileStation.Delete':
-                type = "delete";
-                break;
-              case 'SYNO.FileStation.Compress':
-                type = "compress";
-                break;
-              case 'SYNO.FileStation.Extract':
-                type = 'extract';
-                break;
-            }
-            if (type.isNotBlank) {
-              backgroundProcess[task['taskid']] = {
-                "timer": null,
-                "data": task,
-                'type': type,
-                'path': task['params']['path'],
-              };
-              getProcessingTaskResult(task['taskid']);
-            }
-          }
-        }
-      }
-    }
-  }
-
-  getCopyMoveTaskResult(String taskId) async {
-    //获取复制/移动进度
-    var result = await Api.copyMoveResult(taskId);
-    Log.logger.info(result);
-    if (result['success'] != null && result['success']) {
-      setState(() {
-        backgroundProcess[taskId]['data'] = result['data'];
-      });
-      if (result['data']['finished']) {
-        // if (showProcessList = true) {
-        //   Utils.toast("${result['data']['path']} ${backgroundProcess[taskId]['type'] == 'copy' ? '复制' : '移动'}到 ${result['data']['dest_folder_path']} 完成");
-        // }
-
-        backgroundProcess[taskId]['timer']?.cancel();
-        backgroundProcess[taskId]['timer'] = null;
-        backgroundProcess.remove(taskId);
-        refresh();
-      }
-    }
-  }
-
-  getDeleteTaskResult(String taskId) async {
-    //获取删除进度
-    try {
-      var result = await Api.deleteResult(taskId);
-      if (result['success'] != null && result['success']) {
-        if (result['data']['finished']) {
-          // if (showProcessList = true) {
-          //   Utils.toast("文件删除完成");
-          // }
-          backgroundProcess[taskId]['timer']?.cancel();
-          backgroundProcess[taskId]['timer'] = null;
-          backgroundProcess.remove(taskId);
-          refresh();
-        }
-      }
-    } catch (e) {
-      Utils.toast("文件删除出错");
-      backgroundProcess[taskId]['timer']?.cancel();
-      backgroundProcess[taskId]['timer'] = null;
-      backgroundProcess.remove(taskId);
-    }
   }
 
   getExtractTaskResult(String taskId) async {
@@ -362,29 +273,6 @@ class FilesState extends State<Files> {
       backgroundProcess[taskId]['timer'] = null;
       backgroundProcess.remove(taskId);
     }
-  }
-
-  getProcessingTaskResult(String taskId) {
-    if (backgroundProcess[taskId] == null) {
-      return;
-    }
-    backgroundProcess[taskId]['timer'] = Timer.periodic(Duration(seconds: 1), (_) async {
-      switch (backgroundProcess[taskId]['type']) {
-        case 'copy':
-        case 'move':
-          getCopyMoveTaskResult(taskId);
-          break;
-        case 'extract':
-          getExtractTaskResult(taskId);
-          break;
-        case 'delete':
-          getDeleteTaskResult(taskId);
-          break;
-        case 'compress':
-          getCompressTaskResult(taskId);
-          break;
-      }
-    });
   }
 
   initFloating() {
@@ -789,83 +677,6 @@ class FilesState extends State<Files> {
     // print(result);
   }
 
-  compressFile() {
-    String zipName = "";
-    String destPath = "";
-    if (selectedFiles.length == 1) {
-      zipName = selectedFiles.first.fileName! + ".zip";
-    } else {
-      zipName = paths.last + ".zip";
-    }
-    destPath = "/" + paths.join("/") + "/" + zipName;
-    showGlassDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text(
-            "压缩文件",
-            textAlign: TextAlign.center,
-          ),
-          content: Text("确认要压缩到“$zipName？”"),
-          actions: [
-            Row(
-              children: [
-                Expanded(
-                  child: CupertinoButton(
-                    onPressed: () async {
-                      var hide = showWeuiLoadingToast(context: context);
-                      String taskId = await FileItem.compress(selectedFiles, destFolderPath: destPath);
-                      hide();
-                      Navigator.of(context).pop();
-                      // backgroundProcess[res['data']['taskid']] = {
-                      //   "timer": null,
-                      //   "data": {
-                      //     "dest_folder_path": destPath,
-                      //     "progress": 0,
-                      //   },
-                      //   "path": [file],
-                      //   "type": 'compress',
-                      // };
-                      // setState(() {
-                      //   multiSelectMode = false;
-                      //   selectedFiles = [];
-                      // });
-                      // getProcessingTaskResult(res['data']['taskid']);
-                    },
-                    color: AppTheme.of(context)?.primaryColor,
-                    borderRadius: BorderRadius.circular(15),
-                    padding: EdgeInsets.symmetric(vertical: 10),
-                    child: Text(
-                      "开始压缩",
-                      style: TextStyle(fontSize: 18),
-                    ),
-                  ),
-                ),
-                SizedBox(
-                  width: 20,
-                ),
-                Expanded(
-                  child: CupertinoButton(
-                    onPressed: () async {
-                      Navigator.of(context).pop();
-                    },
-                    color: Theme.of(context).disabledColor,
-                    borderRadius: BorderRadius.circular(15),
-                    padding: EdgeInsets.symmetric(vertical: 10),
-                    child: Text(
-                      "取消",
-                      style: TextStyle(fontSize: 18),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        );
-      },
-    );
-  }
-
   openFile(FileItem file, {bool remote = false}) async {
     if (multiSelectMode) {
       setState(() {
@@ -1215,8 +1026,8 @@ class FilesState extends State<Files> {
                                   "path": files,
                                 };
                               });
-                              //获取移动进度
-                              getProcessingTaskResult(res['data']['taskid']);
+                              //刷新后台任务
+                              bus.fire(RefreshBackgroundTaskEvent());
                             }
                           }
                         });
@@ -1264,7 +1075,8 @@ class FilesState extends State<Files> {
                                   "path": files,
                                 };
                               });
-                              getProcessingTaskResult(res['data']['taskid']);
+                              //刷新后台任务
+                              bus.fire(RefreshBackgroundTaskEvent());
                             }
                           }
                         });
@@ -1286,7 +1098,7 @@ class FilesState extends State<Files> {
                   Expanded(
                     child: GestureDetector(
                       onTap: () {
-                        compressFile();
+                        // compressFile();
                       },
                       child: Column(
                         children: [
@@ -1320,8 +1132,12 @@ class FilesState extends State<Files> {
                   ),
                   Expanded(
                     child: GestureDetector(
-                      onTap: () {
-                        DeleteFileDialog.show(context: context, files: selectedFiles);
+                      onTap: () async {
+                        String? res = await DeleteFileDialog.show(context: context, files: selectedFiles);
+                        if (res != null) {
+                          //刷新后台任务
+                          bus.fire(RefreshBackgroundTaskEvent());
+                        }
                       },
                       child: Padding(
                         padding: EdgeInsets.symmetric(vertical: 8),
@@ -1378,86 +1194,9 @@ class FilesState extends State<Files> {
     );
   }
 
-  Widget _buildProcessList() {
-    List<Widget> children = [];
-    Map<String, String> types = {
-      "copy": "复制：",
-      "move": "移动：",
-      "delete": "删除：",
-      "extract": "解压：",
-      "compress": "压缩：",
-    };
-    backgroundProcess.forEach((key, task) {
-      var value = task['data'];
-      children.add(
-        Container(
-          margin: EdgeInsets.only(left: 20, right: 20, bottom: 20),
-          width: double.infinity,
-          decoration: BoxDecoration(
-            color: Theme.of(context).scaffoldBackgroundColor,
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: Padding(
-            padding: EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text.rich(
-                  TextSpan(
-                    children: [
-                      TextSpan(
-                        text: types["${task['type'] ?? ''}"],
-                      ),
-                      TextSpan(
-                        text: task['path'].map((e) => e.split("/").last).join(","),
-                        style: TextStyle(color: AppTheme.of(context)?.placeholderColor),
-                      ),
-                      if (['copy', 'move', 'achieve', 'compress'].contains(task['type']) && value != null) ...[
-                        TextSpan(
-                          text: " 至 ",
-                        ),
-                        TextSpan(
-                          text: value['dest_folder_path'] ?? '',
-                          style: TextStyle(color: AppTheme.of(context)?.placeholderColor),
-                        ),
-                      ],
-                    ],
-                  ),
-                  style: TextStyle(fontSize: 14, color: Colors.grey),
-                ),
-                SizedBox(
-                  height: 10,
-                ),
-                if (value != null)
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).scaffoldBackgroundColor,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: FAProgressBar(
-                      backgroundColor: Colors.transparent,
-                      changeColorValue: 100,
-                      changeProgressColor: Colors.green,
-                      progressColor: Colors.blue,
-                      size: 20,
-                      currentValue: (num.parse("${value['progress']}") * 100).toInt(),
-                      displayText: '%',
-                    ),
-                  ),
-              ],
-            ),
-          ),
-        ),
-      );
-    });
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: children,
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
+    BackgroundTaskProvider backgroundTaskProvider = context.watch<BackgroundTaskProvider>();
     return GlassScaffold(
       key: _scaffoldKey,
       appBar: GlassAppBar(
@@ -1538,12 +1277,10 @@ class FilesState extends State<Files> {
                         width: 24,
                       ),
                     ),
-                  if (backgroundProcess.isNotEmpty)
+                  if (backgroundTaskProvider.backgroundTask.tasks != null && backgroundTaskProvider.backgroundTask.tasks!.isNotEmpty)
                     CupertinoButton(
                       onPressed: () async {
-                        setState(() {
-                          // showProcessList = !showProcessList;
-                        });
+                        BackgroundTaskPopup.show(context: context);
                       },
                       child: Image.asset(
                         "assets/icons/bgtask.gif",
@@ -1747,7 +1484,7 @@ class FilesState extends State<Files> {
                                     ),
                                   PopupMenuItem(
                                     onTap: () {
-                                      context.push(RemoteFolder(), name: "remote_folder", rootNavigator: true);
+                                      context.push(MountRemoteFolder(), name: "mount_remote_folder", rootNavigator: true);
                                     },
                                     padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                                     child: Row(
@@ -2016,8 +1753,10 @@ class FilesState extends State<Files> {
         ],
       ),
       // floatingActionButton: FloatingActionButton(
-      //   onPressed: getBackgroundTask,
-      //   child: Icon(Icons.refresh),
+      //   child: Icon(Icons.remove),
+      //   onPressed: () {
+      //     bus.fire(RefreshBackgroundTaskEvent());
+      //   },
       // ),
     );
   }

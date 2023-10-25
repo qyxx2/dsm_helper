@@ -90,6 +90,7 @@ class _ExternalDevicePopupContentState extends State<ExternalDevicePopupContent>
               color: AppTheme.of(context)?.warningColor,
             ),
             padding: EdgeInsets.zero,
+            minSize: 0,
             onPressed: () {
               EjectExternalDeviceDialog.show(context: context, device: device);
             },

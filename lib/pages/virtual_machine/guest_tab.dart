@@ -35,11 +35,18 @@ class _GuestTabState extends State<GuestTab> {
     super.initState();
   }
 
-  getData() async {
+  getData({bool loop = true}) async {
     virtualizationGuest = await VirtualizationGuest.list();
-    setState(() {
-      loading = false;
-    });
+
+    if (mounted) {
+      setState(() {
+        loading = false;
+      });
+      if (loop) {
+        await Future.delayed(Duration(seconds: 5));
+        getData();
+      }
+    }
   }
 
   @override
@@ -143,8 +150,11 @@ class _GuestTabState extends State<GuestTab> {
                                   ),
                                 ),
                                 PopupMenuItem(
-                                  onTap: () {
-                                    GuestPowerOffDialog.show(context, guest: guest, action: "shutdown");
+                                  onTap: () async {
+                                    bool? res = await GuestPowerOffDialog.show(context, guest: guest, action: "shutdown");
+                                    if (res == true) {
+                                      getData(loop: false);
+                                    }
                                   },
                                   child: Row(
                                     children: [
@@ -162,7 +172,10 @@ class _GuestTabState extends State<GuestTab> {
                                 ),
                                 PopupMenuItem(
                                   onTap: () async {
-                                    GuestPowerOffDialog.show(context, guest: guest, action: "poweroff");
+                                    bool? res = await GuestPowerOffDialog.show(context, guest: guest, action: "poweroff");
+                                    if (res == true) {
+                                      getData(loop: false);
+                                    }
                                   },
                                   child: Row(
                                     children: [
@@ -180,7 +193,10 @@ class _GuestTabState extends State<GuestTab> {
                                 ),
                                 PopupMenuItem(
                                   onTap: () async {
-                                    GuestPowerOffDialog.show(context, guest: guest, action: "reboot");
+                                    bool? res = await GuestPowerOffDialog.show(context, guest: guest, action: "reboot");
+                                    if (res == true) {
+                                      getData(loop: false);
+                                    }
                                   },
                                   child: Row(
                                     children: [
@@ -200,11 +216,14 @@ class _GuestTabState extends State<GuestTab> {
                                   onTap: () async {
                                     var hide = showWeuiLoadingToast(context: context);
                                     try {
-                                      bool? res = await guest.canSave();
-                                      if (res == true) {
+                                      bool? canSave = await guest.canSave();
+                                      if (canSave == true) {
                                         hide();
                                       }
-                                      GuestSaveDialog.show(context, guest: guest);
+                                      bool? res = await GuestSaveDialog.show(context, guest: guest);
+                                      if (res == true) {
+                                        getData(loop: false);
+                                      }
                                     } on DsmException catch (e) {
                                       hide();
                                       if (e.code == 630) {

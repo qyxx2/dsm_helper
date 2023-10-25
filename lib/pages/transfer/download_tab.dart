@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:dsm_helper/pages/transfer/bus/download_file_bus.dart';
 import 'package:dsm_helper/utils/bus/bus.dart';
 import 'package:dsm_helper/utils/utils.dart';
@@ -16,6 +18,7 @@ class DownloadTab extends StatefulWidget {
 class _DownloadTabState extends State<DownloadTab> {
   List<TaskRecord> downloads = [];
   FileDownloader downloader = FileDownloader();
+  StreamSubscription? listener;
   @override
   void initState() {
     initDownloader();
@@ -29,6 +32,12 @@ class _DownloadTabState extends State<DownloadTab> {
       getDownloadTasks();
     });
     super.initState();
+  }
+
+  @override
+  dispose() {
+    listener?.cancel();
+    super.dispose();
   }
 
   initDownloader() async {
@@ -57,32 +66,34 @@ class _DownloadTabState extends State<DownloadTab> {
           paused: const TaskNotification('{filename}', '暂停下载'),
           tapOpensFile: true,
         ); // dog can also open directly from tap
-    downloader.updates.listen((update) {
-      // print(update.status);
-      getDownloadTasks();
-      switch (update) {
-        case TaskStatusUpdate _:
-          // process the TaskStatusUpdate, e.g.
-          switch (update.status) {
-            case TaskStatus.complete:
-              print('Task ${update.task.taskId} success!');
+    listener = downloader.updates.listen(downloaderListener);
+  }
 
-            case TaskStatus.canceled:
-              print('Download was canceled');
+  downloaderListener(TaskUpdate update) {
+    // print(update.status);
+    getDownloadTasks();
+    switch (update) {
+      case TaskStatusUpdate _:
+        // process the TaskStatusUpdate, e.g.
+        switch (update.status) {
+          case TaskStatus.complete:
+            print('Task ${update.task.taskId} success!');
 
-            case TaskStatus.paused:
-              print('Download was paused');
+          case TaskStatus.canceled:
+            print('Download was canceled');
 
-            default:
-              print('Download not successful');
-          }
+          case TaskStatus.paused:
+            print('Download was paused');
 
-        case TaskProgressUpdate _:
-          // process the TaskProgressUpdate, e.g.
-          print("${update.task.filename}: ${update.progress * 100}% ${update.networkSpeedAsString} ${update.task.creationTime} 剩余：${update.timeRemainingAsString}");
-        // update.networkSpeed;
-      }
-    });
+          default:
+            print('Download not successful');
+        }
+
+      case TaskProgressUpdate _:
+        // process the TaskProgressUpdate, e.g.
+        print("${update.task.filename}: ${update.progress * 100}% ${update.networkSpeedAsString} ${update.task.creationTime} 剩余：${update.timeRemainingAsString}");
+      // update.networkSpeed;
+    }
   }
 
   void myNotificationTapCallback(Task task, NotificationType notificationType) {

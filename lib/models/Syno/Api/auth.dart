@@ -17,7 +17,7 @@ class Auth {
     this.synotoken,
   });
 
-  static Future<Auth> login({required String account, required String password, String optCode = ""}) async {
+  static Future<Auth> login({required String account, required String password, String? optCode = ""}) async {
     DsmResponse res = await Api.dsm.entry<Auth>(
       "SYNO.API.Auth",
       "login",

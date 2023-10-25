@@ -150,7 +150,7 @@ class _ButtonState extends State<Button> with SingleTickerProviderStateMixin {
               else if (widget.icon != null)
                 Padding(
                   padding: EdgeInsets.only(right: 5),
-                  child: _buildIcon(),
+                  child: _buildIcon(color: defaultTextColor),
                 ),
               Flexible(
                 child: DefaultTextStyle(
@@ -169,18 +169,19 @@ class _ButtonState extends State<Button> with SingleTickerProviderStateMixin {
     );
   }
 
-  Widget _buildIcon() {
+  Widget _buildIcon({Color? color}) {
     if (widget.icon is Icon) {
       Icon icon = widget.icon as Icon;
       return Icon(
         icon.icon,
         size: icon.size ?? widget.textStyle?.fontSize ?? 16,
+        color: icon.color ?? color,
       );
     } else if (widget.icon is Image) {
       Image icon = widget.icon as Image;
       return Image(
         image: icon.image,
-        color: icon.color,
+        color: icon.color ?? color,
         width: icon.width ?? widget.textStyle?.fontSize ?? 16,
         height: icon.height ?? widget.textStyle?.fontSize ?? 16,
       );

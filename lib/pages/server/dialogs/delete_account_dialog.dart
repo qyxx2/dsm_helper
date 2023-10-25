@@ -1,4 +1,5 @@
 import 'package:dsm_helper/database/tables.dart';
+import 'package:dsm_helper/themes/app_theme.dart';
 import 'package:dsm_helper/utils/extensions/navigator_ext.dart';
 import 'package:dsm_helper/widgets/button.dart';
 import 'package:dsm_helper/widgets/glass/glass_dialog.dart';
@@ -21,7 +22,7 @@ class DeleteAccountDialog {
               children: [
                 Expanded(
                   child: Button(
-                    color: Colors.red,
+                    color: AppTheme.of(context)?.errorColor,
                     child: Text("删除"),
                     onPressed: () {
                       context.pop(true);
@@ -34,6 +35,7 @@ class DeleteAccountDialog {
                 Expanded(
                   child: Button(
                     child: Text("取消"),
+                    color: Theme.of(context).disabledColor,
                     onPressed: () {
                       context.pop();
                     },

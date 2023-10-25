@@ -16,6 +16,7 @@ import 'package:dsm_helper/pages/splash/splash.dart';
 import 'package:dsm_helper/pages/storage_manager/storage_manager.dart';
 import 'package:dsm_helper/pages/virtual_machine/virtual_machine.dart';
 import 'package:dsm_helper/providers/audio_player_provider.dart';
+import 'package:dsm_helper/providers/background_task_provider.dart';
 import 'package:dsm_helper/providers/external_device_provider.dart';
 import 'package:dsm_helper/providers/init_data_provider.dart';
 import 'package:dsm_helper/providers/setting_provider.dart';
@@ -162,6 +163,7 @@ void main() async {
         ChangeNotifierProvider.value(value: UtilizationProvider()),
         ChangeNotifierProvider.value(value: StorageProvider()),
         ChangeNotifierProvider.value(value: ExternalDeviceProvider()),
+        ChangeNotifierProvider.value(value: BackgroundTaskProvider()),
       ],
       child: DsmHelper(authPage, launchAccountPage),
     ),

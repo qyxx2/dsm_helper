@@ -2,7 +2,6 @@ import 'package:dsm_helper/pages/dashboard/widgets/widget_card.dart';
 import 'package:dsm_helper/pages/file/select_folder.dart';
 import 'package:dsm_helper/themes/app_theme.dart';
 import 'package:dsm_helper/utils/utils.dart';
-import 'package:dsm_helper/widgets/bubble_tab_indicator.dart';
 import 'package:dsm_helper/widgets/button.dart';
 import 'package:dsm_helper/widgets/glass/glass_app_bar.dart';
 import 'package:dsm_helper/widgets/glass/glass_scaffold.dart';
@@ -11,12 +10,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_vibrate/flutter_vibrate.dart';
 
-class RemoteFolder extends StatefulWidget {
+class MountRemoteFolder extends StatefulWidget {
   @override
-  _RemoteFolderState createState() => _RemoteFolderState();
+  _MountRemoteFolderState createState() => _MountRemoteFolderState();
 }
 
-class _RemoteFolderState extends State<RemoteFolder> with SingleTickerProviderStateMixin {
+class _MountRemoteFolderState extends State<MountRemoteFolder> with SingleTickerProviderStateMixin {
   TabController? _tabController;
   String serverIp = "";
   String mountPoint = "";
