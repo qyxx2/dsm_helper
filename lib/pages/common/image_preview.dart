@@ -345,15 +345,7 @@ class _ImagePreviewState extends State<ImagePreview> with SingleTickerProviderSt
               }
 
               image = GestureDetector(
-                child: HeroWidget(
-                  tag: widget.tag ?? item,
-                  child: image,
-                  slidePagekey: slidePageKey,
-                  // flightShuttleBuilder: (BuildContext flightContext, Animation<double> animation, HeroFlightDirection flightDirection, BuildContext fromHeroContext, BuildContext toHeroContext) {
-                  //   final Hero hero = (flightDirection == HeroFlightDirection.pop ? fromHeroContext.widget : toHeroContext.widget) as Hero;
-                  //   return hero.child;
-                  // },
-                ),
+                child: image,
                 onTap: () {
                   slidePageKey.currentState?.popPage();
                   Navigator.pop(context);

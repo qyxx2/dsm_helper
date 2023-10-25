@@ -7,7 +7,6 @@ import 'package:dsm_helper/database/table_extension.dart';
 import 'package:dsm_helper/database/tables.dart';
 import 'package:dsm_helper/models/Syno/Api/auth.dart';
 import 'package:dsm_helper/models/Syno/Core/NormalUser.dart';
-import 'package:dsm_helper/models/Syno/FileStation/FileStationList.dart';
 import 'package:dsm_helper/models/api_model.dart';
 import 'package:dsm_helper/pages/home.dart';
 import 'package:dsm_helper/pages/login/dialogs/otp_code_dialog.dart';
@@ -21,10 +20,8 @@ import 'package:dsm_helper/utils/extensions/media_query_ext.dart';
 import 'package:dsm_helper/utils/extensions/navigator_ext.dart';
 import 'package:dsm_helper/utils/utils.dart' hide Api;
 import 'package:dsm_helper/widgets/button.dart';
-import 'package:dsm_helper/widgets/glass/glass_dialog.dart';
 import 'package:dsm_helper/widgets/glass/glass_app_bar.dart';
 import 'package:dsm_helper/widgets/glass/glass_scaffold.dart';
-import 'package:dsm_helper/widgets/page_body_widget.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -97,13 +94,11 @@ class _SelectServerState extends State<SelectServer> {
           ),
         ],
       ),
-      body: PageBodyWidget(
-        body: ListView.builder(
-          itemBuilder: (context, i) {
-            return _buildServerItem(servers[i]);
-          },
-          itemCount: servers.length,
-        ),
+      body: ListView.builder(
+        itemBuilder: (context, i) {
+          return _buildServerItem(servers[i]);
+        },
+        itemCount: servers.length,
       ),
     );
   }
