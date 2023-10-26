@@ -280,13 +280,40 @@ class ResourceMonitorWidget extends StatelessWidget {
                     xValueMapper: (Network network, _) => networks.indexOf(network),
                     yValueMapper: (Network network, _) => network.rx,
                     markerSettings: const MarkerSettings(isVisible: false),
-                    color: Colors.lightGreen,
+                    color: AppTheme.of(context)?.successColor,
                     borderColor: Color(0xFF43CF7C),
                     borderWidth: 2,
                     gradient: LinearGradient(colors: [Color(0x0CCCCCCC), Color(0x2343CF7C)], begin: Alignment.bottomCenter, end: Alignment.topCenter),
                   )
                 ],
-                tooltipBehavior: TooltipBehavior(enable: true, shared: true),
+                tooltipBehavior: TooltipBehavior(
+                  enable: true,
+                  shared: true,
+                  builder: (data, point, series, pointIndex, ___) {
+                    return Container(
+                      decoration: BoxDecoration(
+                        color: Colors.black26,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "上传:${Utils.formatSize(data.tx)}/S",
+                            style: TextStyle(color: AppTheme.of(context)?.primaryColor, fontSize: 13),
+                          ),
+                          SizedBox(height: 5),
+                          Text(
+                            "下载:${Utils.formatSize(data.rx)}/S",
+                            style: TextStyle(color: AppTheme.of(context)?.successColor, fontSize: 13),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
               ),
             ),
           ),
