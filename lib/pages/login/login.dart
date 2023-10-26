@@ -77,6 +77,9 @@ class _LoginState extends State<Login> {
 
     try {
       Auth authModel = await Auth.login(account: account, password: password, optCode: otpCode);
+      setState(() {
+        loading = false;
+      });
       await DbUtils.db.into(DbUtils.db.accounts).insertReturning(
             AccountsCompanion.insert(
               account: account,
@@ -96,24 +99,29 @@ class _LoginState extends State<Login> {
       context.push(Home(), replace: true);
     } on DsmException catch (e) {
       if (e.code == 400) {
+        setState(() {
+          loading = false;
+        });
         Utils.toast("用户名/密码有误");
       } else if ([403, 404, 414].contains(e.code)) {
+        setState(() {
+          loading = false;
+        });
         String message = e.code == 403
             ? "您已开启双重验证，请输入验证码"
             : e.code == 404
                 ? "错误的验证码。请再试一次"
                 : "为确认这是您本人登录，系统已将验证码发送到${e.source?['errors']['email']}，请查看您的邮箱，并在5分钟内输入验证码";
-        String? optCode = await OtpCodeDialog.show(context, message: message);
-        if (optCode != null) {
-          login(otpCode: otpCode);
+        String? code = await OtpCodeDialog.show(context, message: message);
+        if (code != null) {
+          login(otpCode: code);
         }
       } else {
+        setState(() {
+          loading = false;
+        });
         Utils.toast("登录失败，代码：${e.code}");
       }
-    } finally {
-      setState(() {
-        loading = false;
-      });
     }
   }
 

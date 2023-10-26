@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 class OtpCodeDialog {
   static Future<String?> show(BuildContext context, {required String message}) async {
     String otpCode = '';
-    final TextEditingController _otpCodeController = TextEditingController();
     return await showGlassDialog(
       context: context,
       builder: (context) {
@@ -26,7 +25,6 @@ class OtpCodeDialog {
                 onChanged: (v) {
                   otpCode = v;
                 },
-                controller: _otpCodeController,
                 keyboardType: TextInputType.number,
                 decoration: InputDecoration(
                   hintText: "输入验证码",
@@ -54,6 +52,7 @@ class OtpCodeDialog {
                   child: Button(
                     child: Text("登录"),
                     onPressed: () {
+                      print(otpCode);
                       context.pop(otpCode);
                     },
                   ),

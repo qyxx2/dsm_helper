@@ -576,9 +576,9 @@ class _SelectServerState extends State<SelectServer> {
             : e.code == 404
                 ? "错误的验证码。请再试一次"
                 : "为确认这是您本人登录，系统已将验证码发送到${e.source?['errors']['email']}，请查看您的邮箱，并在5分钟内输入验证码";
-        String? optCode = await OtpCodeDialog.show(context, message: message);
-        if (optCode != null) {
-          login(account, server, otpCode: otpCode);
+        String? code = await OtpCodeDialog.show(context, message: message);
+        if (code != null) {
+          login(account, server, otpCode: code);
         }
       } else {
         Utils.toast("登录失败，代码：${e.code}");
