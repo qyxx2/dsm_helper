@@ -1,5 +1,6 @@
 import 'package:draggable_scrollbar/draggable_scrollbar.dart';
 import 'package:dsm_helper/models/Syno/Docker/DockerContainerDetail.dart';
+import 'package:dsm_helper/pages/docker/container_detail/container_log_tab.dart';
 import 'package:dsm_helper/pages/docker/container_detail/overview_tab.dart';
 import 'package:dsm_helper/pages/docker/container_detail/process_tab.dart';
 import 'package:dsm_helper/utils/utils.dart';
@@ -143,47 +144,7 @@ class _ContainerDetailState extends State<ContainerDetail> with SingleTickerProv
         children: [
           OverviewTab(widget.name),
           ProcessTab(widget.name),
-          Row(
-            children: [
-              Expanded(
-                child: CupertinoScrollbar(
-                  child: ListView.separated(
-                    padding: EdgeInsets.only(left: 20, right: 10, top: 20),
-                    itemBuilder: (context, i) {
-                      return _buildDateItem(logDates[i]);
-                    },
-                    separatorBuilder: (context, i) {
-                      return SizedBox(
-                        height: 20,
-                      );
-                    },
-                    itemCount: logDates.length,
-                  ),
-                ),
-              ),
-              Expanded(
-                flex: 2,
-                child: DraggableScrollbar.semicircle(
-                  backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-                  scrollbarTimeToFade: Duration(seconds: 1),
-                  controller: _scrollController,
-                  child: ListView.separated(
-                    controller: _scrollController,
-                    padding: EdgeInsets.only(left: 10, right: 20, top: 20),
-                    itemBuilder: (context, i) {
-                      return _buildLogItem(logs.reversed.toList()[i]);
-                    },
-                    separatorBuilder: (context, i) {
-                      return SizedBox(
-                        height: 20,
-                      );
-                    },
-                    itemCount: logs.length,
-                  ),
-                ),
-              ),
-            ],
-          ),
+          ContainerLogTab(widget.name),
         ],
       ),
     );

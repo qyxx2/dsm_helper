@@ -4,14 +4,14 @@ import 'package:dsm_helper/widgets/loading_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:timelines/timelines.dart';
 
-class LogPage extends StatefulWidget {
-  const LogPage({super.key});
+class LogTab extends StatefulWidget {
+  const LogTab({super.key});
 
   @override
-  State<LogPage> createState() => _LogPageState();
+  State<LogTab> createState() => _LogTabState();
 }
 
-class _LogPageState extends State<LogPage> with AutomaticKeepAliveClientMixin {
+class _LogTabState extends State<LogTab> with AutomaticKeepAliveClientMixin {
   bool loading = true;
   DockerLog dockerLog = DockerLog();
   @override

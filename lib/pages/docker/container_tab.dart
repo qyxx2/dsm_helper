@@ -5,6 +5,9 @@ import 'package:dsm_helper/models/Syno/Core/System/Utilization.dart';
 import 'package:dsm_helper/models/Syno/Docker/Container/ContainerResource.dart';
 import 'package:dsm_helper/models/Syno/Docker/DockerContainer.dart' hide State;
 import 'package:dsm_helper/pages/docker/container_detail/container_detail.dart';
+import 'package:dsm_helper/pages/docker/dialogs/container_delete_dialog.dart';
+import 'package:dsm_helper/pages/docker/dialogs/container_reset_dialog.dart';
+import 'package:dsm_helper/pages/docker/dialogs/container_signal_dialog.dart';
 import 'package:dsm_helper/pages/docker/enums/docker_status_enum.dart';
 import 'package:dsm_helper/providers/utilization_provider.dart';
 import 'package:dsm_helper/themes/app_theme.dart';
@@ -20,14 +23,14 @@ import 'package:kumi_popup_window/kumi_popup_window.dart';
 import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_gauges/gauges.dart';
 
-class ContainerPage extends StatefulWidget {
-  const ContainerPage({super.key});
+class ContainerTab extends StatefulWidget {
+  const ContainerTab({super.key});
 
   @override
-  State<ContainerPage> createState() => _ContainerPageState();
+  State<ContainerTab> createState() => _ContainerTabState();
 }
 
-class _ContainerPageState extends State<ContainerPage> with AutomaticKeepAliveClientMixin {
+class _ContainerTabState extends State<ContainerTab> with AutomaticKeepAliveClientMixin {
   DockerContainer containers = DockerContainer();
   ContainerResource resource = ContainerResource();
   bool loading = true;
@@ -349,19 +352,22 @@ class _ContainerPageState extends State<ContainerPage> with AutomaticKeepAliveCl
                                           PopupMenuItem(
                                             enabled: container.statusEnum == DockerStatusEnum.running,
                                             onTap: () async {
-                                              setState(() {
-                                                containerLoading[container] = true;
-                                              });
-                                              try {
-                                                await container.signal();
-                                                getData(loop: false);
-                                              } catch (e) {
-                                                print(e);
-                                                Utils.toast("强制停止失败");
+                                              bool? confirm = await ContainerSignalDialog.show(context: context, container: container);
+                                              if (confirm == true) {
+                                                setState(() {
+                                                  containerLoading[container] = true;
+                                                });
+                                                try {
+                                                  await container.signal();
+                                                  getData(loop: false);
+                                                } catch (e) {
+                                                  print(e);
+                                                  Utils.toast("强制停止失败");
+                                                }
+                                                setState(() {
+                                                  containerLoading[container] = false;
+                                                });
                                               }
-                                              setState(() {
-                                                containerLoading[container] = false;
-                                              });
                                             },
                                             child: Text("强制停止"),
                                           ),
@@ -385,38 +391,46 @@ class _ContainerPageState extends State<ContainerPage> with AutomaticKeepAliveCl
                                             child: Text("重新启动"),
                                           ),
                                           PopupMenuItem(
+                                            enabled: container.statusEnum != DockerStatusEnum.running,
                                             onTap: () async {
-                                              setState(() {
-                                                containerLoading[container] = true;
-                                              });
-                                              try {
-                                                await container.delete(preserveProfile: true);
-                                                getData(loop: false);
-                                              } catch (e) {
-                                                print(e);
-                                                Utils.toast("操作失败");
+                                              bool? confirm = await ContainerResetDialog.show(context: context, container: container);
+                                              if (confirm == true) {
+                                                setState(() {
+                                                  containerLoading[container] = true;
+                                                });
+                                                try {
+                                                  await container.delete(preserveProfile: true);
+                                                  getData(loop: false);
+                                                } catch (e) {
+                                                  print(e);
+                                                  Utils.toast("重置失败");
+                                                }
+                                                setState(() {
+                                                  containerLoading[container] = false;
+                                                });
                                               }
-                                              setState(() {
-                                                containerLoading[container] = false;
-                                              });
                                             },
                                             child: Text("重置"),
                                           ),
                                           PopupMenuItem(
+                                            enabled: container.statusEnum != DockerStatusEnum.running,
                                             onTap: () async {
-                                              setState(() {
-                                                containerLoading[container] = true;
-                                              });
-                                              try {
-                                                await container.delete(preserveProfile: false);
-                                                getData(loop: false);
-                                              } catch (e) {
-                                                print(e);
-                                                Utils.toast("操作失败");
+                                              bool? confirm = await ContainerDeleteDialog.show(context: context, container: container);
+                                              if (confirm == true) {
+                                                setState(() {
+                                                  containerLoading[container] = true;
+                                                });
+                                                try {
+                                                  await container.delete(preserveProfile: false);
+                                                  getData(loop: false);
+                                                } catch (e) {
+                                                  print(e);
+                                                  Utils.toast("删除失败");
+                                                }
+                                                setState(() {
+                                                  containerLoading[container] = false;
+                                                });
                                               }
-                                              setState(() {
-                                                containerLoading[container] = false;
-                                              });
                                             },
                                             child: Text(
                                               "删除",

@@ -10,14 +10,14 @@ import 'package:extended_text/extended_text.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-class ImagePage extends StatefulWidget {
-  const ImagePage({super.key});
+class ImageTab extends StatefulWidget {
+  const ImageTab({super.key});
 
   @override
-  State<ImagePage> createState() => _ImagePageState();
+  State<ImageTab> createState() => _ImageTabState();
 }
 
-class _ImagePageState extends State<ImagePage> with AutomaticKeepAliveClientMixin {
+class _ImageTabState extends State<ImageTab> with AutomaticKeepAliveClientMixin {
   bool loading = true;
   DockerImage dockerImage = DockerImage();
   @override

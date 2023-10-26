@@ -1,6 +1,7 @@
 import 'package:dsm_helper/models/Syno/Docker/ContainerProcess.dart';
 import 'package:dsm_helper/themes/app_theme.dart';
 import 'package:dsm_helper/utils/utils.dart';
+import 'package:dsm_helper/widgets/empty_widget.dart';
 import 'package:dsm_helper/widgets/loading_widget.dart';
 import 'package:flutter/material.dart';
 
@@ -33,15 +34,19 @@ class _ProcessTabState extends State<ProcessTab> {
   Widget build(BuildContext context) {
     return loading
         ? LoadingWidget(size: 30)
-        : Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16),
-            child: ListView.builder(
-              itemBuilder: (context, i) {
-                return _buildProcessItem(process.processes![i]);
-              },
-              itemCount: process.processes!.length,
-            ),
-          );
+        : process.processes != null && process.processes!.isNotEmpty
+            ? Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16),
+                child: ListView.builder(
+                  itemBuilder: (context, i) {
+                    return _buildProcessItem(process.processes![i]);
+                  },
+                  itemCount: process.processes!.length,
+                ),
+              )
+            : EmptyWidget(
+                text: "无运行中进程或容器已停止",
+              );
   }
 
   Widget _buildProcessItem(Processes processes) {

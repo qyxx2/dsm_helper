@@ -9,14 +9,14 @@ import 'package:flutter/material.dart';
 
 import 'dialogs/registry_tag_popup.dart';
 
-class RepositoryPage extends StatefulWidget {
-  const RepositoryPage({super.key});
+class RepositoryTab extends StatefulWidget {
+  const RepositoryTab({super.key});
 
   @override
-  State<RepositoryPage> createState() => _RepositoryPageState();
+  State<RepositoryTab> createState() => _RepositoryTabState();
 }
 
-class _RepositoryPageState extends State<RepositoryPage> with AutomaticKeepAliveClientMixin {
+class _RepositoryTabState extends State<RepositoryTab> with AutomaticKeepAliveClientMixin {
   bool loading = true;
   DockerRegistry dockerRegistry = DockerRegistry();
   String? errorMessage;

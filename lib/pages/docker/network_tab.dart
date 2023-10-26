@@ -5,14 +5,14 @@ import 'package:dsm_helper/widgets/label.dart';
 import 'package:dsm_helper/widgets/loading_widget.dart';
 import 'package:flutter/material.dart';
 
-class NetworkPage extends StatefulWidget {
-  const NetworkPage({super.key});
+class NetworkTab extends StatefulWidget {
+  const NetworkTab({super.key});
 
   @override
-  State<NetworkPage> createState() => _NetworkPageState();
+  State<NetworkTab> createState() => _NetworkTabState();
 }
 
-class _NetworkPageState extends State<NetworkPage> with AutomaticKeepAliveClientMixin {
+class _NetworkTabState extends State<NetworkTab> with AutomaticKeepAliveClientMixin {
   bool loading = true;
   DockerNetwork dockerNetwork = DockerNetwork();
   @override

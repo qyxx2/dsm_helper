@@ -53,7 +53,7 @@ class DeleteFavoriteDialog {
                 Expanded(
                   child: CupertinoButton(
                     onPressed: () async {
-                      Navigator.of(context).pop();
+                      context.pop();
                     },
                     color: Theme.of(context).disabledColor,
                     borderRadius: BorderRadius.circular(15),
