@@ -73,15 +73,15 @@ class Storage extends BaseModel {
       // });
     }
     if (json['sharedCaches'] != null) {
-      sharedCaches = json['sharedCaches'];
-      // json['sharedCaches'].forEach((v) {
-      //   sharedCaches?.add(Dynamic.fromJson(v));
-      // });
+      sharedCaches = [];
+      json['sharedCaches'].forEach((v) {
+        sharedCaches?.add(SharedCaches.fromJson(v));
+      });
     }
     if (json['ssdCaches'] != null) {
       ssdCaches = [];
       json['ssdCaches'].forEach((v) {
-        ssdCaches?.add(Volumes.fromJson(v));
+        ssdCaches?.add(SsdCaches.fromJson(v));
       });
       ssdCaches!.sort((a, b) {
         return a.numId!.compareTo(b.numId!);
@@ -112,8 +112,8 @@ class Storage extends BaseModel {
   List<dynamic>? missingPools;
   OverviewData? overviewData;
   List<dynamic>? ports;
-  List<dynamic>? sharedCaches;
-  List<Volumes>? ssdCaches;
+  List<SharedCaches>? sharedCaches;
+  List<SsdCaches>? ssdCaches;
   List<StoragePools>? storagePools;
   List<Volumes>? volumes;
   Storage copyWith({
@@ -123,8 +123,8 @@ class Storage extends BaseModel {
     List<dynamic>? missingPools,
     OverviewData? overviewData,
     List<dynamic>? ports,
-    List<dynamic>? sharedCaches,
-    List<Volumes>? ssdCaches,
+    List<SharedCaches>? sharedCaches,
+    List<SsdCaches>? ssdCaches,
     List<StoragePools>? storagePools,
     List<Volumes>? volumes,
   }) =>
@@ -739,11 +739,11 @@ class Snapshot {
   });
 
   Snapshot.fromJson(dynamic json) {
-    resize = json['resize'] != null ? Resize.fromJson(json['resize']) : null;
+    resize = json['resize'] != null ? VSpaceCanDo.fromJson(json['resize']) : null;
   }
-  Resize? resize;
+  VSpaceCanDo? resize;
   Snapshot copyWith({
-    Resize? resize,
+    VSpaceCanDo? resize,
   }) =>
       Snapshot(
         resize: resize ?? this.resize,
@@ -753,44 +753,6 @@ class Snapshot {
     if (resize != null) {
       map['resize'] = resize?.toJson();
     }
-    return map;
-  }
-}
-
-/// can_do : false
-/// errCode : 53504
-/// stopService : false
-
-class Resize {
-  Resize({
-    this.canDo,
-    this.errCode,
-    this.stopService,
-  });
-
-  Resize.fromJson(dynamic json) {
-    canDo = json['can_do'];
-    errCode = json['errCode'];
-    stopService = json['stopService'];
-  }
-  bool? canDo;
-  num? errCode;
-  bool? stopService;
-  Resize copyWith({
-    bool? canDo,
-    num? errCode,
-    bool? stopService,
-  }) =>
-      Resize(
-        canDo: canDo ?? this.canDo,
-        errCode: errCode ?? this.errCode,
-        stopService: stopService ?? this.stopService,
-      );
-  Map<String, dynamic> toJson() {
-    final map = <String, dynamic>{};
-    map['can_do'] = canDo;
-    map['errCode'] = errCode;
-    map['stopService'] = stopService;
     return map;
   }
 }
@@ -807,17 +769,17 @@ class Flashcache {
   });
 
   Flashcache.fromJson(dynamic json) {
-    apply = json['apply'] != null ? Apply.fromJson(json['apply']) : null;
-    remove = json['remove'] != null ? Remove.fromJson(json['remove']) : null;
-    resize = json['resize'] != null ? Resize.fromJson(json['resize']) : null;
+    apply = json['apply'] != null ? VSpaceCanDo.fromJson(json['apply']) : null;
+    remove = json['remove'] != null ? VSpaceCanDo.fromJson(json['remove']) : null;
+    resize = json['resize'] != null ? VSpaceCanDo.fromJson(json['resize']) : null;
   }
-  Apply? apply;
-  Remove? remove;
-  Resize? resize;
+  VSpaceCanDo? apply;
+  VSpaceCanDo? remove;
+  VSpaceCanDo? resize;
   Flashcache copyWith({
-    Apply? apply,
-    Remove? remove,
-    Resize? resize,
+    VSpaceCanDo? apply,
+    VSpaceCanDo? remove,
+    VSpaceCanDo? resize,
   }) =>
       Flashcache(
         apply: apply ?? this.apply,
@@ -839,82 +801,6 @@ class Flashcache {
   }
 }
 
-/// can_do : true
-/// errCode : 0
-/// stopService : true
-
-class Remove {
-  Remove({
-    this.canDo,
-    this.errCode,
-    this.stopService,
-  });
-
-  Remove.fromJson(dynamic json) {
-    canDo = json['can_do'];
-    errCode = json['errCode'];
-    stopService = json['stopService'];
-  }
-  bool? canDo;
-  num? errCode;
-  bool? stopService;
-  Remove copyWith({
-    bool? canDo,
-    num? errCode,
-    bool? stopService,
-  }) =>
-      Remove(
-        canDo: canDo ?? this.canDo,
-        errCode: errCode ?? this.errCode,
-        stopService: stopService ?? this.stopService,
-      );
-  Map<String, dynamic> toJson() {
-    final map = <String, dynamic>{};
-    map['can_do'] = canDo;
-    map['errCode'] = errCode;
-    map['stopService'] = stopService;
-    return map;
-  }
-}
-
-/// can_do : false
-/// errCode : 49152
-/// stopService : false
-
-class Apply {
-  Apply({
-    this.canDo,
-    this.errCode,
-    this.stopService,
-  });
-
-  Apply.fromJson(dynamic json) {
-    canDo = json['can_do'];
-    errCode = json['errCode'];
-    stopService = json['stopService'];
-  }
-  bool? canDo;
-  num? errCode;
-  bool? stopService;
-  Apply copyWith({
-    bool? canDo,
-    num? errCode,
-    bool? stopService,
-  }) =>
-      Apply(
-        canDo: canDo ?? this.canDo,
-        errCode: errCode ?? this.errCode,
-        stopService: stopService ?? this.stopService,
-      );
-  Map<String, dynamic> toJson() {
-    final map = <String, dynamic>{};
-    map['can_do'] = canDo;
-    map['errCode'] = errCode;
-    map['stopService'] = stopService;
-    return map;
-  }
-}
-
 /// resize : {"can_do":false,"errCode":53504,"stopService":false}
 
 class Drbd {
@@ -923,11 +809,11 @@ class Drbd {
   });
 
   Drbd.fromJson(dynamic json) {
-    resize = json['resize'] != null ? Resize.fromJson(json['resize']) : null;
+    resize = json['resize'] != null ? VSpaceCanDo.fromJson(json['resize']) : null;
   }
-  Resize? resize;
+  VSpaceCanDo? resize;
   Drbd copyWith({
-    Resize? resize,
+    VSpaceCanDo? resize,
   }) =>
       Drbd(
         resize: resize ?? this.resize,
@@ -1147,6 +1033,7 @@ class Progress {
 
 class CanDo {
   CanDo({
+    this.cancelDelete,
     this.convertShrToPool,
     this.delete,
     this.expandByDisk,
@@ -1156,17 +1043,20 @@ class CanDo {
 
   CanDo.fromJson(dynamic json) {
     convertShrToPool = json['convert_shr_to_pool'];
+    cancelDelete = json['cancelDelete'];
     delete = json['delete'];
     expandByDisk = json['expand_by_disk'];
     migrate = json['migrate'] != null ? Migrate.fromJson(json['migrate']) : null;
     raidCross = json['raid_cross'];
   }
+  bool? cancelDelete;
   num? convertShrToPool;
   bool? delete;
   num? expandByDisk;
   Migrate? migrate;
   bool? raidCross;
   CanDo copyWith({
+    bool? cancelDelete,
     num? convertShrToPool,
     bool? delete,
     num? expandByDisk,
@@ -1174,6 +1064,7 @@ class CanDo {
     bool? raidCross,
   }) =>
       CanDo(
+        cancelDelete: cancelDelete ?? this.cancelDelete,
         convertShrToPool: convertShrToPool ?? this.convertShrToPool,
         delete: delete ?? this.delete,
         expandByDisk: expandByDisk ?? this.expandByDisk,
@@ -1182,6 +1073,7 @@ class CanDo {
       );
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
+    map['cancelDelete'] = cancelDelete;
     map['convert_shr_to_pool'] = convertShrToPool;
     map['delete'] = delete;
     map['expand_by_disk'] = expandByDisk;
@@ -1189,30 +1081,6 @@ class CanDo {
       map['migrate'] = migrate?.toJson();
     }
     map['raid_cross'] = raidCross;
-    return map;
-  }
-}
-
-/// to_shr2 : 3
-
-class Migrate {
-  Migrate({
-    this.toShr2,
-  });
-
-  Migrate.fromJson(dynamic json) {
-    toShr2 = json['to_shr2'];
-  }
-  num? toShr2;
-  Migrate copyWith({
-    num? toShr2,
-  }) =>
-      Migrate(
-        toShr2: toShr2 ?? this.toShr2,
-      );
-  Map<String, dynamic> toJson() {
-    final map = <String, dynamic>{};
-    map['to_shr2'] = toShr2;
     return map;
   }
 }
@@ -3012,6 +2880,949 @@ class Action {
     map['notification'] = notification;
     map['selectable'] = selectable;
     map['show_lifetime_chart'] = showLifetimeChart;
+    return map;
+  }
+}
+
+/// apm_flush_status : "no_need"
+/// can_do : {"delete":true,"migrate":{"to_raid1":3,"to_raid5":2},"raid_cross":true}
+/// compatibility : true
+/// desc : ""
+/// device_type : "basic"
+/// disks : ["nvme0n1"]
+/// id : "shared_cache_2"
+/// is_missing : false
+/// is_writable : true
+/// minimal_disk_size : "512103876608"
+/// num_id : 2
+/// raids : [{"designedDiskCount":1,"devices":[{"id":"nvme0n1","slot":0,"status":"normal"}],"hasParity":false,"minDevSize":"512103876608","normalDevCount":1,"raidCrashedReason":0,"raidPath":"/dev/md4","raidStatus":1,"spares":[]}]
+/// size : {"recyclable":"0","total":"512099352576","used":"375822221312"}
+/// space_path : "/dev/shared_cache_vg1"
+/// task : "none"
+
+class SharedCaches {
+  SharedCaches({
+    this.apmFlushStatus,
+    this.canDo,
+    this.compatibility,
+    this.desc,
+    this.deviceType,
+    this.disks,
+    this.id,
+    this.isMissing,
+    this.isWritable,
+    this.minimalDiskSize,
+    this.numId,
+    this.raids,
+    this.size,
+    this.spacePath,
+    this.task,
+  });
+
+  SharedCaches.fromJson(dynamic json) {
+    apmFlushStatus = json['apm_flush_status'];
+    canDo = json['can_do'] != null ? CanDo.fromJson(json['can_do']) : null;
+    compatibility = json['compatibility'];
+    desc = json['desc'];
+    deviceType = json['device_type'];
+    disks = json['disks'] != null ? json['disks'].cast<String>() : [];
+    id = json['id'];
+    isMissing = json['is_missing'];
+    isWritable = json['is_writable'];
+    minimalDiskSize = json['minimal_disk_size'];
+    numId = json['num_id'];
+    if (json['raids'] != null) {
+      raids = [];
+      json['raids'].forEach((v) {
+        raids?.add(Raids.fromJson(v));
+      });
+    }
+    size = json['size'] != null ? SharedCachesSize.fromJson(json['size']) : null;
+    spacePath = json['space_path'];
+    task = json['task'];
+  }
+  String? apmFlushStatus;
+  CanDo? canDo;
+  bool? compatibility;
+  String? desc;
+  String? deviceType;
+  List<String>? disks;
+  String? id;
+  bool? isMissing;
+  bool? isWritable;
+  String? minimalDiskSize;
+  num? numId;
+  List<Raids>? raids;
+  SharedCachesSize? size;
+  String? spacePath;
+  String? task;
+  SharedCaches copyWith({
+    String? apmFlushStatus,
+    CanDo? canDo,
+    bool? compatibility,
+    String? desc,
+    String? deviceType,
+    List<String>? disks,
+    String? id,
+    bool? isMissing,
+    bool? isWritable,
+    String? minimalDiskSize,
+    num? numId,
+    List<Raids>? raids,
+    SharedCachesSize? size,
+    String? spacePath,
+    String? task,
+  }) =>
+      SharedCaches(
+        apmFlushStatus: apmFlushStatus ?? this.apmFlushStatus,
+        canDo: canDo ?? this.canDo,
+        compatibility: compatibility ?? this.compatibility,
+        desc: desc ?? this.desc,
+        deviceType: deviceType ?? this.deviceType,
+        disks: disks ?? this.disks,
+        id: id ?? this.id,
+        isMissing: isMissing ?? this.isMissing,
+        isWritable: isWritable ?? this.isWritable,
+        minimalDiskSize: minimalDiskSize ?? this.minimalDiskSize,
+        numId: numId ?? this.numId,
+        raids: raids ?? this.raids,
+        size: size ?? this.size,
+        spacePath: spacePath ?? this.spacePath,
+        task: task ?? this.task,
+      );
+  Map<String, dynamic> toJson() {
+    final map = <String, dynamic>{};
+    map['apm_flush_status'] = apmFlushStatus;
+    if (canDo != null) {
+      map['can_do'] = canDo?.toJson();
+    }
+    map['compatibility'] = compatibility;
+    map['desc'] = desc;
+    map['device_type'] = deviceType;
+    map['disks'] = disks;
+    map['id'] = id;
+    map['is_missing'] = isMissing;
+    map['is_writable'] = isWritable;
+    map['minimal_disk_size'] = minimalDiskSize;
+    map['num_id'] = numId;
+    if (raids != null) {
+      map['raids'] = raids?.map((v) => v.toJson()).toList();
+    }
+    if (size != null) {
+      map['size'] = size?.toJson();
+    }
+    map['space_path'] = spacePath;
+    map['task'] = task;
+    return map;
+  }
+}
+
+/// recyclable : "0"
+/// total : "512099352576"
+/// used : "375822221312"
+
+class SharedCachesSize {
+  SharedCachesSize({
+    this.recyclable,
+    this.total,
+    this.used,
+  });
+
+  SharedCachesSize.fromJson(dynamic json) {
+    recyclable = json['recyclable'];
+    total = json['total'];
+    used = json['used'];
+  }
+  String? recyclable;
+  String? total;
+  String? used;
+
+  num get usedNum => used != null ? (num.tryParse(used!) ?? 0) : 0;
+  num get totalNum => total != null ? (num.tryParse(total!) ?? 0) : 0;
+  num get freeNum => totalNum - usedNum;
+
+  num get usedPercent {
+    try {
+      return usedNum / totalNum * 100;
+    } catch (e) {
+      return 0;
+    }
+  }
+
+  SharedCachesSize copyWith({
+    String? recyclable,
+    String? total,
+    String? used,
+  }) =>
+      SharedCachesSize(
+        recyclable: recyclable ?? this.recyclable,
+        total: total ?? this.total,
+        used: used ?? this.used,
+      );
+  Map<String, dynamic> toJson() {
+    final map = <String, dynamic>{};
+    map['recyclable'] = recyclable;
+    map['total'] = total;
+    map['used'] = used;
+    return map;
+  }
+}
+
+/// to_raid1 : 3
+/// to_raid5 : 2
+
+class Migrate {
+  Migrate({
+    this.toRaid1,
+    this.toRaid5,
+    this.toShr2,
+  });
+
+  Migrate.fromJson(dynamic json) {
+    toRaid1 = json['to_raid1'];
+    toRaid5 = json['to_raid5'];
+    toShr2 = json['to_shr2'];
+  }
+  num? toRaid1;
+  num? toRaid5;
+  num? toShr2;
+  Migrate copyWith({
+    num? toRaid1,
+    num? toRaid5,
+    num? toShr2,
+  }) =>
+      Migrate(
+        toRaid1: toRaid1 ?? this.toRaid1,
+        toRaid5: toRaid5 ?? this.toRaid5,
+        toShr2: toShr2 ?? this.toShr2,
+      );
+  Map<String, dynamic> toJson() {
+    final map = <String, dynamic>{};
+    map['to_raid1'] = toRaid1;
+    map['to_raid5'] = toRaid5;
+    map['to_shr2'] = toShr2;
+    return map;
+  }
+}
+
+/// SSDPath : "/dev/shared_cache_vg1/alloc_cache_1"
+/// SSDUUID : "3stnJL-wf9l-CIhc-0OGK-PDFU-XsVk-98NED5"
+/// cacheStatus : ""
+/// cache_disks : []
+/// can_assemble : false
+/// can_do : {"cancelDelete":false,"delete":true,"migrate":{"to_raid1":3,"to_raid5":2},"raid_cross":true}
+/// compatibility : true
+/// container : "internal"
+/// data_scrubbing : {"can_do_manual":false,"can_do_schedule":false,"reason":"not_support"}
+/// designedDiskCount : 1
+/// dev_count : 1
+/// device_type : "basic"
+/// disk_failure_number : 0
+/// disks : ["nvme0n1"]
+/// drive_type : 1
+/// hash_mapping : true
+/// hit_rate : 61
+/// hit_rate_write : 0
+/// hit_rates : {"Current":{"data_size":1,"io_hit":765,"io_need_acceleration":828,"success":true},"Daily":{"data_size":"1409","io_hit":430057,"io_need_acceleration":511425,"success":true},"HalfYearly":{"data_size":"1080","io_hit":11917627,"io_need_acceleration":21257019,"success":true},"Minutely":{"data_size":"14","io_hit":9157,"io_need_acceleration":13215,"success":true},"Monthly":{"data_size":"6441","io_hit":11927056,"io_need_acceleration":21270257,"success":true},"Weekly":{"data_size":"9921","io_hit":4399875,"io_need_acceleration":12301474,"success":true},"Yearly":{"data_size":"270","io_hit":11933784,"io_need_acceleration":21280100,"success":true},"has_history":true}
+/// id : "alloc_cache_2_1"
+/// is_actioning : false
+/// is_backgroundbuilding : false
+/// is_missing : false
+/// is_scheduled : false
+/// last_done_time : 0
+/// limited_disk_number : 24
+/// loaded : true
+/// maxDegradeFlush : false
+/// maximal_disk_size : "0"
+/// memory : "143360000"
+/// metadataCache : false
+/// metadataCacheOptionShow : false
+/// minimal_disk_size : "512103876608"
+/// minimal_spare_size : "0"
+/// missing_drives : []
+/// mode : "read"
+/// mountSpaceId : "volume_2"
+/// next_schedule_time : 0
+/// num_id : 0
+/// path : "/volume2"
+/// policy : 0
+/// pool_path : ""
+/// progress : {"cur_step":0,"is_resync_speed_limited":false,"percent":"-1","remaining_time":0,"step":"none","total_step":0}
+/// protectProgress : -1
+/// raids : [{"designedDiskCount":1,"devices":[{"id":"nvme0n1","slot":0,"status":"normal"}],"hasParity":false,"minDevSize":"512103876608","normalDevCount":1,"raidCrashedReason":0,"raidPath":"/dev/md4","raidStatus":1,"spares":[]}]
+/// repair_action : "none"
+/// scrubbingStatus : ""
+/// show_assemble_btn : false
+/// size : {"occupied":"0","reusable":"375226171392","total":"375809638400"}
+/// skipSeqIO : true
+/// space_path : "/dev/shared_cache_vg1/alloc_cache_1"
+/// space_status : {"detail":"cache_normal","show_attention":false,"show_danger":false,"show_flag_detail":"","status":"cache_normal","summary_status":"normal"}
+/// spares : []
+/// status : "normal"
+/// suggestions : []
+/// summary_status : "normal"
+/// task : "none"
+/// timebackup : false
+/// uuid : "3stnJL-wf9l-CIhc-0OGK-PDFU-XsVk-98NED5"
+/// version : 3
+/// version_status : "vol_latest_version"
+/// vspace_can_do : {"drbd":{"resize":{"can_do":false,"errCode":53504,"stopService":false}},"flashcache":{"apply":{"can_do":false,"errCode":768,"stopService":false},"remove":{"can_do":false,"errCode":768,"stopService":false},"resize":{"can_do":false,"errCode":768,"stopService":false}},"snapshot":{"resize":{"can_do":false,"errCode":53504,"stopService":false}}}
+
+class SsdCaches {
+  SsdCaches({
+    this.sSDPath,
+    this.ssduuid,
+    this.cacheStatus,
+    this.cacheDisks,
+    this.canAssemble,
+    this.canDo,
+    this.compatibility,
+    this.container,
+    this.dataScrubbing,
+    this.designedDiskCount,
+    this.devCount,
+    this.deviceType,
+    this.diskFailureNumber,
+    this.disks,
+    this.driveType,
+    this.hashMapping,
+    this.hitRate,
+    this.hitRateWrite,
+    this.hitRates,
+    this.id,
+    this.isActioning,
+    this.isBackgroundbuilding,
+    this.isMissing,
+    this.isScheduled,
+    this.lastDoneTime,
+    this.limitedDiskNumber,
+    this.loaded,
+    this.maxDegradeFlush,
+    this.maximalDiskSize,
+    this.memory,
+    this.metadataCache,
+    this.metadataCacheOptionShow,
+    this.minimalDiskSize,
+    this.minimalSpareSize,
+    this.missingDrives,
+    this.mode,
+    this.mountSpaceId,
+    this.nextScheduleTime,
+    this.numId,
+    this.path,
+    this.policy,
+    this.poolPath,
+    this.progress,
+    this.protectProgress,
+    this.raids,
+    this.repairAction,
+    this.scrubbingStatus,
+    this.showAssembleBtn,
+    this.size,
+    this.skipSeqIO,
+    this.spacePath,
+    this.spaceStatus,
+    this.spares,
+    this.status,
+    this.suggestions,
+    this.summaryStatus,
+    this.task,
+    this.timebackup,
+    this.uuid,
+    this.version,
+    this.versionStatus,
+    this.vspaceCanDo,
+  });
+
+  SsdCaches.fromJson(dynamic json) {
+    sSDPath = json['SSDPath'];
+    ssduuid = json['SSDUUID'];
+    cacheStatus = json['cacheStatus'];
+    if (json['cache_disks'] != null) {
+      cacheDisks = [];
+      // json['cache_disks'].forEach((v) {
+      //   cacheDisks?.add(Dynamic.fromJson(v));
+      // });
+    }
+    canAssemble = json['can_assemble'];
+    canDo = json['can_do'] != null ? CanDo.fromJson(json['can_do']) : null;
+    compatibility = json['compatibility'];
+    container = json['container'];
+    dataScrubbing = json['data_scrubbing'] != null ? DataScrubbing.fromJson(json['data_scrubbing']) : null;
+    designedDiskCount = json['designedDiskCount'];
+    devCount = json['dev_count'];
+    deviceType = json['device_type'];
+    diskFailureNumber = json['disk_failure_number'];
+    disks = json['disks'] != null ? json['disks'].cast<String>() : [];
+    driveType = json['drive_type'];
+    hashMapping = json['hash_mapping'];
+    hitRate = json['hit_rate'];
+    hitRateWrite = json['hit_rate_write'];
+    hitRates = json['hit_rates'] != null ? HitRates.fromJson(json['hit_rates']) : null;
+    id = json['id'];
+    isActioning = json['is_actioning'];
+    isBackgroundbuilding = json['is_backgroundbuilding'];
+    isMissing = json['is_missing'];
+    isScheduled = json['is_scheduled'];
+    lastDoneTime = json['last_done_time'];
+    limitedDiskNumber = json['limited_disk_number'];
+    loaded = json['loaded'];
+    maxDegradeFlush = json['maxDegradeFlush'];
+    maximalDiskSize = json['maximal_disk_size'];
+    memory = json['memory'];
+    metadataCache = json['metadataCache'];
+    metadataCacheOptionShow = json['metadataCacheOptionShow'];
+    minimalDiskSize = json['minimal_disk_size'];
+    minimalSpareSize = json['minimal_spare_size'];
+    if (json['missing_drives'] != null) {
+      missingDrives = [];
+      // json['missing_drives'].forEach((v) {
+      //   missingDrives?.add(Dynamic.fromJson(v));
+      // });
+    }
+    mode = json['mode'];
+    mountSpaceId = json['mountSpaceId'];
+    nextScheduleTime = json['next_schedule_time'];
+    numId = json['num_id'];
+    path = json['path'];
+    policy = json['policy'];
+    poolPath = json['pool_path'];
+    progress = json['progress'] != null ? Progress.fromJson(json['progress']) : null;
+    protectProgress = json['protectProgress'];
+    if (json['raids'] != null) {
+      raids = [];
+      json['raids'].forEach((v) {
+        raids?.add(Raids.fromJson(v));
+      });
+    }
+    repairAction = json['repair_action'];
+    scrubbingStatus = json['scrubbingStatus'];
+    showAssembleBtn = json['show_assemble_btn'];
+    size = json['size'] != null ? SsdCachesSize.fromJson(json['size']) : null;
+    skipSeqIO = json['skipSeqIO'];
+    spacePath = json['space_path'];
+    spaceStatus = json['space_status'] != null ? SpaceStatus.fromJson(json['space_status']) : null;
+    if (json['spares'] != null) {
+      spares = [];
+      // json['spares'].forEach((v) {
+      //   spares?.add(Dynamic.fromJson(v));
+      // });
+    }
+    status = json['status'];
+    if (json['suggestions'] != null) {
+      suggestions = [];
+      // json['suggestions'].forEach((v) {
+      //   suggestions?.add(Dynamic.fromJson(v));
+      // });
+    }
+    summaryStatus = json['summary_status'];
+    task = json['task'];
+    timebackup = json['timebackup'];
+    uuid = json['uuid'];
+    version = json['version'];
+    versionStatus = json['version_status'];
+    vspaceCanDo = json['vspace_can_do'] != null ? VspaceCanDo.fromJson(json['vspace_can_do']) : null;
+  }
+  String? sSDPath;
+  String? ssduuid;
+  String? cacheStatus;
+  List<dynamic>? cacheDisks;
+  bool? canAssemble;
+  CanDo? canDo;
+  bool? compatibility;
+  String? container;
+  DataScrubbing? dataScrubbing;
+  num? designedDiskCount;
+  num? devCount;
+  String? deviceType;
+  num? diskFailureNumber;
+  List<String>? disks;
+  num? driveType;
+  bool? hashMapping;
+  num? hitRate;
+  num? hitRateWrite;
+  HitRates? hitRates;
+  String? id;
+  bool? isActioning;
+  bool? isBackgroundbuilding;
+  bool? isMissing;
+  bool? isScheduled;
+  num? lastDoneTime;
+  num? limitedDiskNumber;
+  bool? loaded;
+  bool? maxDegradeFlush;
+  String? maximalDiskSize;
+  String? memory;
+  bool? metadataCache;
+  bool? metadataCacheOptionShow;
+  String? minimalDiskSize;
+  String? minimalSpareSize;
+  List<dynamic>? missingDrives;
+  String? mode;
+  String? mountSpaceId;
+  num? nextScheduleTime;
+  num? numId;
+  String? path;
+  num? policy;
+  String? poolPath;
+  Progress? progress;
+  num? protectProgress;
+  List<Raids>? raids;
+  String? repairAction;
+  String? scrubbingStatus;
+  bool? showAssembleBtn;
+  SsdCachesSize? size;
+  bool? skipSeqIO;
+  String? spacePath;
+  SpaceStatus? spaceStatus;
+  List<dynamic>? spares;
+  String? status;
+  DiskStatusEnum get statusEnum => DiskStatusEnum.fromValue(status ?? 'unknown');
+  List<dynamic>? suggestions;
+  String? summaryStatus;
+  String? task;
+  bool? timebackup;
+  String? uuid;
+  num? version;
+  String? versionStatus;
+  VspaceCanDo? vspaceCanDo;
+  SsdCaches copyWith({
+    String? sSDPath,
+    String? ssduuid,
+    String? cacheStatus,
+    List<dynamic>? cacheDisks,
+    bool? canAssemble,
+    CanDo? canDo,
+    bool? compatibility,
+    String? container,
+    DataScrubbing? dataScrubbing,
+    num? designedDiskCount,
+    num? devCount,
+    String? deviceType,
+    num? diskFailureNumber,
+    List<String>? disks,
+    num? driveType,
+    bool? hashMapping,
+    num? hitRate,
+    num? hitRateWrite,
+    HitRates? hitRates,
+    String? id,
+    bool? isActioning,
+    bool? isBackgroundbuilding,
+    bool? isMissing,
+    bool? isScheduled,
+    num? lastDoneTime,
+    num? limitedDiskNumber,
+    bool? loaded,
+    bool? maxDegradeFlush,
+    String? maximalDiskSize,
+    String? memory,
+    bool? metadataCache,
+    bool? metadataCacheOptionShow,
+    String? minimalDiskSize,
+    String? minimalSpareSize,
+    List<dynamic>? missingDrives,
+    String? mode,
+    String? mountSpaceId,
+    num? nextScheduleTime,
+    num? numId,
+    String? path,
+    num? policy,
+    String? poolPath,
+    Progress? progress,
+    num? protectProgress,
+    List<Raids>? raids,
+    String? repairAction,
+    String? scrubbingStatus,
+    bool? showAssembleBtn,
+    SsdCachesSize? size,
+    bool? skipSeqIO,
+    String? spacePath,
+    SpaceStatus? spaceStatus,
+    List<dynamic>? spares,
+    String? status,
+    List<dynamic>? suggestions,
+    String? summaryStatus,
+    String? task,
+    bool? timebackup,
+    String? uuid,
+    num? version,
+    String? versionStatus,
+    VspaceCanDo? vspaceCanDo,
+  }) =>
+      SsdCaches(
+        sSDPath: sSDPath ?? this.sSDPath,
+        ssduuid: ssduuid ?? this.ssduuid,
+        cacheStatus: cacheStatus ?? this.cacheStatus,
+        cacheDisks: cacheDisks ?? this.cacheDisks,
+        canAssemble: canAssemble ?? this.canAssemble,
+        canDo: canDo ?? this.canDo,
+        compatibility: compatibility ?? this.compatibility,
+        container: container ?? this.container,
+        dataScrubbing: dataScrubbing ?? this.dataScrubbing,
+        designedDiskCount: designedDiskCount ?? this.designedDiskCount,
+        devCount: devCount ?? this.devCount,
+        deviceType: deviceType ?? this.deviceType,
+        diskFailureNumber: diskFailureNumber ?? this.diskFailureNumber,
+        disks: disks ?? this.disks,
+        driveType: driveType ?? this.driveType,
+        hashMapping: hashMapping ?? this.hashMapping,
+        hitRate: hitRate ?? this.hitRate,
+        hitRateWrite: hitRateWrite ?? this.hitRateWrite,
+        hitRates: hitRates ?? this.hitRates,
+        id: id ?? this.id,
+        isActioning: isActioning ?? this.isActioning,
+        isBackgroundbuilding: isBackgroundbuilding ?? this.isBackgroundbuilding,
+        isMissing: isMissing ?? this.isMissing,
+        isScheduled: isScheduled ?? this.isScheduled,
+        lastDoneTime: lastDoneTime ?? this.lastDoneTime,
+        limitedDiskNumber: limitedDiskNumber ?? this.limitedDiskNumber,
+        loaded: loaded ?? this.loaded,
+        maxDegradeFlush: maxDegradeFlush ?? this.maxDegradeFlush,
+        maximalDiskSize: maximalDiskSize ?? this.maximalDiskSize,
+        memory: memory ?? this.memory,
+        metadataCache: metadataCache ?? this.metadataCache,
+        metadataCacheOptionShow: metadataCacheOptionShow ?? this.metadataCacheOptionShow,
+        minimalDiskSize: minimalDiskSize ?? this.minimalDiskSize,
+        minimalSpareSize: minimalSpareSize ?? this.minimalSpareSize,
+        missingDrives: missingDrives ?? this.missingDrives,
+        mode: mode ?? this.mode,
+        mountSpaceId: mountSpaceId ?? this.mountSpaceId,
+        nextScheduleTime: nextScheduleTime ?? this.nextScheduleTime,
+        numId: numId ?? this.numId,
+        path: path ?? this.path,
+        policy: policy ?? this.policy,
+        poolPath: poolPath ?? this.poolPath,
+        progress: progress ?? this.progress,
+        protectProgress: protectProgress ?? this.protectProgress,
+        raids: raids ?? this.raids,
+        repairAction: repairAction ?? this.repairAction,
+        scrubbingStatus: scrubbingStatus ?? this.scrubbingStatus,
+        showAssembleBtn: showAssembleBtn ?? this.showAssembleBtn,
+        size: size ?? this.size,
+        skipSeqIO: skipSeqIO ?? this.skipSeqIO,
+        spacePath: spacePath ?? this.spacePath,
+        spaceStatus: spaceStatus ?? this.spaceStatus,
+        spares: spares ?? this.spares,
+        status: status ?? this.status,
+        suggestions: suggestions ?? this.suggestions,
+        summaryStatus: summaryStatus ?? this.summaryStatus,
+        task: task ?? this.task,
+        timebackup: timebackup ?? this.timebackup,
+        uuid: uuid ?? this.uuid,
+        version: version ?? this.version,
+        versionStatus: versionStatus ?? this.versionStatus,
+        vspaceCanDo: vspaceCanDo ?? this.vspaceCanDo,
+      );
+  Map<String, dynamic> toJson() {
+    final map = <String, dynamic>{};
+    map['SSDPath'] = sSDPath;
+    map['SSDUUID'] = ssduuid;
+    map['cacheStatus'] = cacheStatus;
+    if (cacheDisks != null) {
+      map['cache_disks'] = cacheDisks?.map((v) => v.toJson()).toList();
+    }
+    map['can_assemble'] = canAssemble;
+    if (canDo != null) {
+      map['can_do'] = canDo?.toJson();
+    }
+    map['compatibility'] = compatibility;
+    map['container'] = container;
+    if (dataScrubbing != null) {
+      map['data_scrubbing'] = dataScrubbing?.toJson();
+    }
+    map['designedDiskCount'] = designedDiskCount;
+    map['dev_count'] = devCount;
+    map['device_type'] = deviceType;
+    map['disk_failure_number'] = diskFailureNumber;
+    map['disks'] = disks;
+    map['drive_type'] = driveType;
+    map['hash_mapping'] = hashMapping;
+    map['hit_rate'] = hitRate;
+    map['hit_rate_write'] = hitRateWrite;
+    if (hitRates != null) {
+      map['hit_rates'] = hitRates?.toJson();
+    }
+    map['id'] = id;
+    map['is_actioning'] = isActioning;
+    map['is_backgroundbuilding'] = isBackgroundbuilding;
+    map['is_missing'] = isMissing;
+    map['is_scheduled'] = isScheduled;
+    map['last_done_time'] = lastDoneTime;
+    map['limited_disk_number'] = limitedDiskNumber;
+    map['loaded'] = loaded;
+    map['maxDegradeFlush'] = maxDegradeFlush;
+    map['maximal_disk_size'] = maximalDiskSize;
+    map['memory'] = memory;
+    map['metadataCache'] = metadataCache;
+    map['metadataCacheOptionShow'] = metadataCacheOptionShow;
+    map['minimal_disk_size'] = minimalDiskSize;
+    map['minimal_spare_size'] = minimalSpareSize;
+    if (missingDrives != null) {
+      map['missing_drives'] = missingDrives?.map((v) => v.toJson()).toList();
+    }
+    map['mode'] = mode;
+    map['mountSpaceId'] = mountSpaceId;
+    map['next_schedule_time'] = nextScheduleTime;
+    map['num_id'] = numId;
+    map['path'] = path;
+    map['policy'] = policy;
+    map['pool_path'] = poolPath;
+    if (progress != null) {
+      map['progress'] = progress?.toJson();
+    }
+    map['protectProgress'] = protectProgress;
+    if (raids != null) {
+      map['raids'] = raids?.map((v) => v.toJson()).toList();
+    }
+    map['repair_action'] = repairAction;
+    map['scrubbingStatus'] = scrubbingStatus;
+    map['show_assemble_btn'] = showAssembleBtn;
+    if (size != null) {
+      map['size'] = size?.toJson();
+    }
+    map['skipSeqIO'] = skipSeqIO;
+    map['space_path'] = spacePath;
+    if (spaceStatus != null) {
+      map['space_status'] = spaceStatus?.toJson();
+    }
+    if (spares != null) {
+      map['spares'] = spares?.map((v) => v.toJson()).toList();
+    }
+    map['status'] = status;
+    if (suggestions != null) {
+      map['suggestions'] = suggestions?.map((v) => v.toJson()).toList();
+    }
+    map['summary_status'] = summaryStatus;
+    map['task'] = task;
+    map['timebackup'] = timebackup;
+    map['uuid'] = uuid;
+    map['version'] = version;
+    map['version_status'] = versionStatus;
+    if (vspaceCanDo != null) {
+      map['vspace_can_do'] = vspaceCanDo?.toJson();
+    }
+    return map;
+  }
+}
+
+/// can_do : false
+/// errCode : 53504
+/// stopService : false
+
+class VSpaceCanDo {
+  VSpaceCanDo({
+    this.canDo,
+    this.errCode,
+    this.stopService,
+  });
+
+  VSpaceCanDo.fromJson(dynamic json) {
+    canDo = json['can_do'];
+    errCode = json['errCode'];
+    stopService = json['stopService'];
+  }
+  bool? canDo;
+  num? errCode;
+  bool? stopService;
+  VSpaceCanDo copyWith({
+    bool? canDo,
+    num? errCode,
+    bool? stopService,
+  }) =>
+      VSpaceCanDo(
+        canDo: canDo ?? this.canDo,
+        errCode: errCode ?? this.errCode,
+        stopService: stopService ?? this.stopService,
+      );
+  Map<String, dynamic> toJson() {
+    final map = <String, dynamic>{};
+    map['can_do'] = canDo;
+    map['errCode'] = errCode;
+    map['stopService'] = stopService;
+    return map;
+  }
+}
+
+/// occupied : "0"
+/// reusable : "375226171392"
+/// total : "375809638400"
+
+class SsdCachesSize {
+  SsdCachesSize({
+    this.occupied,
+    this.reusable,
+    this.total,
+  });
+
+  SsdCachesSize.fromJson(dynamic json) {
+    occupied = json['occupied'];
+    reusable = json['reusable'];
+    total = json['total'];
+  }
+  String? occupied;
+  String? reusable;
+  String? total;
+
+  num get reusableNum => reusable != null ? (num.tryParse(reusable!) ?? 0) : 0;
+  num get totalNum => total != null ? (num.tryParse(total!) ?? 0) : 0;
+  num get freeNum => totalNum - reusableNum;
+
+  num get usedPercent {
+    try {
+      return reusableNum / totalNum * 100;
+    } catch (e) {
+      return 0;
+    }
+  }
+
+  SsdCachesSize copyWith({
+    String? occupied,
+    String? reusable,
+    String? total,
+  }) =>
+      SsdCachesSize(
+        occupied: occupied ?? this.occupied,
+        reusable: reusable ?? this.reusable,
+        total: total ?? this.total,
+      );
+  Map<String, dynamic> toJson() {
+    final map = <String, dynamic>{};
+    map['occupied'] = occupied;
+    map['reusable'] = reusable;
+    map['total'] = total;
+    return map;
+  }
+}
+
+/// Current : {"data_size":1,"io_hit":765,"io_need_acceleration":828,"success":true}
+/// Daily : {"data_size":"1409","io_hit":430057,"io_need_acceleration":511425,"success":true}
+/// HalfYearly : {"data_size":"1080","io_hit":11917627,"io_need_acceleration":21257019,"success":true}
+/// Minutely : {"data_size":"14","io_hit":9157,"io_need_acceleration":13215,"success":true}
+/// Monthly : {"data_size":"6441","io_hit":11927056,"io_need_acceleration":21270257,"success":true}
+/// Weekly : {"data_size":"9921","io_hit":4399875,"io_need_acceleration":12301474,"success":true}
+/// Yearly : {"data_size":"270","io_hit":11933784,"io_need_acceleration":21280100,"success":true}
+/// has_history : true
+
+class HitRates {
+  HitRates({
+    this.current,
+    this.daily,
+    this.halfYearly,
+    this.minutely,
+    this.monthly,
+    this.weekly,
+    this.yearly,
+    this.hasHistory,
+  });
+
+  HitRates.fromJson(dynamic json) {
+    current = json['Current'] != null ? HitRateDetail.fromJson(json['Current']) : null;
+    daily = json['Daily'] != null ? HitRateDetail.fromJson(json['Daily']) : null;
+    halfYearly = json['HalfYearly'] != null ? HitRateDetail.fromJson(json['HalfYearly']) : null;
+    minutely = json['Minutely'] != null ? HitRateDetail.fromJson(json['Minutely']) : null;
+    monthly = json['Monthly'] != null ? HitRateDetail.fromJson(json['Monthly']) : null;
+    weekly = json['Weekly'] != null ? HitRateDetail.fromJson(json['Weekly']) : null;
+    yearly = json['Yearly'] != null ? HitRateDetail.fromJson(json['Yearly']) : null;
+    hasHistory = json['has_history'];
+  }
+  HitRateDetail? current;
+  HitRateDetail? daily;
+  HitRateDetail? halfYearly;
+  HitRateDetail? minutely;
+  HitRateDetail? monthly;
+  HitRateDetail? weekly;
+  HitRateDetail? yearly;
+  bool? hasHistory;
+  HitRates copyWith({
+    HitRateDetail? current,
+    HitRateDetail? daily,
+    HitRateDetail? halfYearly,
+    HitRateDetail? minutely,
+    HitRateDetail? monthly,
+    HitRateDetail? weekly,
+    HitRateDetail? yearly,
+    bool? hasHistory,
+  }) =>
+      HitRates(
+        current: current ?? this.current,
+        daily: daily ?? this.daily,
+        halfYearly: halfYearly ?? this.halfYearly,
+        minutely: minutely ?? this.minutely,
+        monthly: monthly ?? this.monthly,
+        weekly: weekly ?? this.weekly,
+        yearly: yearly ?? this.yearly,
+        hasHistory: hasHistory ?? this.hasHistory,
+      );
+  Map<String, dynamic> toJson() {
+    final map = <String, dynamic>{};
+    if (current != null) {
+      map['Current'] = current?.toJson();
+    }
+    if (daily != null) {
+      map['Daily'] = daily?.toJson();
+    }
+    if (halfYearly != null) {
+      map['HalfYearly'] = halfYearly?.toJson();
+    }
+    if (minutely != null) {
+      map['Minutely'] = minutely?.toJson();
+    }
+    if (monthly != null) {
+      map['Monthly'] = monthly?.toJson();
+    }
+    if (weekly != null) {
+      map['Weekly'] = weekly?.toJson();
+    }
+    if (yearly != null) {
+      map['Yearly'] = yearly?.toJson();
+    }
+    map['has_history'] = hasHistory;
+    return map;
+  }
+}
+
+/// data_size : 1
+/// io_hit : 765
+/// io_need_acceleration : 828
+/// success : true
+
+class HitRateDetail {
+  HitRateDetail({
+    this.dataSize,
+    this.ioHit,
+    this.ioNeedAcceleration,
+    this.success,
+  });
+
+  HitRateDetail.fromJson(dynamic json) {
+    dataSize = num.parse("${json['data_size']}");
+    ioHit = json['io_hit'];
+    ioNeedAcceleration = json['io_need_acceleration'];
+    success = json['success'];
+  }
+  num? dataSize;
+  num? ioHit;
+  num? ioNeedAcceleration;
+  bool? success;
+  HitRateDetail copyWith({
+    num? dataSize,
+    num? ioHit,
+    num? ioNeedAcceleration,
+    bool? success,
+  }) =>
+      HitRateDetail(
+        dataSize: dataSize ?? this.dataSize,
+        ioHit: ioHit ?? this.ioHit,
+        ioNeedAcceleration: ioNeedAcceleration ?? this.ioNeedAcceleration,
+        success: success ?? this.success,
+      );
+  Map<String, dynamic> toJson() {
+    final map = <String, dynamic>{};
+    map['data_size'] = dataSize;
+    map['io_hit'] = ioHit;
+    map['io_need_acceleration'] = ioNeedAcceleration;
+    map['success'] = success;
     return map;
   }
 }

@@ -1,16 +1,16 @@
 import 'package:dsm_helper/models/Syno/Storage/Cgi/Storage.dart';
 import 'package:dsm_helper/pages/dashboard/enums/volume_status_enum.dart';
+import 'package:dsm_helper/pages/storage_manager/enums/disk_status_enum.dart';
 import 'package:dsm_helper/themes/app_theme.dart';
 import 'package:dsm_helper/utils/utils.dart';
 import 'package:dsm_helper/widgets/label.dart';
 import 'package:dsm_helper/widgets/line_progress_bar.dart';
 import 'package:flutter/material.dart';
 
-class VolumeItemWidget extends StatelessWidget {
-  final Volumes volume;
+class SharedCacheItemWidget extends StatelessWidget {
+  final SharedCaches sharedCache;
   final bool isLast;
-  final bool showFileSystem;
-  const VolumeItemWidget(this.volume, {this.isLast = false, this.showFileSystem = false, super.key});
+  const SharedCacheItemWidget(this.sharedCache, {this.isLast = false, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -20,43 +20,33 @@ class VolumeItemWidget extends StatelessWidget {
         Row(
           children: [
             Text(
-              "${volume.displayName}",
+              "SSD 缓存群组 ${sharedCache.numId}",
               style: TextStyle(fontWeight: FontWeight.w600, color: Colors.grey),
             ),
-            SizedBox(width: 5),
-            Label(
-              volume.statusEnum != VolumeStatusEnum.unknown ? volume.statusEnum.label : volume.status!,
-              volume.statusEnum.color,
-              fill: true,
-            ),
-            if (showFileSystem) ...[
-              SizedBox(width: 5),
-              Label(volume.fsType!, AppTheme.of(context)?.primaryColor ?? Colors.blue),
-            ],
           ],
         ),
         Text(
-          "${volume.size!.usedPercent.toStringAsFixed(1)}%",
+          "${sharedCache.size!.usedPercent.toStringAsFixed(1)}%",
           style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
         ),
         SizedBox(height: 5),
-        LineProgressBar(value: volume.size!.usedPercent),
+        LineProgressBar(value: sharedCache.size!.usedPercent),
         SizedBox(height: 5),
         DefaultTextStyle(
           style: TextStyle(fontSize: 12),
           child: Row(
             children: [
               Text(
-                "已用 ${Utils.formatSize(volume.size!.used!)} ",
-                style: TextStyle(color: volume.size!.usedPercent > 80 ? AppTheme.of(context)?.errorColor : AppTheme.of(context)?.primaryColor),
+                "已用 ${Utils.formatSize(sharedCache.size!.usedNum)} ",
+                style: TextStyle(color: sharedCache.size!.usedPercent > 80 ? AppTheme.of(context)?.errorColor : AppTheme.of(context)?.primaryColor),
               ),
               Text(
-                "/ ${Utils.formatSize(volume.size!.total!)}",
+                "/ ${Utils.formatSize(sharedCache.size!.totalNum)}",
                 style: TextStyle(color: AppTheme.of(context)?.placeholderColor),
               ),
               Spacer(),
               Text(
-                "可用：${Utils.formatSize(volume.size!.free!)}",
+                "可用：${Utils.formatSize(sharedCache.size!.freeNum)}",
                 style: TextStyle(color: AppTheme.of(context)?.successColor),
               ),
             ],

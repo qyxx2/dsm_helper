@@ -13,6 +13,8 @@ class Utilization {
     this.memory,
     this.network,
     this.time,
+    this.lun,
+    this.space,
   });
 
   static Future<Utilization> get() async {
@@ -32,10 +34,23 @@ class Utilization {
     cpu = json['cpu'] != null ? Cpu.fromJson(json['cpu']) : null;
     disk = json['disk'] != null ? Disk.fromJson(json['disk']) : null;
     memory = json['memory'] != null ? Memory.fromJson(json['memory']) : null;
+    space = json['space'] != null ? Space.fromJson(json['space']) : null;
     if (json['network'] != null) {
       network = [];
       json['network'].forEach((v) {
         network?.add(Network.fromJson(v));
+      });
+    }
+    if (json['lun'] != null) {
+      lun = [];
+      json['lun'].forEach((v) {
+        lun?.add(Lun.fromJson(v));
+      });
+    }
+    if (json['nfs'] != null) {
+      nfs = [];
+      json['nfs'].forEach((v) {
+        nfs?.add(Nfs.fromJson(v));
       });
     }
     time = json['time'];
@@ -44,6 +59,9 @@ class Utilization {
   Disk? disk;
   Memory? memory;
   List<Network>? network;
+  List<Lun>? lun;
+  List<Nfs>? nfs;
+  Space? space;
   num? time;
   Utilization copyWith({
     Cpu? cpu,
@@ -51,6 +69,7 @@ class Utilization {
     Memory? memory,
     List<Network>? network,
     num? time,
+    Space? space,
   }) =>
       Utilization(
         cpu: cpu ?? this.cpu,
@@ -58,6 +77,7 @@ class Utilization {
         memory: memory ?? this.memory,
         network: network ?? this.network,
         time: time ?? this.time,
+        space: space ?? this.space,
       );
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
@@ -425,7 +445,7 @@ class Cpu {
   num? systemLoad;
   num? userLoad;
 
-  int get totalLoad => ((userLoad ?? 0) + (systemLoad ?? 0) + (otherLoad ?? 0)).toInt();
+  num get totalLoad => ((userLoad ?? 0) + (systemLoad ?? 0) + (otherLoad ?? 0));
 
   Cpu copyWith({
     num? minLoad15,
@@ -454,6 +474,307 @@ class Cpu {
     map['other_load'] = otherLoad;
     map['system_load'] = systemLoad;
     map['user_load'] = userLoad;
+    return map;
+  }
+}
+
+/// total : {"device":"total","read_access":0,"read_byte":0,"utilization":3,"write_access":17,"write_byte":276069}
+/// volume : [{"device":"dm-0","display_name":"volume3","read_access":0,"read_byte":0,"utilization":9,"write_access":1,"write_byte":27852},{"device":"dm-1","display_name":"volume4","read_access":0,"read_byte":0,"utilization":1,"write_access":16,"write_byte":248217},{"device":"dm-3","display_name":"volume1","read_access":0,"read_byte":0,"utilization":0,"write_access":0,"write_byte":0}]
+
+class Space {
+  Space({
+    this.total,
+    this.volume,
+  });
+
+  Space.fromJson(dynamic json) {
+    total = json['total'] != null ? Total.fromJson(json['total']) : null;
+    if (json['volume'] != null) {
+      volume = [];
+      json['volume'].forEach((v) {
+        volume?.add(Volume.fromJson(v));
+      });
+    }
+  }
+  Total? total;
+  List<Volume>? volume;
+  Space copyWith({
+    Total? total,
+    List<Volume>? volume,
+  }) =>
+      Space(
+        total: total ?? this.total,
+        volume: volume ?? this.volume,
+      );
+  Map<String, dynamic> toJson() {
+    final map = <String, dynamic>{};
+    if (total != null) {
+      map['total'] = total?.toJson();
+    }
+    if (volume != null) {
+      map['volume'] = volume?.map((v) => v.toJson()).toList();
+    }
+    return map;
+  }
+}
+
+/// device : "dm-0"
+/// display_name : "volume3"
+/// read_access : 0
+/// read_byte : 0
+/// utilization : 9
+/// write_access : 1
+/// write_byte : 27852
+
+class Volume {
+  Volume({
+    this.device,
+    this.displayName,
+    this.readAccess,
+    this.readByte,
+    this.utilization,
+    this.writeAccess,
+    this.writeByte,
+  });
+
+  Volume.fromJson(dynamic json) {
+    device = json['device'];
+    displayName = json['display_name'];
+    readAccess = json['read_access'];
+    readByte = json['read_byte'];
+    utilization = json['utilization'];
+    writeAccess = json['write_access'];
+    writeByte = json['write_byte'];
+  }
+  String? device;
+  String? displayName;
+  num? readAccess;
+  num? readByte;
+  num? utilization;
+  num? writeAccess;
+  num? writeByte;
+  Volume copyWith({
+    String? device,
+    String? displayName,
+    num? readAccess,
+    num? readByte,
+    num? utilization,
+    num? writeAccess,
+    num? writeByte,
+  }) =>
+      Volume(
+        device: device ?? this.device,
+        displayName: displayName ?? this.displayName,
+        readAccess: readAccess ?? this.readAccess,
+        readByte: readByte ?? this.readByte,
+        utilization: utilization ?? this.utilization,
+        writeAccess: writeAccess ?? this.writeAccess,
+        writeByte: writeByte ?? this.writeByte,
+      );
+  Map<String, dynamic> toJson() {
+    final map = <String, dynamic>{};
+    map['device'] = device;
+    map['display_name'] = displayName;
+    map['read_access'] = readAccess;
+    map['read_byte'] = readByte;
+    map['utilization'] = utilization;
+    map['write_access'] = writeAccess;
+    map['write_byte'] = writeByte;
+    return map;
+  }
+}
+
+/// deferred_cmd_cnt : 0
+/// lun_name : "LUN-esxi-zhuluyou"
+/// read_avg_cmd_size : 0
+/// read_avg_latency : 0
+/// read_iops : 0
+/// read_throughput : 0
+/// rx_avg_latency : 0
+/// total_io_latency : 0
+/// total_iops : 0
+/// total_throughput : 0
+/// tx_avg_latency : 0
+/// uuid : "0646c859-b72c-461c-9bb7-8ab874e8af4f"
+/// write_avg_cmd_size : 0
+/// write_avg_latency : 0
+/// write_iops : 0
+/// write_throughput : 0
+
+class Lun {
+  Lun({
+    this.deferredCmdCnt,
+    this.lunName,
+    this.readAvgCmdSize,
+    this.readAvgLatency,
+    this.readIops,
+    this.readThroughput,
+    this.rxAvgLatency,
+    this.totalIoLatency,
+    this.totalIops,
+    this.totalThroughput,
+    this.txAvgLatency,
+    this.uuid,
+    this.writeAvgCmdSize,
+    this.writeAvgLatency,
+    this.writeIops,
+    this.writeThroughput,
+  });
+
+  Lun.fromJson(dynamic json) {
+    deferredCmdCnt = json['deferred_cmd_cnt'];
+    lunName = json['lun_name'];
+    readAvgCmdSize = json['read_avg_cmd_size'];
+    readAvgLatency = json['read_avg_latency'];
+    readIops = json['read_iops'];
+    readThroughput = json['read_throughput'];
+    rxAvgLatency = json['rx_avg_latency'];
+    totalIoLatency = json['total_io_latency'];
+    totalIops = json['total_iops'];
+    totalThroughput = json['total_throughput'];
+    txAvgLatency = json['tx_avg_latency'];
+    uuid = json['uuid'];
+    writeAvgCmdSize = json['write_avg_cmd_size'];
+    writeAvgLatency = json['write_avg_latency'];
+    writeIops = json['write_iops'];
+    writeThroughput = json['write_throughput'];
+  }
+  num? deferredCmdCnt;
+  String? lunName;
+  num? readAvgCmdSize;
+  num? readAvgLatency;
+  num? readIops;
+  num? readThroughput;
+  num? rxAvgLatency;
+  num? totalIoLatency;
+  num? totalIops;
+  num? totalThroughput;
+  num? txAvgLatency;
+  String? uuid;
+  num? writeAvgCmdSize;
+  num? writeAvgLatency;
+  num? writeIops;
+  num? writeThroughput;
+  Lun copyWith({
+    num? deferredCmdCnt,
+    String? lunName,
+    num? readAvgCmdSize,
+    num? readAvgLatency,
+    num? readIops,
+    num? readThroughput,
+    num? rxAvgLatency,
+    num? totalIoLatency,
+    num? totalIops,
+    num? totalThroughput,
+    num? txAvgLatency,
+    String? uuid,
+    num? writeAvgCmdSize,
+    num? writeAvgLatency,
+    num? writeIops,
+    num? writeThroughput,
+  }) =>
+      Lun(
+        deferredCmdCnt: deferredCmdCnt ?? this.deferredCmdCnt,
+        lunName: lunName ?? this.lunName,
+        readAvgCmdSize: readAvgCmdSize ?? this.readAvgCmdSize,
+        readAvgLatency: readAvgLatency ?? this.readAvgLatency,
+        readIops: readIops ?? this.readIops,
+        readThroughput: readThroughput ?? this.readThroughput,
+        rxAvgLatency: rxAvgLatency ?? this.rxAvgLatency,
+        totalIoLatency: totalIoLatency ?? this.totalIoLatency,
+        totalIops: totalIops ?? this.totalIops,
+        totalThroughput: totalThroughput ?? this.totalThroughput,
+        txAvgLatency: txAvgLatency ?? this.txAvgLatency,
+        uuid: uuid ?? this.uuid,
+        writeAvgCmdSize: writeAvgCmdSize ?? this.writeAvgCmdSize,
+        writeAvgLatency: writeAvgLatency ?? this.writeAvgLatency,
+        writeIops: writeIops ?? this.writeIops,
+        writeThroughput: writeThroughput ?? this.writeThroughput,
+      );
+  Map<String, dynamic> toJson() {
+    final map = <String, dynamic>{};
+    map['deferred_cmd_cnt'] = deferredCmdCnt;
+    map['lun_name'] = lunName;
+    map['read_avg_cmd_size'] = readAvgCmdSize;
+    map['read_avg_latency'] = readAvgLatency;
+    map['read_iops'] = readIops;
+    map['read_throughput'] = readThroughput;
+    map['rx_avg_latency'] = rxAvgLatency;
+    map['total_io_latency'] = totalIoLatency;
+    map['total_iops'] = totalIops;
+    map['total_throughput'] = totalThroughput;
+    map['tx_avg_latency'] = txAvgLatency;
+    map['uuid'] = uuid;
+    map['write_avg_cmd_size'] = writeAvgCmdSize;
+    map['write_avg_latency'] = writeAvgLatency;
+    map['write_iops'] = writeIops;
+    map['write_throughput'] = writeThroughput;
+    return map;
+  }
+}
+
+/// device : "nfs"
+/// read_OPS : 0
+/// read_max_latency : 0
+/// total_OPS : 0
+/// total_max_latency : 0
+/// write_OPS : 0
+/// write_max_latency : 0
+
+class Nfs {
+  Nfs({
+    this.device,
+    this.readOPS,
+    this.readMaxLatency,
+    this.totalOPS,
+    this.totalMaxLatency,
+    this.writeOPS,
+    this.writeMaxLatency,
+  });
+
+  Nfs.fromJson(dynamic json) {
+    device = json['device'];
+    readOPS = json['read_OPS'];
+    readMaxLatency = json['read_max_latency'];
+    totalOPS = json['total_OPS'];
+    totalMaxLatency = json['total_max_latency'];
+    writeOPS = json['write_OPS'];
+    writeMaxLatency = json['write_max_latency'];
+  }
+  String? device;
+  num? readOPS;
+  num? readMaxLatency;
+  num? totalOPS;
+  num? totalMaxLatency;
+  num? writeOPS;
+  num? writeMaxLatency;
+  Nfs copyWith({
+    String? device,
+    num? readOPS,
+    num? readMaxLatency,
+    num? totalOPS,
+    num? totalMaxLatency,
+    num? writeOPS,
+    num? writeMaxLatency,
+  }) =>
+      Nfs(
+        device: device ?? this.device,
+        readOPS: readOPS ?? this.readOPS,
+        readMaxLatency: readMaxLatency ?? this.readMaxLatency,
+        totalOPS: totalOPS ?? this.totalOPS,
+        totalMaxLatency: totalMaxLatency ?? this.totalMaxLatency,
+        writeOPS: writeOPS ?? this.writeOPS,
+        writeMaxLatency: writeMaxLatency ?? this.writeMaxLatency,
+      );
+  Map<String, dynamic> toJson() {
+    final map = <String, dynamic>{};
+    map['device'] = device;
+    map['read_OPS'] = readOPS;
+    map['read_max_latency'] = readMaxLatency;
+    map['total_OPS'] = totalOPS;
+    map['total_max_latency'] = totalMaxLatency;
+    map['write_OPS'] = writeOPS;
+    map['write_max_latency'] = writeMaxLatency;
     return map;
   }
 }

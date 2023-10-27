@@ -1,7 +1,7 @@
+import 'package:dsm_helper/pages/resource_monitor/performance_tab.dart';
 import 'package:dsm_helper/widgets/glass/glass_app_bar.dart';
 import 'package:dsm_helper/widgets/glass/glass_scaffold.dart';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class ResourceMonitor extends StatefulWidget {
@@ -36,7 +36,9 @@ class _ResourceMonitorState extends State<ResourceMonitor> with SingleTickerProv
       body: TabBarView(
         controller: _tabController,
         children: [
-          Container(),
+          PerformanceTab(
+            tabIndex: 0,
+          ),
           Container(),
           Container(),
         ],

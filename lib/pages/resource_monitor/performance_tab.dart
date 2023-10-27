@@ -1,25 +1,29 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:dsm_helper/models/Syno/Core/System/Utilization.dart';
+import 'package:dsm_helper/pages/dashboard/widgets/widget_card.dart';
+import 'package:dsm_helper/pages/resource_monitor/widgets/cpu_chart_widget.dart';
+import 'package:dsm_helper/pages/resource_monitor/widgets/memory_chart_widget.dart';
 import 'package:dsm_helper/providers/setting_provider.dart';
+import 'package:dsm_helper/themes/app_theme.dart';
 import 'package:dsm_helper/utils/utils.dart';
-import 'package:dsm_helper/widgets/glass/glass_app_bar.dart';
-import 'package:dsm_helper/widgets/glass/glass_scaffold.dart';
 import 'package:dsm_helper/widgets/loading_widget.dart';
 
 import 'package:flutter/material.dart';
 
 import 'package:provider/provider.dart';
 
-class Performance extends StatefulWidget {
-  Performance({this.tabIndex = 0});
+class PerformanceTab extends StatefulWidget {
+  PerformanceTab({this.tabIndex = 0});
   final int tabIndex;
   @override
-  _PerformanceState createState() => _PerformanceState();
+  _PerformanceTabState createState() => _PerformanceTabState();
 }
 
-class _PerformanceState extends State<Performance> with SingleTickerProviderStateMixin {
+class _PerformanceTabState extends State<PerformanceTab> with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  List<Utilization> utilizations = List.generate(30, (index) => Utilization());
   bool loading = true;
   List cpus = [];
   List memories = [];
@@ -29,13 +33,58 @@ class _PerformanceState extends State<Performance> with SingleTickerProviderStat
   List luns = [];
   List colors = [Colors.red, Colors.purpleAccent, Colors.redAccent, Colors.green, Colors.amber, Colors.orange, Colors.teal, Colors.indigoAccent, Colors.cyanAccent, Colors.yellow, Colors.black, Colors.lightGreenAccent, Colors.pinkAccent];
   Timer? timer;
-  num maxNetworkSpeed = 0;
+  int get maxNetworkSpeed {
+    int maxSpeed = 0;
+    for (var utilization in utilizations) {
+      int maxVal = max(utilization.network?.first.rx ?? 0, utilization.network?.first.tx ?? 0);
+      if (maxSpeed < maxVal) {
+        maxSpeed = maxVal;
+      }
+    }
+    return maxSpeed;
+  }
+
+  int get maxDiskSpeed {
+    int maxSpeed = 0;
+    for (var utilization in utilizations) {
+      int maxVal = max(utilization.disk?.total?.readByte?.toInt() ?? 0, utilization.disk?.total?.writeByte?.toInt() ?? 0);
+      if (maxSpeed < maxVal) {
+        maxSpeed = maxVal;
+      }
+    }
+    return maxSpeed;
+  }
+
+  int get maxVolumeSpeed {
+    int maxSpeed = 0;
+    for (var utilization in utilizations) {
+      int maxVal = max(utilization.space?.total?.readByte?.toInt() ?? 0, utilization.space?.total?.writeByte?.toInt() ?? 0);
+      if (maxSpeed < maxVal) {
+        maxSpeed = maxVal;
+      }
+    }
+    return maxSpeed;
+  }
+
+  int get maxLunSpeed {
+    int maxSpeed = 0;
+    for (var utilization in utilizations) {
+      if (utilization.lun != null) {
+        for (var lun in utilization.lun!) {
+          int maxVal = max(lun.readThroughput?.toInt() ?? 0, lun.writeThroughput?.toInt() ?? 0);
+          if (maxSpeed < maxVal) {
+            maxSpeed = maxVal;
+          }
+        }
+      }
+    }
+    return maxSpeed;
+  }
+
   num maxDiskReadSpeed = 0;
   num maxDiskWriteSpeed = 0;
   num maxVolumeReadSpeed = 0;
   num maxVolumeWriteSpeed = 0;
-
-  num networkCount = 0;
   @override
   void initState() {
     final settingProvider = Provider.of<SettingProvider>(context, listen: false);
@@ -54,74 +103,123 @@ class _PerformanceState extends State<Performance> with SingleTickerProviderStat
   }
 
   getData() async {
-    var res = await Api.utilization();
-    if (res['success']) {
-      if (mounted)
-        setState(() {
-          loading = false;
-          if (cpus.length > 30) {
-            cpus.removeAt(0);
-            disks.removeAt(0);
-            luns.removeAt(0);
-            memories.removeAt(0);
-            networks.removeAt(0);
-            spaces.removeAt(0);
-          }
-          cpus.add(res['data']['cpu']);
-          disks.add(res['data']['disk']);
-          if (res['data']['disk']['total']['read_byte'] > maxDiskReadSpeed) {
-            maxDiskReadSpeed = res['data']['disk']['total']['read_byte'];
-          }
-          if (res['data']['disk']['total']['write_byte'] > maxDiskWriteSpeed) {
-            maxDiskWriteSpeed = res['data']['disk']['total']['write_byte'];
-          }
-
-          luns.add(res['data']['lun']);
-          memories.add(res['data']['memory']);
-          networks.add(res['data']['network']);
-          int tx = int.parse("${res['data']['network'][0]['tx']}");
-          int rx = int.parse("${res['data']['network'][0]['rx']}");
-          networkCount = res['data']['network'].length;
-          num maxSpeed = max(tx, rx);
-          if (maxSpeed > maxNetworkSpeed) {
-            maxNetworkSpeed = maxSpeed;
-          }
-          spaces.add(res['data']['space']);
-          if (res['data']['space']['total']['read_byte'] > maxVolumeReadSpeed) {
-            maxVolumeReadSpeed = res['data']['space']['total']['read_byte'];
-          }
-          if (res['data']['space']['total']['write_byte'] > maxVolumeWriteSpeed) {
-            maxVolumeWriteSpeed = res['data']['space']['total']['write_byte'];
-          }
-        });
-    } else {
-      print("加载失败$res");
+    Utilization res = await Utilization.get();
+    if (utilizations.length >= 30) {
+      utilizations.removeAt(0);
     }
+    utilizations.add(res);
+    if (mounted) {
+      setState(() {
+        loading = false;
+      });
+    }
+    //
+    // if (res['success']) {
+    //   if (mounted)
+    //     setState(() {
+    //       loading = false;
+    //       if (cpus.length > 30) {
+    //         cpus.removeAt(0);
+    //         disks.removeAt(0);
+    //         luns.removeAt(0);
+    //         memories.removeAt(0);
+    //         networks.removeAt(0);
+    //         spaces.removeAt(0);
+    //       }
+    //       cpus.add(res['data']['cpu']);
+    //       disks.add(res['data']['disk']);
+    //       if (res['data']['disk']['total']['read_byte'] > maxDiskReadSpeed) {
+    //         maxDiskReadSpeed = res['data']['disk']['total']['read_byte'];
+    //       }
+    //       if (res['data']['disk']['total']['write_byte'] > maxDiskWriteSpeed) {
+    //         maxDiskWriteSpeed = res['data']['disk']['total']['write_byte'];
+    //       }
+    //
+    //       luns.add(res['data']['lun']);
+    //       memories.add(res['data']['memory']);
+    //       networks.add(res['data']['network']);
+    //       int tx = int.parse("${res['data']['network'][0]['tx']}");
+    //       int rx = int.parse("${res['data']['network'][0]['rx']}");
+    //       num maxSpeed = max(tx, rx);
+    //       if (maxSpeed > maxNetworkSpeed) {
+    //         maxNetworkSpeed = maxSpeed;
+    //       }
+    //       spaces.add(res['data']['space']);
+    //       if (res['data']['space']['total']['read_byte'] > maxVolumeReadSpeed) {
+    //         maxVolumeReadSpeed = res['data']['space']['total']['read_byte'];
+    //       }
+    //       if (res['data']['space']['total']['write_byte'] > maxVolumeWriteSpeed) {
+    //         maxVolumeWriteSpeed = res['data']['space']['total']['write_byte'];
+    //       }
+    //     });
+    // } else {
+    //   print("加载失败$res");
+    // }
   }
 
   @override
   Widget build(BuildContext context) {
-    return GlassScaffold(
-      appBar: GlassAppBar(
-          title: Text("性能"),
-          bottom: TabBar(
-            isScrollable: true,
-            controller: _tabController,
-            tabs: [
-              Tab(text: "概览"),
-              Tab(text: "CPU"),
-              Tab(text: "内存"),
-              Tab(text: "网络"),
-              Tab(text: "磁盘"),
-              Tab(text: "存储空间"),
-            ],
-          )),
-      body: loading
-          ? Center(
-              child: LoadingWidget(size: 30),
-            )
-          : Column(
+    return loading
+        ? Center(
+            child: LoadingWidget(size: 30),
+          )
+        : SafeArea(
+            child: Column(
               children: [
+                TabBar(
+                  isScrollable: true,
+                  controller: _tabController,
+                  tabs: [
+                    Tab(text: "概览"),
+                    Tab(text: "CPU"),
+                    Tab(text: "内存"),
+                    Tab(text: "网络"),
+                    Tab(text: "磁盘"),
+                    Tab(text: "存储空间"),
+                  ],
+                ),
+                Expanded(
+                  child: TabBarView(
+                    controller: _tabController,
+                    children: [
+                      ListView(
+                        children: [
+                          WidgetCard(
+                            title: "CPU",
+                            icon: Text(
+                              "${utilizations.last.cpu?.totalLoad ?? '-'} %",
+                              style: TextStyle(
+                                  color: utilizations.last.cpu?.totalLoad != null
+                                      ? utilizations.last.cpu!.totalLoad > 80
+                                          ? AppTheme.of(context)?.errorColor
+                                          : AppTheme.of(context)?.successColor
+                                      : AppTheme.of(context)?.placeholderColor),
+                            ),
+                            body: CpuChartWidget(utilizations.map((e) => e.cpu ?? Cpu()).toList()),
+                          ),
+                          WidgetCard(
+                            title: "内存",
+                            icon: Text(
+                              "${utilizations.last.memory?.realUsage ?? '-'} %",
+                              style: TextStyle(
+                                  color: utilizations.last.memory?.realUsage != null
+                                      ? utilizations.last.memory!.realUsage! > 80
+                                          ? AppTheme.of(context)?.errorColor
+                                          : AppTheme.of(context)?.successColor
+                                      : AppTheme.of(context)?.placeholderColor),
+                            ),
+                            body: MemoryChartWidget(utilizations.map((e) => e.memory ?? Memory()).toList()),
+                          )
+                        ],
+                      ),
+                      Placeholder(),
+                      Placeholder(),
+                      Placeholder(),
+                      Placeholder(),
+                      Placeholder(),
+                    ],
+                  ),
+                ),
                 // Expanded(
                 //   child: TabBarView(
                 //     controller: _tabController,
@@ -2999,6 +3097,6 @@ class _PerformanceState extends State<Performance> with SingleTickerProviderStat
                 // ),
               ],
             ),
-    );
+          );
   }
 }

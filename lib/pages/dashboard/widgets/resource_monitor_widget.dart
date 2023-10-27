@@ -1,7 +1,6 @@
 import 'package:dsm_helper/models/Syno/Core/System.dart';
 import 'package:dsm_helper/models/Syno/Core/System/Utilization.dart';
 import 'package:dsm_helper/pages/dashboard/widgets/widget_card.dart';
-import 'package:dsm_helper/pages/resource_monitor/performance.dart';
 import 'package:dsm_helper/pages/resource_monitor/resource_monitor.dart';
 import 'package:dsm_helper/providers/system_info_provider.dart';
 import 'package:dsm_helper/providers/utilization_provider.dart';
@@ -42,7 +41,7 @@ class ResourceMonitorWidget extends StatelessWidget {
                   height: 120,
                   child: GestureDetector(
                     onTap: () {
-                      context.push(Performance(tabIndex: 2), name: "performance");
+                      // context.push(Performance(tabIndex: 2), name: "performance");
                     },
                     behavior: HitTestBehavior.opaque,
                     child: SfRadialGauge(
@@ -119,7 +118,7 @@ class ResourceMonitorWidget extends StatelessWidget {
                   height: 120,
                   child: GestureDetector(
                     onTap: () {
-                      context.push(Performance(tabIndex: 2), name: "performance");
+                      // context.push(Performance(tabIndex: 2), name: "performance");
                     },
                     behavior: HitTestBehavior.opaque,
                     child: SfRadialGauge(
@@ -202,7 +201,7 @@ class ResourceMonitorWidget extends StatelessWidget {
           ),
           GestureDetector(
             onTap: () {
-              context.push(Performance(tabIndex: 3), name: "performance");
+              // context.push(Performance(tabIndex: 3), name: "performance");
             },
             child: Row(
               children: [
@@ -240,7 +239,7 @@ class ResourceMonitorWidget extends StatelessWidget {
           ),
           GestureDetector(
             onTap: () {
-              context.push(Performance(tabIndex: 3), name: "performance");
+              // context.push(Performance(tabIndex: 3), name: "performance");
             },
             child: SizedBox(
               height: 150,
@@ -261,7 +260,7 @@ class ResourceMonitorWidget extends StatelessWidget {
                   AreaSeries<Network, num>(
                     animationDuration: 1000,
                     dataSource: networks,
-                    xValueMapper: (Network network, _) => networks.indexOf(network),
+                    xValueMapper: (Network network, index) => index,
                     yValueMapper: (Network network, _) => network.tx,
                     // dataLabelSettings: DataLabelSettings(),
                     // width: 2,
@@ -277,7 +276,7 @@ class ResourceMonitorWidget extends StatelessWidget {
                     dataSource: networks,
                     // width: 2,
                     name: '下载',
-                    xValueMapper: (Network network, _) => networks.indexOf(network),
+                    xValueMapper: (Network network, index) => index,
                     yValueMapper: (Network network, _) => network.rx,
                     markerSettings: const MarkerSettings(isVisible: false),
                     color: AppTheme.of(context)?.successColor,

@@ -9,8 +9,8 @@ import 'package:flutter/material.dart';
 class DiskCardItemWidget extends StatelessWidget {
   final Disks disk;
   final StoragePools? usedByPool;
-  final Volumes? usedBySsdCache;
-  const DiskCardItemWidget(this.disk, {this.usedByPool, this.usedBySsdCache, super.key});
+  final SharedCaches? usedBySharedCache;
+  const DiskCardItemWidget(this.disk, {this.usedByPool, this.usedBySharedCache, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +37,7 @@ class DiskCardItemWidget extends StatelessWidget {
             "配置用途",
             style: TextStyle(color: AppTheme.of(context)?.placeholderColor, fontSize: 13),
           ),
-          if (usedByPool != null) Text("存储池 ${usedByPool!.numId}") else if (usedBySsdCache != null) Text("${usedBySsdCache!.displayName}") else Text("-"),
+          if (usedByPool != null) Text("存储池 ${usedByPool!.numId}") else if (usedBySharedCache != null) Text("SSD 缓存群组${usedBySharedCache!.numId}") else Text("-"),
           Divider(indent: 0, endIndent: 0, height: 20),
           Text(
             "分配状态",

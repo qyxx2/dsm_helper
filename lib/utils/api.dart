@@ -601,18 +601,6 @@ class Api {
     return await Utils.post("entry.cgi", data: data);
   }
 
-  static Future<Map> utilization({String? sid, bool? checkSsl, String? cookie, String? host}) async {
-    var data = {
-      "api": "SYNO.Core.System.Utilization",
-      "method": "get",
-      "version": 1,
-      "type": "current",
-      "resource": ["cpu", "memory", "network", "lun", "disk", "space"],
-      "_sid": sid ?? Utils.sid,
-    };
-    return await Utils.post("entry.cgi", data: data, checkSsl: checkSsl, cookie: cookie, host: host);
-  }
-
   //SYNO.Core.System.Process
   static Future<Map> process() async {
     var data = {

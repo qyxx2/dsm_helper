@@ -2,6 +2,7 @@ import 'package:dsm_helper/apis/api.dart';
 import 'package:dsm_helper/models/Syno/Storage/Cgi/Storage.dart';
 import 'package:dsm_helper/pages/dashboard/widgets/widget_card.dart';
 import 'package:dsm_helper/pages/storage_manager/widgets/disk_card_item_widget.dart';
+import 'package:dsm_helper/pages/storage_manager/widgets/ssd_cache_item_widget.dart';
 import 'package:dsm_helper/pages/storage_manager/widgets/storage_pool_item_widget.dart';
 import 'package:dsm_helper/pages/storage_manager/widgets/volume_item_widget.dart';
 import 'package:dsm_helper/themes/app_theme.dart';
@@ -31,21 +32,22 @@ class _StorageManagerState extends State<StorageManager> with SingleTickerProvid
   }
 
   getData() async {
-    try {
-      storage = await Storage.loadInfo();
-      storage.storagePools?.sort((a, b) => a.numId!.compareTo(b.numId!));
-      storage.disks?.sort((a, b) => a.numId!.compareTo(b.numId!));
+    // try {
+    storage = await Storage.loadInfo();
+    storage.storagePools?.sort((a, b) => a.numId!.compareTo(b.numId!));
+    // storage.disks?.sort((a, b) => a.numId!.compareTo(b.numId!));
 
-      setState(() {
-        loading = false;
-      });
-    } on DsmException catch (e) {
-      Utils.toast("获取存储空间信息失败，错误代码${e.code}");
-      context.pop();
-    } catch (e) {
-      Utils.toast("获取存储空间信息失败");
-      context.pop();
-    }
+    setState(() {
+      loading = false;
+    });
+    // } on DsmException catch (e) {
+    //   Utils.toast("获取存储空间信息失败，错误代码${e.code}");
+    //   context.pop();
+    // } catch (e) {
+    //   print(e);
+    //   Utils.toast("获取存储空间信息失败");
+    //   context.pop();
+    // }
   }
 
   @override
@@ -141,9 +143,22 @@ class _StorageManagerState extends State<StorageManager> with SingleTickerProvid
                         padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                         child: ListView.separated(
                           itemBuilder: (context, i) {
+                            StoragePools? usedByPool;
+                            SharedCaches? usedBySharedCache;
+                            try {
+                              usedByPool = storage.storagePools?.firstWhere((element) => element.id == storage.disks![i].usedBy, orElse: null);
+                            } catch (e) {
+                              try {
+                                usedBySharedCache = storage.sharedCaches?.firstWhere((element) => element.id == storage.disks![i].usedBy, orElse: null);
+                              } catch (e) {}
+                            }
+
+                            print(usedByPool);
+                            print(usedBySharedCache);
                             return DiskCardItemWidget(
                               storage.disks![i],
-                              usedByPool: storage.storagePools?.firstWhere((element) => element.id == storage.disks![i].usedBy, orElse: null),
+                              usedByPool: usedByPool,
+                              usedBySharedCache: usedBySharedCache,
                             );
                           },
                           itemCount: storage.disks!.length,
@@ -155,17 +170,31 @@ class _StorageManagerState extends State<StorageManager> with SingleTickerProvid
                     : EmptyWidget(
                         text: "无HDD/SSD",
                       ),
-                storage.ssdCaches != null && storage.ssdCaches!.length > 0
-                    ? ListView.separated(
-                        itemBuilder: (context, i) {
-                          return VolumeItemWidget(storage.ssdCaches![i]);
-                        },
-                        separatorBuilder: (context, i) {
-                          return SizedBox(
-                            height: 20,
-                          );
-                        },
-                        itemCount: storage.ssdCaches!.length,
+                storage.sharedCaches != null && storage.sharedCaches!.length > 0
+                    ? Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 16),
+                        child: ListView.separated(
+                          itemBuilder: (context, i) {
+                            return Container(
+                              decoration: BoxDecoration(
+                                color: AppTheme.of(context)?.cardColor,
+                                borderRadius: BorderRadius.circular(22),
+                              ),
+                              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                              margin: EdgeInsets.only(top: 10),
+                              child: SharedCacheItemWidget(
+                                storage.sharedCaches![i],
+                                isLast: true,
+                              ),
+                            );
+                          },
+                          separatorBuilder: (context, i) {
+                            return SizedBox(
+                              height: 20,
+                            );
+                          },
+                          itemCount: storage.ssdCaches!.length,
+                        ),
                       )
                     : EmptyWidget(
                         text: "无SSD缓存",
