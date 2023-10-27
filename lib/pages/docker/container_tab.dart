@@ -88,7 +88,7 @@ class _ContainerTabState extends State<ContainerTab> with AutomaticKeepAliveClie
                         height: 140,
                         padding: EdgeInsets.symmetric(vertical: 14),
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: AppTheme.of(context)?.cardColor,
                           borderRadius: BorderRadius.circular(22),
                         ),
                         child: SfRadialGauge(
@@ -125,14 +125,14 @@ class _ContainerTabState extends State<ContainerTab> with AutomaticKeepAliveClie
                                             ),
                                             TextSpan(
                                               text: '%',
-                                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 10, color: Colors.black45),
+                                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 10, color: AppTheme.of(context)?.placeholderColor),
                                             ),
                                           ],
                                         ),
                                       ),
                                       Text(
                                         "CPU",
-                                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 10, color: Colors.black45),
+                                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 10, color: AppTheme.of(context)?.placeholderColor),
                                       ),
                                     ],
                                   ),
@@ -164,7 +164,7 @@ class _ContainerTabState extends State<ContainerTab> with AutomaticKeepAliveClie
                         height: 140,
                         padding: EdgeInsets.symmetric(vertical: 14),
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: AppTheme.of(context)?.cardColor,
                           borderRadius: BorderRadius.circular(22),
                         ),
                         child: SfRadialGauge(
@@ -201,14 +201,14 @@ class _ContainerTabState extends State<ContainerTab> with AutomaticKeepAliveClie
                                             ),
                                             TextSpan(
                                               text: '%',
-                                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 10, color: Colors.black45),
+                                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 10, color: AppTheme.of(context)?.placeholderColor),
                                             ),
                                           ],
                                         ),
                                       ),
                                       Text(
                                         "RAM",
-                                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 10, color: Colors.black45),
+                                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 10, color: AppTheme.of(context)?.placeholderColor),
                                       ),
                                     ],
                                   ),
@@ -255,7 +255,7 @@ class _ContainerTabState extends State<ContainerTab> with AutomaticKeepAliveClie
             : () {
                 context.push(ContainerDetail(container.name!), name: 'docker_container_detail');
               },
-        color: Colors.white,
+        color: AppTheme.of(context)?.cardColor,
         borderRadius: BorderRadius.circular(22),
         padding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         child: Column(
@@ -343,7 +343,7 @@ class _ContainerTabState extends State<ContainerTab> with AutomaticKeepAliveClie
                                       padding: EdgeInsets.symmetric(vertical: 8),
                                       margin: EdgeInsets.only(top: 50),
                                       decoration: BoxDecoration(
-                                        color: Colors.white,
+                                        color: AppTheme.of(context)?.cardColor,
                                         borderRadius: BorderRadius.circular(23),
                                       ),
                                       child: Column(
@@ -449,6 +449,7 @@ class _ContainerTabState extends State<ContainerTab> with AutomaticKeepAliveClie
                       child: Image.asset(
                         "assets/icons/more_vertical.png",
                         width: 20,
+                        color: Theme.of(context).primaryColor,
                       ),
                     ),
                   ],

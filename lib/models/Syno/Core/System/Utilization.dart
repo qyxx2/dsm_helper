@@ -60,6 +60,22 @@ class Utilization {
   Memory? memory;
   List<Network>? network;
   List<Lun>? lun;
+  Lun? get totalLun {
+    if (lun != null) {
+      return lun!.fold(Lun(), (previousValue, element) => previousValue! + element);
+    } else {
+      return null;
+    }
+  }
+
+  Nfs? get totalNfs {
+    if (nfs != null) {
+      return nfs!.fold(Nfs(), (previousValue, element) => previousValue! + element);
+    } else {
+      return null;
+    }
+  }
+
   List<Nfs>? nfs;
   Space? space;
   num? time;
@@ -621,6 +637,24 @@ class Lun {
     this.writeThroughput,
   });
 
+  Lun operator +(Lun t) {
+    return Lun(
+      deferredCmdCnt: (deferredCmdCnt ?? 0) + (t.deferredCmdCnt ?? 0),
+      readAvgCmdSize: (readAvgCmdSize ?? 0) + (t.readAvgCmdSize ?? 0),
+      readAvgLatency: (readAvgLatency ?? 0) + (t.readAvgLatency ?? 0),
+      readIops: (readIops ?? 0) + (t.readIops ?? 0),
+      readThroughput: (readThroughput ?? 0) + (t.readThroughput ?? 0),
+      rxAvgLatency: (rxAvgLatency ?? 0) + (t.rxAvgLatency ?? 0),
+      totalIoLatency: (totalIoLatency ?? 0) + (t.totalIoLatency ?? 0),
+      totalIops: (totalIops ?? 0) + (t.totalIops ?? 0),
+      txAvgLatency: (txAvgLatency ?? 0) + (t.txAvgLatency ?? 0),
+      writeAvgCmdSize: (writeAvgCmdSize ?? 0) + (t.writeAvgCmdSize ?? 0),
+      writeAvgLatency: (writeAvgLatency ?? 0) + (t.writeAvgLatency ?? 0),
+      writeIops: (writeIops ?? 0) + (t.writeIops ?? 0),
+      writeThroughput: (writeThroughput ?? 0) + (t.writeThroughput ?? 0),
+    );
+  }
+
   Lun.fromJson(dynamic json) {
     deferredCmdCnt = json['deferred_cmd_cnt'];
     lunName = json['lun_name'];
@@ -741,6 +775,18 @@ class Nfs {
     writeOPS = json['write_OPS'];
     writeMaxLatency = json['write_max_latency'];
   }
+
+  Nfs operator +(Nfs t) {
+    return Nfs(
+      readOPS: (readOPS ?? 0) + (t.readOPS ?? 0),
+      readMaxLatency: (readMaxLatency ?? 0) + (t.readMaxLatency ?? 0),
+      totalOPS: (totalOPS ?? 0) + (t.totalOPS ?? 0),
+      totalMaxLatency: (totalMaxLatency ?? 0) + (t.totalMaxLatency ?? 0),
+      writeOPS: (writeOPS ?? 0) + (t.writeOPS ?? 0),
+      writeMaxLatency: (writeMaxLatency ?? 0) + (t.writeMaxLatency ?? 0),
+    );
+  }
+
   String? device;
   num? readOPS;
   num? readMaxLatency;

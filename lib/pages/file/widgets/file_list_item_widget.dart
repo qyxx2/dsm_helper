@@ -131,7 +131,7 @@ class FileListItemWidget extends StatelessWidget {
                       padding: EdgeInsets.symmetric(vertical: 8),
                       margin: EdgeInsets.only(top: 50),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: AppTheme.of(context)?.cardColor,
                         borderRadius: BorderRadius.circular(23),
                       ),
                       child: Column(
@@ -153,6 +153,7 @@ class FileListItemWidget extends StatelessWidget {
                                     "assets/icons/info_file.png",
                                     width: 20,
                                     height: 20,
+                                    color: Theme.of(context).primaryColor,
                                   ),
                                   SizedBox(
                                     width: 10,
@@ -169,6 +170,7 @@ class FileListItemWidget extends StatelessWidget {
                                       "assets/icons/eject.png",
                                       width: 20,
                                       height: 20,
+                                      color: Theme.of(context).primaryColor,
                                     ),
                                     SizedBox(
                                       width: 10,
@@ -189,6 +191,7 @@ class FileListItemWidget extends StatelessWidget {
                                     "assets/icons/rename.png",
                                     width: 20,
                                     height: 20,
+                                    color: Theme.of(context).primaryColor,
                                   ),
                                   SizedBox(
                                     width: 10,
@@ -208,6 +211,7 @@ class FileListItemWidget extends StatelessWidget {
                                     "assets/icons/delete.png",
                                     width: 20,
                                     height: 20,
+                                    color: Theme.of(context).primaryColor,
                                   ),
                                   SizedBox(
                                     width: 10,
@@ -230,6 +234,7 @@ class FileListItemWidget extends StatelessWidget {
                                     "assets/icons/info_file.png",
                                     width: 20,
                                     height: 20,
+                                    color: Theme.of(context).primaryColor,
                                   ),
                                   SizedBox(
                                     width: 10,
@@ -245,6 +250,7 @@ class FileListItemWidget extends StatelessWidget {
                                     "assets/icons/download_cloud.png",
                                     width: 20,
                                     height: 20,
+                                    color: Theme.of(context).primaryColor,
                                   ),
                                   SizedBox(
                                     width: 10,
@@ -263,6 +269,7 @@ class FileListItemWidget extends StatelessWidget {
                                     "assets/icons/share.png",
                                     width: 20,
                                     height: 20,
+                                    color: Theme.of(context).primaryColor,
                                   ),
                                   SizedBox(
                                     width: 10,
@@ -282,6 +289,7 @@ class FileListItemWidget extends StatelessWidget {
                                       "assets/icons/upload_cloud.png",
                                       width: 20,
                                       height: 20,
+                                      color: Theme.of(context).primaryColor,
                                     ),
                                     SizedBox(
                                       width: 10,
@@ -316,6 +324,7 @@ class FileListItemWidget extends StatelessWidget {
                                     "assets/icons/star.png",
                                     width: 20,
                                     height: 20,
+                                    color: Theme.of(context).primaryColor,
                                   ),
                                   SizedBox(
                                     width: 10,
@@ -340,6 +349,7 @@ class FileListItemWidget extends StatelessWidget {
                                       "assets/icons/archive.png",
                                       width: 20,
                                       height: 20,
+                                      color: Theme.of(context).primaryColor,
                                     ),
                                     SizedBox(
                                       width: 10,
@@ -384,6 +394,7 @@ class FileListItemWidget extends StatelessWidget {
                                       "assets/icons/unzip.png",
                                       width: 20,
                                       height: 20,
+                                      color: Theme.of(context).primaryColor,
                                     ),
                                     SizedBox(
                                       width: 10,
@@ -423,6 +434,7 @@ class FileListItemWidget extends StatelessWidget {
                                     "assets/icons/rename.png",
                                     width: 20,
                                     height: 20,
+                                    color: Theme.of(context).primaryColor,
                                   ),
                                   SizedBox(
                                     width: 10,
@@ -464,6 +476,7 @@ class FileListItemWidget extends StatelessWidget {
               "assets/icons/more_horizontal.png",
               width: 20,
               height: 20,
+              color: Theme.of(context).primaryColor,
             ),
           );
     return GestureDetector(

@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'package:dsm_helper/themes/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
 
@@ -545,7 +546,7 @@ class _ExpansionContainerState extends State<ExpansionContainer> with SingleTick
               Container(
                 margin: EdgeInsets.symmetric(horizontal: 16),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: AppTheme.of(context)?.cardColor,
                   borderRadius: BorderRadius.circular(23),
                 ),
                 child: Column(

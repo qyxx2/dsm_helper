@@ -261,6 +261,7 @@ class DashboardState extends State<Dashboard> {
                 "assets/icons/setting.png",
                 width: 24,
                 height: 24,
+                color: Theme.of(context).primaryColor,
               ),
             ),
           CupertinoButton(
@@ -281,7 +282,7 @@ class DashboardState extends State<Dashboard> {
                   "assets/icons/message.png",
                   width: 24,
                   height: 24,
-                  color: dsmNotify.items == null ? AppTheme.of(context)?.placeholderColor : null,
+                  color: dsmNotify.items == null ? AppTheme.of(context)?.placeholderColor : Theme.of(context).primaryColor,
                 ),
                 if (dsmNotify.items != null && dsmNotify.items!.isNotEmpty)
                   Container(

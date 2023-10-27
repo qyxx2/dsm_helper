@@ -4,9 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
 class MemoryChartWidget extends StatelessWidget {
-  const MemoryChartWidget(this.memories, {super.key});
+  const MemoryChartWidget(this.memories, {this.onRendererCreated, super.key});
 
   final List<Memory> memories;
+
+  final Function(ChartSeriesController)? onRendererCreated;
 
   @override
   Widget build(BuildContext context) {
@@ -30,10 +32,11 @@ class MemoryChartWidget extends StatelessWidget {
             enableAxisAnimation: true,
             series: <AreaSeries<Memory, num>>[
               AreaSeries<Memory, num>(
+                onRendererCreated: onRendererCreated,
                 animationDuration: 1000,
                 dataSource: memories,
                 xValueMapper: (Memory memory, index) => index,
-                yValueMapper: (Memory memory, _) => memory.realUsage,
+                yValueMapper: (Memory memory, _) => memory.realUsage ?? 0,
                 // dataLabelSettings: DataLabelSettings(),
                 // width: 2,
                 name: '内存使用率',
@@ -41,7 +44,7 @@ class MemoryChartWidget extends StatelessWidget {
                 // color: Colors.lightBlue,
                 borderWidth: 2,
                 borderColor: AppTheme.of(context)?.warningColor,
-                gradient: LinearGradient(colors: [Colors.white, Color(0xFFfdcca5)], begin: Alignment.bottomCenter, end: Alignment.topCenter),
+                gradient: LinearGradient(colors: [AppTheme.of(context)!.warningColor!.withOpacity(0.1), AppTheme.of(context)!.warningColor!.withOpacity(0.4)], begin: Alignment.bottomCenter, end: Alignment.topCenter),
               ),
             ],
           ),

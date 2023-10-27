@@ -64,6 +64,17 @@ ThemeData lightTheme = ThemeData.light().copyWith(
   cupertinoOverrideTheme: CupertinoThemeData(primaryColor: Color(0xff2A82E4), applyThemeToAll: true),
   splashFactory: NoSplash.splashFactory,
   highlightColor: Colors.transparent,
+  bottomNavigationBarTheme: BottomNavigationBarThemeData(
+    unselectedItemColor: Colors.black,
+    selectedItemColor: Color(0xFF2A8AE4),
+    backgroundColor: Colors.white,
+    showSelectedLabels: true,
+    showUnselectedLabels: true,
+    enableFeedback: true,
+    type: BottomNavigationBarType.fixed,
+    selectedLabelStyle: TextStyle(fontSize: 13),
+    unselectedLabelStyle: TextStyle(fontSize: 13),
+  ),
   appBarTheme: AppBarTheme(
     centerTitle: true,
     elevation: 0,

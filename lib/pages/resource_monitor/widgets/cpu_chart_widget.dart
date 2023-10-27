@@ -4,9 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
 class CpuChartWidget extends StatelessWidget {
-  const CpuChartWidget(this.cpus, {super.key});
-
+  const CpuChartWidget(this.cpus, {this.onRendererCreated, super.key});
   final List<Cpu> cpus;
+  final Function(ChartSeriesController)? onRendererCreated;
 
   @override
   Widget build(BuildContext context) {
@@ -30,6 +30,7 @@ class CpuChartWidget extends StatelessWidget {
             enableAxisAnimation: true,
             series: <AreaSeries<Cpu, num>>[
               AreaSeries<Cpu, num>(
+                onRendererCreated: onRendererCreated,
                 animationDuration: 1000,
                 dataSource: cpus,
                 xValueMapper: (Cpu cpu, index) => index,
@@ -41,7 +42,7 @@ class CpuChartWidget extends StatelessWidget {
                 // color: Colors.lightBlue,
                 borderWidth: 2,
                 borderColor: AppTheme.of(context)?.primaryColor,
-                gradient: LinearGradient(colors: [Colors.white, Color(0xFFD5E4F5)], begin: Alignment.bottomCenter, end: Alignment.topCenter),
+                gradient: LinearGradient(colors: [AppTheme.of(context)!.primaryColor!.withOpacity(0.1), AppTheme.of(context)!.primaryColor!.withOpacity(0.4)], begin: Alignment.bottomCenter, end: Alignment.topCenter),
               ),
             ],
           ),

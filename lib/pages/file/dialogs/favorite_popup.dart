@@ -95,7 +95,7 @@ class FavoritePopup {
       buttons: [
         Button(
           onPressed: () async {
-            context.pop();
+            Navigator.of(context, rootNavigator: true).pop();
           },
           color: Theme.of(context).disabledColor,
           child: Text("关闭"),

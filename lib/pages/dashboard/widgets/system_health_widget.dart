@@ -3,6 +3,7 @@ import 'package:dsm_helper/models/Syno/Core/System.dart';
 import 'package:dsm_helper/pages/dashboard/widgets/widget_card.dart';
 import 'package:dsm_helper/providers/init_data_provider.dart';
 import 'package:dsm_helper/providers/system_info_provider.dart';
+import 'package:dsm_helper/themes/app_theme.dart';
 import 'package:dsm_helper/utils/utils.dart' hide Api;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -26,6 +27,7 @@ class SystemHealthWidget extends StatelessWidget {
                   Image.asset(
                     "assets/icons/system_name.png",
                     width: 20,
+                    color: Theme.of(context).primaryColor,
                   ),
                   SizedBox(
                     width: 10,
@@ -35,11 +37,11 @@ class SystemHealthWidget extends StatelessWidget {
                     children: [
                       Text(
                         "系统名称",
-                        style: TextStyle(color: Color(0x99000000), fontSize: 16),
+                        style: TextStyle(color: AppTheme.of(context)?.placeholderColor, fontSize: 16),
                       ),
                       Text(
                         "${initData.session?.hostname}",
-                        style: TextStyle(color: Colors.black, fontSize: 16),
+                        style: TextStyle(color: Theme.of(context).primaryColor, fontSize: 16),
                       ),
                     ],
                   ),
@@ -59,6 +61,7 @@ class SystemHealthWidget extends StatelessWidget {
                   Image.asset(
                     "assets/icons/system_up_time.png",
                     width: 20,
+                    color: Theme.of(context).primaryColor,
                   ),
                   SizedBox(
                     width: 10,
@@ -68,11 +71,11 @@ class SystemHealthWidget extends StatelessWidget {
                     children: [
                       Text(
                         "运行时间",
-                        style: TextStyle(color: Color(0x99000000), fontSize: 16),
+                        style: TextStyle(color: AppTheme.of(context)?.placeholderColor, fontSize: 16),
                       ),
                       Text(
                         "${system.upTime != null ? Utils.parseOpTime(system.upTime!) : '-'}",
-                        style: TextStyle(color: Colors.black, fontSize: 16),
+                        style: TextStyle(color: Theme.of(context).primaryColor, fontSize: 16),
                       ),
                     ],
                   ),

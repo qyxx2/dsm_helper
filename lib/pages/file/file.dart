@@ -966,7 +966,7 @@ class FilesState extends State<Files> {
         bottom: 0,
         child: Container(
           width: context.width,
-          color: Colors.white,
+          color: AppTheme.of(context)?.cardColor,
           child: SafeArea(
             top: false,
             child: DefaultTextStyle(
@@ -1165,7 +1165,7 @@ class FilesState extends State<Files> {
       child: Text(
         paths[index],
         strutStyle: StrutStyle(forceStrutHeight: true),
-        style: TextStyle(fontSize: 16, color: isLast ? AppTheme.of(context)?.primaryColor : Colors.black54),
+        style: TextStyle(fontSize: 16, color: isLast ? AppTheme.of(context)?.primaryColor : AppTheme.of(context)?.placeholderColor),
       ),
     );
   }
@@ -1229,7 +1229,11 @@ class FilesState extends State<Files> {
                         }
                       });
                     },
-                    child: Image.asset("assets/icons/star.png", width: 24),
+                    child: Image.asset(
+                      "assets/icons/star.png",
+                      width: 24,
+                      color: Theme.of(context).primaryColor,
+                    ),
                   ),
                   CupertinoButton(
                     onPressed: () async {
@@ -1239,6 +1243,7 @@ class FilesState extends State<Files> {
                       "assets/icons/remote.png",
                       width: 24,
                       height: 24,
+                      color: Theme.of(context).primaryColor,
                     ),
                   ),
                   if (Utils.notReviewAccount && paths.length > 0)
@@ -1251,6 +1256,7 @@ class FilesState extends State<Files> {
                       child: Image.asset(
                         "assets/icons/upload_cloud.png",
                         width: 24,
+                        color: Theme.of(context).primaryColor,
                       ),
                     ),
                   if (backgroundTaskProvider.backgroundTask.tasks != null && backgroundTaskProvider.backgroundTask.tasks!.isNotEmpty)
@@ -1277,6 +1283,7 @@ class FilesState extends State<Files> {
                       child: Image.asset(
                         "assets/icons/search.png",
                         width: 24,
+                        color: Theme.of(context).primaryColor,
                       ),
                     ),
                   CupertinoButton(
@@ -1290,6 +1297,7 @@ class FilesState extends State<Files> {
                       listType == ListType.list ? "assets/icons/file_grid.png" : "assets/icons/file_list.png",
                       width: 24,
                       height: 24,
+                      color: Theme.of(context).primaryColor,
                     ),
                   ),
                   CupertinoButton(
@@ -1321,7 +1329,7 @@ class FilesState extends State<Files> {
                               width: 186,
                               padding: EdgeInsets.symmetric(vertical: 8),
                               decoration: BoxDecoration(
-                                color: Colors.white,
+                                color: AppTheme.of(context)?.cardColor,
                                 borderRadius: BorderRadius.circular(23),
                               ),
                               child: Column(
@@ -1364,7 +1372,12 @@ class FilesState extends State<Files> {
                         },
                       );
                     },
-                    child: Image.asset(sortDirection.icon, width: 24, height: 24),
+                    child: Image.asset(
+                      sortDirection.icon,
+                      width: 24,
+                      height: 24,
+                      color: Theme.of(context).primaryColor,
+                    ),
                   ),
                   CupertinoButton(
                     key: moreButtonKey,
@@ -1392,7 +1405,7 @@ class FilesState extends State<Files> {
                               width: 186,
                               padding: EdgeInsets.symmetric(vertical: 8),
                               decoration: BoxDecoration(
-                                color: Colors.white,
+                                color: AppTheme.of(context)?.cardColor,
                                 borderRadius: BorderRadius.circular(23),
                               ),
                               child: Column(
@@ -1507,6 +1520,7 @@ class FilesState extends State<Files> {
                       "assets/icons/more_vertical.png",
                       width: 24,
                       height: 24,
+                      color: Theme.of(context).primaryColor,
                     ),
                   )
                 ],
@@ -1596,7 +1610,7 @@ class FilesState extends State<Files> {
                   padding: EdgeInsets.symmetric(horizontal: 5, vertical: 2),
                   child: Text(
                     "本机",
-                    style: TextStyle(fontSize: 16, color: widget.path.isEmpty ? AppTheme.of(context)?.primaryColor : Colors.black54),
+                    style: TextStyle(fontSize: 16, color: widget.path.isEmpty ? AppTheme.of(context)?.primaryColor : AppTheme.of(context)?.placeholderColor),
                   ),
                   // child: Image.asset(
                   //   "assets/icons/home_line.png",
@@ -1610,7 +1624,7 @@ class FilesState extends State<Files> {
                     child: Icon(
                       CupertinoIcons.right_chevron,
                       size: 16,
-                      color: Colors.black54,
+                      color: AppTheme.of(context)?.placeholderColor,
                     ),
                   ),
                 Expanded(
@@ -1625,7 +1639,7 @@ class FilesState extends State<Files> {
                       return Icon(
                         CupertinoIcons.right_chevron,
                         size: 16,
-                        color: Colors.black54,
+                        color: AppTheme.of(context)?.placeholderColor,
                       );
                     },
                   ),

@@ -269,7 +269,7 @@ class ResourceMonitorWidget extends StatelessWidget {
                     // color: Colors.lightBlue,
                     borderWidth: 2,
                     borderColor: AppTheme.of(context)?.primaryColor,
-                    gradient: LinearGradient(colors: [Colors.white, Color(0xFFD5E4F5)], begin: Alignment.bottomCenter, end: Alignment.topCenter),
+                    gradient: LinearGradient(colors: [Colors.white24, AppTheme.of(context)!.primaryColor!.withOpacity(0.2)], begin: Alignment.bottomCenter, end: Alignment.topCenter),
                   ),
                   AreaSeries<Network, num>(
                     animationDuration: 1000,
@@ -282,7 +282,7 @@ class ResourceMonitorWidget extends StatelessWidget {
                     color: AppTheme.of(context)?.successColor,
                     borderColor: Color(0xFF43CF7C),
                     borderWidth: 2,
-                    gradient: LinearGradient(colors: [Color(0x0CCCCCCC), Color(0x2343CF7C)], begin: Alignment.bottomCenter, end: Alignment.topCenter),
+                    gradient: LinearGradient(colors: [Colors.white24, AppTheme.of(context)!.successColor!.withOpacity(0.2)], begin: Alignment.bottomCenter, end: Alignment.topCenter),
                   )
                 ],
                 tooltipBehavior: TooltipBehavior(

@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 
 enum GuestStatusEnum {
   running(label: "运行中", color: Color(0xFF25B85F)),
-  shutdown(label: "已关机", color: Colors.black54),
+  shutdown(label: "已关机", color: Color(0xFF7F7F7F)),
   shutting_down(label: "正在关机", color: Color(0xFFFF8D1A)),
-  saved(label: "已暂停", color: Colors.black54),
+  saved(label: "已暂停", color: Color(0xFF7F7F7F)),
   none(label: "无", color: Color(0xFFFF8D1A)),
-  unknown(label: "未知", color: Colors.black54);
+  unknown(label: "未知", color: Color(0xFF7F7F7F));
 
   final String label;
   final Color color;

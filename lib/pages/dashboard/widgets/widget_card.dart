@@ -1,3 +1,4 @@
+import 'package:dsm_helper/themes/app_theme.dart';
 import 'package:flutter/material.dart';
 
 class WidgetCard extends StatelessWidget {
@@ -48,7 +49,7 @@ class WidgetCard extends StatelessWidget {
                 width: double.infinity,
                 padding: bodyPadding ?? EdgeInsets.symmetric(vertical: 14, horizontal: 16),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: AppTheme.of(context)?.cardColor,
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: body,

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 enum DockerStatusEnum {
   running(label: "运行中", color: Color(0xFF25B85F)),
-  stopped(label: "已停止", color: Colors.black54),
+  stopped(label: "已停止", color: Color(0xFF7F7F7F)),
   unknown(label: "未知", color: Colors.orangeAccent);
 
   final String label;

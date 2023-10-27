@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 enum DiskOverviewStatusEnum {
   normal(label: "正常", color: Color(0xFF25B85F)),
-  unknown(label: "未知", color: Colors.black54);
+  unknown(label: "未知", color: Color(0xFF7F7F7F));
 
   const DiskOverviewStatusEnum({required this.label, required this.color});
   final String label;

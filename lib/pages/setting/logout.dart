@@ -48,7 +48,7 @@ class _LogoutState extends State<Logout> {
                           color: Color(0xffff9813),
                           size: 16,
                         )
-                      : SizedBox(),
+                      : null,
                 ),
                 SizedBox(
                   width: 10,

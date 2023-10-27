@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 
 enum DiskStatusEnum {
   normal(label: "正常", color: Color(0xFF25B85F)),
-  not_use(label: "未初始化", color: Colors.black54),
-  sys_partition_normal(label: "已初始化", color: Colors.black54),
+  not_use(label: "未初始化", color: Color(0xFF7F7F7F)),
+  sys_partition_normal(label: "已初始化", color: Color(0xFF7F7F7F)),
   system_crashed(label: "无法访问系统分区", color: Color(0xFFFF5733)),
   critical(label: "严重", color: Color(0xFFFF5733)),
-  unknown(label: "未知", color: Colors.black54);
+  unknown(label: "未知", color: Color(0xFF7F7F7F));
 
   const DiskStatusEnum({required this.label, required this.color});
   final String label;

@@ -225,14 +225,6 @@ class _HomeState extends State<Home> with WidgetsBindingObserver {
             });
           },
           currentIndex: _currentIndex,
-          selectedFontSize: 13,
-          unselectedFontSize: 13,
-          selectedItemColor: Color(0xFF2A8AE4),
-          unselectedItemColor: Colors.black,
-          showSelectedLabels: true,
-          showUnselectedLabels: true,
-          enableFeedback: true,
-          type: BottomNavigationBarType.fixed,
           items: [
             BottomNavigationBarItem(
               icon: ImageIcon(

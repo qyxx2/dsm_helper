@@ -625,23 +625,6 @@ class Api {
     return await Utils.post("entry.cgi", data: data);
   }
 
-  static Future<Map> dockerLog(String name, String method, {String? date}) async {
-    var data = {
-      "api": 'SYNO.Docker.Container.Log',
-      "method": method,
-      "name": '"$name"',
-      "version": 1,
-      "_sid": Utils.sid,
-    };
-    if (method == "get") {
-      data['sort_dir'] = '"ASC"';
-      data['date'] = '"$date"';
-      data['limit'] = 1000;
-      data['offset'] = 0;
-    }
-    return await Utils.post("entry.cgi", data: data);
-  }
-
   static Future<Map> lastLog(int start, int limit) async {
     var data = {
       "api": 'SYNO.Core.SyslogClient.Status',

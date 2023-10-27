@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 enum FirewallStatusEnum {
   allow(label: "允许", color: Color(0xFF25B85F)),
   deny(label: "拒绝", color: Color(0xFFFF5733)),
-  unknown(label: "-", color: Colors.black54);
+  unknown(label: "-", color: Color(0xFF7F7F7F));
 
   const FirewallStatusEnum({required this.label, required this.color});
   final String label;

@@ -72,7 +72,10 @@ class _ContainerLogTabState extends State<ContainerLogTab> {
                       itemBuilder: (context, i) {
                         DateTime month = logMonths.keys.toList()[i];
                         return Container(
-                          decoration: BoxDecoration(color: AppTheme.of(context)?.cardColor, borderRadius: BorderRadius.circular(10)),
+                          decoration: BoxDecoration(
+                            color: AppTheme.of(context)?.cardColor,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
                           margin: EdgeInsets.only(top: 10),
                           child: ExpansionContainer(
                             title: Text("${month.format("Y-m")}"),

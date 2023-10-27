@@ -112,7 +112,7 @@ class _SelectServerState extends State<SelectServer> {
       margin: EdgeInsets.only(left: 16, right: 16, top: 10, bottom: 10),
       // padding: EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppTheme.of(context)?.cardColor,
         borderRadius: BorderRadius.circular(22),
       ),
       child: Column(
@@ -221,7 +221,7 @@ class _SelectServerState extends State<SelectServer> {
                                       padding: EdgeInsets.symmetric(vertical: 8),
                                       margin: EdgeInsets.only(top: 50),
                                       decoration: BoxDecoration(
-                                        color: Colors.white,
+                                        color: AppTheme.of(context)?.cardColor,
                                         borderRadius: BorderRadius.circular(23),
                                       ),
                                       child: Column(
@@ -237,6 +237,7 @@ class _SelectServerState extends State<SelectServer> {
                                                   "assets/icons/pencil.png",
                                                   width: 20,
                                                   height: 20,
+                                                  color: Theme.of(context).primaryColor,
                                                 ),
                                                 SizedBox(
                                                   width: 10,
@@ -259,6 +260,7 @@ class _SelectServerState extends State<SelectServer> {
                                                   "assets/icons/plus_circle.png",
                                                   width: 20,
                                                   height: 20,
+                                                  color: Theme.of(context).primaryColor,
                                                 ),
                                                 SizedBox(
                                                   width: 10,
