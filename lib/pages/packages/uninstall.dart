@@ -1,12 +1,13 @@
 import 'dart:convert';
 
+import 'package:dsm_helper/models/Syno/Core/Package/PackageServer.dart';
 import 'package:dsm_helper/utils/utils.dart';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class UninstallPackage extends StatefulWidget {
-  final Map package;
+  final PackageItem package;
   UninstallPackage(this.package);
   @override
   _UninstallPackageState createState() => _UninstallPackageState();
@@ -23,7 +24,7 @@ class _UninstallPackageState extends State<UninstallPackage> {
   }
 
   getData() async {
-    var res = await Api.uninstallPackageInfo(widget.package['id']);
+    var res = await Api.uninstallPackageInfo(widget.package.id!);
     if (res['success']) {
       setState(() {
         loading = false;
@@ -127,7 +128,7 @@ class _UninstallPackageState extends State<UninstallPackage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          "卸载${widget.package['dname']}",
+          "卸载${widget.package.dname}",
         ),
       ),
       body: loading
@@ -173,7 +174,7 @@ class _UninstallPackageState extends State<UninstallPackage> {
                           setState(() {
                             uninstalling = true;
                           });
-                          await Api.uninstallPackageTask(widget.package['id'], extra: extra);
+                          await Api.uninstallPackageTask(widget.package.id!, extra: extra);
                           Utils.toast("卸载成功");
                           Navigator.of(context).pop();
                           Navigator.of(context).pop();

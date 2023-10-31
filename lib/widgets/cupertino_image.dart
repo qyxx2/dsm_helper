@@ -42,7 +42,7 @@ class CupertinoExtendedImage extends StatelessWidget {
                   height: height,
                   alignment: Alignment.center,
                   child: Image.asset(
-                    "assets/icons/image.png",
+                    "assets/icons/file_icons/image.png",
                     width: 40,
                     height: 40,
                   ),
@@ -61,7 +61,7 @@ class CupertinoExtendedImage extends StatelessWidget {
                   height: height,
                   alignment: Alignment.center,
                   child: Image.asset(
-                    "assets/icons/image.png",
+                    "assets/icons/file_icon/image.png",
                     width: 40,
                     height: 40,
                   ),

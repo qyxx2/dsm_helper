@@ -134,122 +134,122 @@ class FilesState extends State<Files> {
     super.initState();
   }
 
-  getExtractTaskResult(String taskId) async {
-    var result = await Api.extractResult(taskId);
-    if (result['success'] != null && result['success']) {
-      if (result['data']['finished']) {
-        if (result['data']['errors'] != null && result['data']['errors'].length > 0) {
-          if (result['data']['errors'][0]['code'] == 1403) {
-            String password = "";
-            showCupertinoDialog(
-                context: context,
-                builder: (context) {
-                  return Material(
-                    color: Colors.transparent,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Container(
-                          width: double.infinity,
-                          margin: EdgeInsets.symmetric(horizontal: 50),
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).scaffoldBackgroundColor,
-                            borderRadius: BorderRadius.circular(25),
-                          ),
-                          child: Padding(
-                            padding: EdgeInsets.all(20),
-                            child: Column(
-                              children: [
-                                Text(
-                                  "解压密码",
-                                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
-                                ),
-                                SizedBox(
-                                  height: 16,
-                                ),
-                                Container(
-                                  decoration: BoxDecoration(
-                                    color: Theme.of(context).scaffoldBackgroundColor,
-                                    borderRadius: BorderRadius.circular(20),
-                                  ),
-                                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
-                                  child: TextField(
-                                    onChanged: (v) => password = v,
-                                    decoration: InputDecoration(
-                                      border: InputBorder.none,
-                                      hintText: "请输入解压密码",
-                                      labelText: "解压密码",
-                                    ),
-                                  ),
-                                ),
-                                SizedBox(
-                                  height: 20,
-                                ),
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: CupertinoButton(
-                                        onPressed: () async {
-                                          if (password == "") {
-                                            Utils.toast("请输入解压密码");
-                                            return;
-                                          }
-                                          Navigator.of(context).pop();
-                                          // extractFile(result['data']['path'], password: password);
-                                        },
-                                        color: Theme.of(context).scaffoldBackgroundColor,
-                                        borderRadius: BorderRadius.circular(25),
-                                        padding: EdgeInsets.symmetric(vertical: 10),
-                                        child: Text(
-                                          "确定",
-                                          style: TextStyle(fontSize: 18),
-                                        ),
-                                      ),
-                                    ),
-                                    SizedBox(
-                                      width: 16,
-                                    ),
-                                    Expanded(
-                                      child: CupertinoButton(
-                                        onPressed: () async {
-                                          Navigator.of(context).pop();
-                                        },
-                                        color: Theme.of(context).scaffoldBackgroundColor,
-                                        borderRadius: BorderRadius.circular(25),
-                                        padding: EdgeInsets.symmetric(vertical: 10),
-                                        child: Text(
-                                          "取消",
-                                          style: TextStyle(fontSize: 18),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                )
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                });
-          }
-        } else {
-          // if (showProcessList = true) {
-          //   Utils.toast("文件解压完成");
-          // }
-        }
-        backgroundProcess[taskId]['timer']?.cancel();
-        backgroundProcess[taskId]['timer'] = null;
-        backgroundProcess.remove(taskId);
-        refresh();
-      } else {
-        setState(() {
-          backgroundProcess[taskId]['data'] = result['data'];
-        });
-      }
-    }
-  }
+  // getExtractTaskResult(String taskId) async {
+  //   var result = await Api.extractResult(taskId);
+  //   if (result['success'] != null && result['success']) {
+  //     if (result['data']['finished']) {
+  //       if (result['data']['errors'] != null && result['data']['errors'].length > 0) {
+  //         if (result['data']['errors'][0]['code'] == 1403) {
+  //           String password = "";
+  //           showCupertinoDialog(
+  //               context: context,
+  //               builder: (context) {
+  //                 return Material(
+  //                   color: Colors.transparent,
+  //                   child: Column(
+  //                     mainAxisAlignment: MainAxisAlignment.center,
+  //                     children: [
+  //                       Container(
+  //                         width: double.infinity,
+  //                         margin: EdgeInsets.symmetric(horizontal: 50),
+  //                         decoration: BoxDecoration(
+  //                           color: Theme.of(context).scaffoldBackgroundColor,
+  //                           borderRadius: BorderRadius.circular(25),
+  //                         ),
+  //                         child: Padding(
+  //                           padding: EdgeInsets.all(20),
+  //                           child: Column(
+  //                             children: [
+  //                               Text(
+  //                                 "解压密码",
+  //                                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
+  //                               ),
+  //                               SizedBox(
+  //                                 height: 16,
+  //                               ),
+  //                               Container(
+  //                                 decoration: BoxDecoration(
+  //                                   color: Theme.of(context).scaffoldBackgroundColor,
+  //                                   borderRadius: BorderRadius.circular(20),
+  //                                 ),
+  //                                 padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+  //                                 child: TextField(
+  //                                   onChanged: (v) => password = v,
+  //                                   decoration: InputDecoration(
+  //                                     border: InputBorder.none,
+  //                                     hintText: "请输入解压密码",
+  //                                     labelText: "解压密码",
+  //                                   ),
+  //                                 ),
+  //                               ),
+  //                               SizedBox(
+  //                                 height: 20,
+  //                               ),
+  //                               Row(
+  //                                 children: [
+  //                                   Expanded(
+  //                                     child: CupertinoButton(
+  //                                       onPressed: () async {
+  //                                         if (password == "") {
+  //                                           Utils.toast("请输入解压密码");
+  //                                           return;
+  //                                         }
+  //                                         Navigator.of(context).pop();
+  //                                         // extractFile(result['data']['path'], password: password);
+  //                                       },
+  //                                       color: Theme.of(context).scaffoldBackgroundColor,
+  //                                       borderRadius: BorderRadius.circular(25),
+  //                                       padding: EdgeInsets.symmetric(vertical: 10),
+  //                                       child: Text(
+  //                                         "确定",
+  //                                         style: TextStyle(fontSize: 18),
+  //                                       ),
+  //                                     ),
+  //                                   ),
+  //                                   SizedBox(
+  //                                     width: 16,
+  //                                   ),
+  //                                   Expanded(
+  //                                     child: CupertinoButton(
+  //                                       onPressed: () async {
+  //                                         Navigator.of(context).pop();
+  //                                       },
+  //                                       color: Theme.of(context).scaffoldBackgroundColor,
+  //                                       borderRadius: BorderRadius.circular(25),
+  //                                       padding: EdgeInsets.symmetric(vertical: 10),
+  //                                       child: Text(
+  //                                         "取消",
+  //                                         style: TextStyle(fontSize: 18),
+  //                                       ),
+  //                                     ),
+  //                                   ),
+  //                                 ],
+  //                               )
+  //                             ],
+  //                           ),
+  //                         ),
+  //                       ),
+  //                     ],
+  //                   ),
+  //                 );
+  //               });
+  //         }
+  //       } else {
+  //         // if (showProcessList = true) {
+  //         //   Utils.toast("文件解压完成");
+  //         // }
+  //       }
+  //       backgroundProcess[taskId]['timer']?.cancel();
+  //       backgroundProcess[taskId]['timer'] = null;
+  //       backgroundProcess.remove(taskId);
+  //       refresh();
+  //     } else {
+  //       setState(() {
+  //         backgroundProcess[taskId]['data'] = result['data'];
+  //       });
+  //     }
+  //   }
+  // }
 
   initFloating() {
     if (audioPlayerFloating == null) {

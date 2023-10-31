@@ -1,8 +1,17 @@
+import 'package:dsm_helper/models/Syno/Core/Package/InstalledPackage.dart';
+import 'package:dsm_helper/models/Syno/Core/Package/PackageInfo.dart';
+import 'package:dsm_helper/models/Syno/Core/Package/PackageServer.dart';
 import 'package:dsm_helper/pages/packages/detail.dart';
+import 'package:dsm_helper/themes/app_theme.dart';
+import 'package:dsm_helper/utils/extensions/navigator_ext.dart';
 import 'package:dsm_helper/utils/utils.dart';
-import 'package:dsm_helper/widgets/bubble_tab_indicator.dart';
+import 'package:dsm_helper/widgets/button.dart';
 import 'package:dsm_helper/widgets/cupertino_image.dart';
+import 'package:dsm_helper/widgets/empty_widget.dart';
+import 'package:dsm_helper/widgets/glass/glass_app_bar.dart';
+import 'package:dsm_helper/widgets/glass/glass_scaffold.dart';
 import 'package:dsm_helper/widgets/label.dart';
+import 'package:dsm_helper/widgets/loading_widget.dart';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -18,33 +27,31 @@ class _PackagesState extends State<Packages> with TickerProviderStateMixin {
   int packagesVersion = 1;
   int installedVersion = 1;
   late TabController _tabController;
-  List banners = [];
-  List others = [];
-  List packages = [];
-  List betas = [];
+  PackageInfo packageInfo = PackageInfo();
+  PackageServer packages = PackageServer();
+  PackageServer others = PackageServer();
 
-  List categories = [];
-  List installedPackages = [];
-  List canUpdatePackages = [];
-  List launchedPackages = [];
+  List<PackageItem> get installedPackages => allPackages.where((element) => element.installed).toList();
+  List<PackageItem> canUpdatePackages = [];
+  List<PackageItem> launchedPackages = [];
 
-  List installedPackagesInfo = [];
+  InstalledPackage installedPackageList = InstalledPackage();
 
   List volumes = [];
   bool loading = false;
   bool loadingAll = true;
   bool loadingInstalled = true;
   bool loadingOthers = true;
-  List get allPackages {
-    return packages + betas + others;
+  List<PackageItem> get allPackages {
+    return (packages.packages ?? []) + (packages.betaPackages ?? []) + (others.packages ?? []);
   }
 
   @override
   void initState() {
     String ver = "7.2";
-    int end = ver.indexOf("-");
-    var dsmVersion = ver.substring(4, end);
-    List v = dsmVersion.split(".");
+    // int end = ver.indexOf("-");
+    // var dsmVersion = ver.substring(4, end);
+    List v = ver.split(".");
     if (v[0] == "6" && v[1] == "1") {
       installedVersion = 1;
       packagesVersion = 1;
@@ -58,42 +65,40 @@ class _PackagesState extends State<Packages> with TickerProviderStateMixin {
       packagesVersion = 2;
       installedVersion = 2;
     }
-    _tabController = TabController(initialIndex: 1, length: 3, vsync: this);
+    _tabController = TabController(initialIndex: 1, length: 2, vsync: this);
     getData();
     super.initState();
   }
 
   getData() async {
-    var res = await Api.packages(version: packagesVersion);
-    if (res['success']) {
-      setState(() {
-        banners = res['data']['banners'];
-        if (res['data']['packages'] != null) {
-          packages = res['data']['packages'];
-        } else {
-          packages = res['data']['data'];
-        }
-        if (res['data']['beta_packages'] != null) {
-          betas = res['data']['beta_packages'];
-          if (betas.length > 0) {
-            _tabController = TabController(initialIndex: 1, length: 4, vsync: this);
-          }
-        }
-        //
-        categories = res['data']['categories'];
-      });
-      setState(() {
-        loadingAll = false;
-      });
-    } else {
-      Utils.toast("数据加载失败");
-      Navigator.of(context).pop();
-      return;
+    // try {
+    packageInfo = await PackageInfo.get();
+    int tabLength = 2;
+    if (packageInfo.config?.blBetaChannel == true) {
+      tabLength++;
     }
+    if (packageInfo.config?.blOtherServer == true) {
+      tabLength++;
+    }
+    if (tabLength != 2) {
+      _tabController = TabController(initialIndex: 1, length: tabLength, vsync: this);
+    }
+    // } catch (e) {}
+    // try {
+    packages = await PackageServer.list(version: packagesVersion);
+    setState(() {
+      loadingAll = false;
+    });
+    // } catch (e) {
+    //   print(e);
+    //   Utils.toast("数据加载失败");
+    //   // Navigator.of(context).pop();
+    //   return;
+    // }
     getOthers();
     // getLaunchedPackages();
     getInstalledPackages();
-    getVolumes();
+    // getVolumes();
   }
 
   getVolumes() async {
@@ -107,20 +112,23 @@ class _PackagesState extends State<Packages> with TickerProviderStateMixin {
 
   getOthers() async {
     print("获取第三方套件");
-    var res = await Api.packages(others: true, version: packagesVersion);
+    others = await PackageServer.list(version: packagesVersion, others: true);
     print("获取第三方套件end");
-    if (res['success']) {
-      setState(() {
-        if (res['data']['packages'] != null) {
-          others = res['data']['packages'];
-        } else {
-          others = res['data']['data'];
-        }
-        //
-        loadingOthers = false;
-      });
-      calcInstalledPackage();
-    }
+    setState(() {
+      loadingOthers = false;
+    });
+    // if (res['success']) {
+    //   setState(() {
+    //     if (res['data']['packages'] != null) {
+    //       others = res['data']['packages'];
+    //     } else {
+    //       others = res['data']['data'];
+    //     }
+    //     //
+    //     loadingOthers = false;
+    //   });
+    //   calcInstalledPackage();
+    // }
   }
 
   // getLaunchedPackages() async {
@@ -141,71 +149,76 @@ class _PackagesState extends State<Packages> with TickerProviderStateMixin {
   // }
 
   getInstalledPackages() async {
-    installedPackages = [];
-
-    print("获取已安装套件");
-    var res = await Api.installedPackages(version: installedVersion);
-    print("获取已安装套件end");
-    if (res['success']) {
+    try {
+      installedPackageList = await InstalledPackage.list();
       setState(() {
-        installedPackagesInfo = res['data']['packages'];
         loadingInstalled = false;
       });
       calcInstalledPackage();
-    } else {
-      print(res);
+    } catch (e) {
       print("获取已安装套件失败");
     }
   }
 
   calcInstalledPackage() {
     canUpdatePackages = [];
-    installedPackagesInfo.forEach((installedPackageInfo) {
-      allPackages.forEach((package) {
-        package['installed'] = package['installed'] ?? false;
-        package['installed_version'] = package['installed_version'] ?? "";
-        package['can_update'] = package['can_update'] ?? false;
-        package['launched'] = package['launched'] ?? false;
-        if (installedPackageInfo['id'] == package['id']) {
-          package['installed'] = true;
-          package['installed_version'] = installedPackageInfo['version'];
-          package['can_update'] = Utils.versionCompare(package['installed_version'], package['version']) < 0;
-          package['additional'] = installedPackageInfo['additional'];
-          if (package['installed']) {
-            installedPackages.add(package);
-          }
-          if (package['can_update']) {
-            canUpdatePackages.add(package);
-          }
-          if (package['additional'] != null && package['additional']['status'] == "running") {
-            package['launched'] = true;
-          } else if (launchedPackages.contains(package['id'])) {
-            package['launched'] = true;
-          }
+    installedPackageList.packages?.forEach((installedPackageInfo) {
+      try {
+        PackageItem find = allPackages.firstWhere((element) => element.id == installedPackageInfo.id);
+
+        if (Utils.versionCompare(installedPackageInfo.version!, find.version!) < 0) {
+          canUpdatePackages.add(find);
+          installedPackageInfo.canUpdate = true;
         }
-        setState(() {});
-      });
+        find.installed = true;
+        find.installedPackageItem = installedPackageInfo;
+      } catch (e) {}
+
+      // allPackages.forEach((package) {
+      //   package['installed'] = package['installed'] ?? false;
+      //   package['installed_version'] = package['installed_version'] ?? "";
+      //   package['can_update'] = package['can_update'] ?? false;
+      //   package['launched'] = package['launched'] ?? false;
+      //   if (installedPackageInfo.id == package.id) {
+      //     package['installed'] = true;
+      //     package['installed_version'] = installedPackageInfo['version'];
+      //     package['can_update'] = Utils.versionCompare(package['installed_version'], package['version']) < 0;
+      //     package['additional'] = installedPackageInfo['additional'];
+      //     if (package['installed']) {
+      //       installedPackages.add(package);
+      //     }
+      //     if (package['can_update']) {
+      //       canUpdatePackages.add(package);
+      //     }
+      //     if (package['additional'] != null && package['additional']['status'] == "running") {
+      //       package['launched'] = true;
+      //     } else if (launchedPackages.contains(package['id'])) {
+      //       package['launched'] = true;
+      //     }
+      //   }
+      //   setState(() {});
+      // });
     });
   }
 
-  List<String> getCategoryName(List? categoryIds) {
+  List<String> getCategoryName(List<String>? categoryIds) {
     List<String> name = [];
     if (categoryIds == null) {
       return [];
     }
     for (int i = 0; i < categoryIds.length; i++) {
-      categories.forEach((category) {
-        if (category['id'] == categoryIds[i]) {
-          name.add(category['dname']);
+      packages.categories?.forEach((category) {
+        if (category.id == categoryIds[i]) {
+          name.add(category.dname!);
         }
       });
     }
     return name;
   }
 
-  Widget _buildButton(package, {bool beta = false}) {
+  Widget _buildButton(PackageItem package, {bool beta = false}) {
     Widget button;
-    if (package['can_update'] == null || package['installed'] == null) {
+    if (loadingInstalled) {
       button = Container(
         padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
         decoration: BoxDecoration(
@@ -214,16 +227,10 @@ class _PackagesState extends State<Packages> with TickerProviderStateMixin {
         ),
         child: Text("获取中"),
       );
-    } else if (package['can_update']) {
-      button = CupertinoButton(
+    } else if (package.installedPackageItem != null && package.installedPackageItem!.canUpdate) {
+      button = Button(
         onPressed: () {
-          Navigator.of(context)
-              .push(CupertinoPageRoute(
-                  builder: (context) {
-                    return PackageDetail(package, beta: beta, method: "update");
-                  },
-                  settings: RouteSettings(name: "package_detail")))
-              .then((_) async {
+          context.push(PackageDetail(package, beta: beta, method: "update"), name: "package_detail").then((_) async {
             // await getLaunchedPackages();
             await getInstalledPackages();
             setState(() {
@@ -231,27 +238,35 @@ class _PackagesState extends State<Packages> with TickerProviderStateMixin {
             });
           });
         },
-        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-        color: Theme.of(context).scaffoldBackgroundColor,
-        borderRadius: BorderRadius.circular(20),
-        child: Text("更新"),
+        width: 60,
+        padding: EdgeInsets.symmetric(vertical: 6),
+        color: AppTheme.of(context)?.warningColor,
+        borderRadius: 20,
+        child: Text(
+          "更新",
+          style: TextStyle(fontSize: 14),
+        ),
       );
-    } else if (package['installed']) {
+    } else if (package.installed) {
       String text = "";
-      if (package['launched'] && package['additional'] != null && package['additional']['startable']) {
-        text = "停用";
-      } else if (package['additional'] != null && package['additional']['startable']) {
-        text = "启动";
+      if (package.installedPackageItem?.additional?.startable == true) {
+        if (package.installedPackageItem?.additional?.status == 'running') {
+          text = "停用";
+        } else if (package.installedPackageItem?.additional?.status == 'stop') {
+          text = "启动";
+        } else {
+          text = package.installedPackageItem?.additional?.status ?? '未知';
+        }
       } else {
         text = "已安装";
       }
-      button = CupertinoButton(
+      button = Button(
         onPressed: () async {
           if (text == "启动") {
             setState(() {
               loading = true;
             });
-            var res = await Api.launchPackage(package['id'], package['dsm_apps'], "start");
+            var res = await Api.launchPackage(package.id!, package.installedPackageItem!.additional!.dsmApps!, "start");
             if (res['success']) {
               Utils.toast("已启动");
               // await getLaunchedPackages();
@@ -298,7 +313,7 @@ class _PackagesState extends State<Packages> with TickerProviderStateMixin {
                                     setState(() {
                                       loading = true;
                                     });
-                                    var res = await Api.launchPackage(package['id'], package['dsm_apps'], "stop");
+                                    var res = await Api.launchPackage(package.id!, package.installedPackageItem!.additional!.dsmApps!, "stop");
                                     if (res['success']) {
                                       Utils.toast("已停用");
                                       // await getLaunchedPackages();
@@ -348,29 +363,23 @@ class _PackagesState extends State<Packages> with TickerProviderStateMixin {
             );
           }
         },
-        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-        color: Theme.of(context).scaffoldBackgroundColor,
-        borderRadius: BorderRadius.circular(20),
+        padding: EdgeInsets.symmetric(vertical: 6),
+        width: 60,
+        color: text == "启动"
+            ? AppTheme.of(context)?.successColor
+            : text == "停用"
+                ? AppTheme.of(context)?.errorColor
+                : Theme.of(context).scaffoldBackgroundColor,
+        borderRadius: 20,
         child: Text(
           "$text",
-          style: text == "启动"
-              ? null
-              : text == "停用"
-                  ? TextStyle(color: Colors.red)
-                  : TextStyle(color: Colors.grey),
-          textAlign: TextAlign.center,
+          style: TextStyle(fontSize: 14, color: text == '已安装' ? Theme.of(context).primaryColor : null),
         ),
       );
     } else {
-      button = CupertinoButton(
+      button = Button(
         onPressed: () {
-          Navigator.of(context)
-              .push(CupertinoPageRoute(
-                  builder: (context) {
-                    return PackageDetail(package, beta: beta, method: "install");
-                  },
-                  settings: RouteSettings(name: "package_detail")))
-              .then((_) async {
+          context.push(PackageDetail(package, beta: beta, method: "install"), name: "package_detail").then((_) async {
             // await getLaunchedPackages();
             await getInstalledPackages();
             setState(() {
@@ -378,29 +387,27 @@ class _PackagesState extends State<Packages> with TickerProviderStateMixin {
             });
           });
         },
-        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-        color: Theme.of(context).scaffoldBackgroundColor,
-        borderRadius: BorderRadius.circular(20),
-        child: Text("安装套件"),
+        width: 60,
+        padding: EdgeInsets.symmetric(vertical: 6),
+        color: AppTheme.of(context)?.primaryColor,
+        borderRadius: 20,
+        child: Text(
+          "安装",
+          style: TextStyle(fontSize: 14),
+        ),
       );
     }
     return button;
   }
 
-  Widget _buildUpdateItem(update) {
-    String thumbnailUrl = update['thumbnail'].last;
+  Widget _buildUpdateItem(PackageItem update) {
+    String thumbnailUrl = update.thumbnail!.last;
     if (!thumbnailUrl.startsWith("http")) {
       thumbnailUrl = Utils.baseUrl + thumbnailUrl;
     }
     return GestureDetector(
       onTap: () {
-        Navigator.of(context)
-            .push(CupertinoPageRoute(
-                builder: (context) {
-                  return PackageDetail(update);
-                },
-                settings: RouteSettings(name: "package_detail")))
-            .then((_) async {
+        context.push(PackageDetail(update), name: "package_detail").then((_) async {
           // await getLaunchedPackages();
           await getInstalledPackages();
           setState(() {
@@ -437,7 +444,7 @@ class _PackagesState extends State<Packages> with TickerProviderStateMixin {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "${update['dname']}",
+                      "${update.dname}",
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       textAlign: TextAlign.center,
@@ -447,7 +454,7 @@ class _PackagesState extends State<Packages> with TickerProviderStateMixin {
                       height: 5,
                     ),
                     Text(
-                      update['version'],
+                      "${update.version}",
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       textAlign: TextAlign.center,
@@ -456,7 +463,7 @@ class _PackagesState extends State<Packages> with TickerProviderStateMixin {
                   ],
                 ),
               ),
-              _buildButton(update),
+              // _buildButton(update),
             ],
           ),
         ),
@@ -464,10 +471,10 @@ class _PackagesState extends State<Packages> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildPackageItem(package, bool installed, {bool isBeta = false}) {
+  Widget _buildPackageItem(PackageItem package, bool installed, {bool isBeta = false}) {
     String thumbnailUrl = "";
-    if (package['thumbnail'].length > 0) {
-      thumbnailUrl = package['thumbnail'].last;
+    if (package.thumbnail != null && package.thumbnail!.isNotEmpty) {
+      thumbnailUrl = package.thumbnail!.last;
       if (!thumbnailUrl.startsWith("http")) {
         thumbnailUrl = Utils.baseUrl + thumbnailUrl;
       }
@@ -475,13 +482,7 @@ class _PackagesState extends State<Packages> with TickerProviderStateMixin {
 
     return GestureDetector(
       onTap: () {
-        Navigator.of(context)
-            .push(CupertinoPageRoute(
-                builder: (context) {
-                  return PackageDetail(package, beta: isBeta);
-                },
-                settings: RouteSettings(name: "package_detail")))
-            .then((_) async {
+        context.push(PackageDetail(package, beta: isBeta), name: "package_detail").then((_) async {
           // await getLaunchedPackages();
           await getInstalledPackages();
           setState(() {
@@ -490,67 +491,61 @@ class _PackagesState extends State<Packages> with TickerProviderStateMixin {
         });
       },
       child: Container(
-        width: (MediaQuery.of(context).size.width - 60) / 2,
         decoration: BoxDecoration(
-          color: Theme.of(context).scaffoldBackgroundColor,
+          color: AppTheme.of(context)?.cardColor,
           borderRadius: BorderRadius.circular(20),
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
+        margin: EdgeInsets.only(top: 14),
+        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        child: Row(
           children: [
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20),
-              child: Column(
-                children: [
-                  SizedBox(
-                    height: 20,
-                  ),
-                  Stack(
-                    children: [
-                      Align(
-                        alignment: Alignment.center,
-                        child: SizedBox(
-                          height: 80,
-                          child: CupertinoExtendedImage(
-                            thumbnailUrl,
-                            width: 80,
-                          ),
-                        ),
-                      ),
-                      if (isBeta || (package['additional'] != null && package['additional']['beta']))
-                        Align(
-                          alignment: Alignment.topRight,
-                          child: Label(
-                            "Beta",
-                            Colors.lightBlueAccent,
-                            fill: true,
-                          ),
-                        ),
-                    ],
-                  ),
-                  SizedBox(
-                    height: 10,
-                  ),
-                  SizedBox(
+            Stack(
+              children: [
+                Align(
+                  alignment: Alignment.center,
+                  child: SizedBox(
                     height: 40,
-                    child: Text(
-                      "${package['dname']}",
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      textAlign: TextAlign.center,
+                    child: CupertinoExtendedImage(
+                      thumbnailUrl,
+                      width: 40,
                     ),
                   ),
-                  Text(
-                    // "${package['category']}",
-                    "${installed && package['additional']['updated_at'] != null ? package['additional']['updated_at'] : package['category'] is List && getCategoryName(package['category']).length > 0 ? getCategoryName(package['category']).join(",") : package['maintainer']}",
-                    maxLines: 1,
-                    overflow: TextOverflow.clip,
-                    style: TextStyle(color: Colors.grey),
+                ),
+                if (isBeta)
+                  Align(
+                    alignment: Alignment.topRight,
+                    child: Label(
+                      "Beta",
+                      Colors.lightBlueAccent,
+                      fill: true,
+                    ),
                   ),
+              ],
+            ),
+            SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "${package.dname}",
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(fontSize: 16),
+                  ),
+                  if (package.category != null)
+                    Text(
+                      // "${package['category']}",
+                      // "${installed && package['additional']['updated_at'] != null ? package['additional']['updated_at'] : package['category'] is List && getCategoryName(package['category']).length > 0 ? getCategoryName(package['category']).join(",") : package['maintainer']}",
+                      "${package.category is List && getCategoryName(package.category!).length > 0 ? getCategoryName(package.category!).join(",") : package.maintainer}",
+                      maxLines: 1,
+                      overflow: TextOverflow.clip,
+                      style: TextStyle(fontSize: 12, color: AppTheme.of(context)?.placeholderColor),
+                    ),
                 ],
               ),
             ),
-            Padding(padding: EdgeInsets.all(20), child: _buildButton(package, beta: isBeta)),
+            _buildButton(package, beta: isBeta),
           ],
         ),
       ),
@@ -559,186 +554,132 @@ class _PackagesState extends State<Packages> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          "套件中心",
+    return GlassScaffold(
+      floatingActionButton: FloatingActionButton(
+        child: Icon(Icons.refresh),
+        onPressed: getData,
+      ),
+      appBar: GlassAppBar(
+        leadingWidth: 50,
+        title: TabBar(
+          isScrollable: true,
+          controller: _tabController,
+          tabs: [
+            Tab(text: "已安装"),
+            Tab(text: "全部套件"),
+            if (packageInfo.config?.blBetaChannel == true) Tab(text: "Beta套件"),
+            if (packageInfo.config?.blOtherServer == true) Tab(text: "社群"),
+          ],
         ),
       ),
-      body: Stack(
-        children: [
-          Column(
-            children: [
-              Container(
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  color: Theme.of(context).scaffoldBackgroundColor,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                margin: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-                child: TabBar(
-                  isScrollable: true,
-                  controller: _tabController,
-                  indicatorSize: TabBarIndicatorSize.label,
-                  labelColor: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black,
-                  unselectedLabelColor: Colors.grey,
-                  indicator: BubbleTabIndicator(
-                    indicatorColor: Theme.of(context).scaffoldBackgroundColor,
-                    shadowColor: Utils.getAdjustColor(Theme.of(context).scaffoldBackgroundColor, -20),
-                  ),
-                  tabs: [
-                    Padding(
-                      padding: EdgeInsets.symmetric(vertical: 10, horizontal: 5),
-                      child: Text("已安装"),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.symmetric(vertical: 10, horizontal: 5),
-                      child: Text("全部套件"),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.symmetric(vertical: 10, horizontal: 5),
-                      child: Text("社群"),
-                    ),
-                    if (betas.length > 0)
-                      Padding(
-                        padding: EdgeInsets.symmetric(vertical: 10, horizontal: 5),
-                        child: Text("Beta"),
-                      ),
-                  ],
-                ),
-              ),
-              Expanded(
-                child: TabBarView(
-                  controller: _tabController,
-                  children: [
-                    Container(
-                      child: loadingInstalled
-                          ? Center(
-                              child: Container(
-                                padding: EdgeInsets.all(50),
-                                decoration: BoxDecoration(
-                                  color: Theme.of(context).scaffoldBackgroundColor,
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                                child: CupertinoActivityIndicator(
-                                  radius: 14,
-                                ),
-                              ),
-                            )
-                          : ListView(
-                              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-                              children: [
-                                if (canUpdatePackages.length > 0)
-                                  ListView.builder(
-                                    itemBuilder: (content, i) {
-                                      return _buildUpdateItem(canUpdatePackages[i]);
-                                    },
-                                    itemCount: canUpdatePackages.length,
-                                    shrinkWrap: true,
-                                    physics: NeverScrollableScrollPhysics(),
-                                  ),
-                                Wrap(
-                                  runSpacing: 20,
-                                  spacing: 20,
-                                  children: installedPackages.map((package) {
-                                    return _buildPackageItem(package, true);
-                                  }).toList(),
-                                ),
-                              ],
+      body: loading
+          ? Center(child: LoadingWidget(size: 30))
+          : TabBarView(
+              controller: _tabController,
+              children: [
+                Container(
+                  child: loadingInstalled
+                      ? Center(
+                          child: Container(
+                            padding: EdgeInsets.all(50),
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).scaffoldBackgroundColor,
+                              borderRadius: BorderRadius.circular(20),
                             ),
-                    ),
-                    Container(
-                      child: loadingAll
-                          ? Center(
-                              child: Container(
-                                padding: EdgeInsets.all(50),
-                                decoration: BoxDecoration(
-                                  color: Theme.of(context).scaffoldBackgroundColor,
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                                child: CupertinoActivityIndicator(
-                                  radius: 14,
-                                ),
-                              ),
-                            )
-                          : ListView(
-                              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-                              children: [
-                                Wrap(
-                                  runSpacing: 20,
-                                  spacing: 20,
-                                  children: packages.map((package) {
-                                    return _buildPackageItem(package, false);
-                                  }).toList(),
-                                ),
-                              ],
-                            ),
-                    ),
-                    Container(
-                      child: loadingOthers
-                          ? Center(
-                              child: Container(
-                                padding: EdgeInsets.all(50),
-                                decoration: BoxDecoration(
-                                  color: Theme.of(context).scaffoldBackgroundColor,
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                                child: CupertinoActivityIndicator(
-                                  radius: 14,
-                                ),
-                              ),
-                            )
-                          : ListView(
-                              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-                              children: [
-                                Wrap(
-                                  runSpacing: 20,
-                                  spacing: 20,
-                                  children: others.map((package) {
-                                    return _buildPackageItem(package, false);
-                                  }).toList(),
-                                ),
-                              ],
-                            ),
-                    ),
-                    if (betas.length > 0)
-                      ListView(
-                        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-                        children: [
-                          Wrap(
-                            runSpacing: 20,
-                            spacing: 20,
-                            children: betas.map((package) {
-                              return _buildPackageItem(package, false, isBeta: true);
-                            }).toList(),
+                            child: CupertinoActivityIndicator(radius: 14),
                           ),
-                        ],
-                      ),
-                  ],
+                        )
+                      : installedPackageList.packages != null && installedPackageList.packages!.isNotEmpty
+                          ? Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 16),
+                              child: ListView.builder(
+                                itemBuilder: (context, i) {
+                                  return _buildPackageItem(installedPackages[i], true);
+                                },
+                                itemCount: installedPackages.length,
+                              ),
+                            )
+                          : EmptyWidget(
+                              text: "暂无已安装套件",
+                            ),
+                  // : ListView(
+                  //     padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                  //     children: [
+                  //       if (canUpdatePackages.length > 0)
+                  //         ListView.builder(
+                  //           itemBuilder: (content, i) {
+                  //             return _buildUpdateItem(canUpdatePackages[i]);
+                  //           },
+                  //           itemCount: canUpdatePackages.length,
+                  //           shrinkWrap: true,
+                  //           physics: NeverScrollableScrollPhysics(),
+                  //         ),
+                  //       Wrap(
+                  //         runSpacing: 20,
+                  //         spacing: 20,
+                  //         children: installedPackages.map((package) {
+                  //           return _buildPackageItem(package, true);
+                  //         }).toList(),
+                  //       ),
+                  //     ],
+                  //   ),
                 ),
-              ),
-            ],
-          ),
-          if (loading)
-            Container(
-              width: MediaQuery.of(context).size.width,
-              height: MediaQuery.of(context).size.height,
-              color: Theme.of(context).scaffoldBackgroundColor.withOpacity(0.7),
-              child: Center(
-                child: Container(
-                  padding: EdgeInsets.all(50),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).scaffoldBackgroundColor,
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: CupertinoActivityIndicator(
-                    radius: 14,
-                  ),
+                Container(
+                  child: loadingAll
+                      ? Center(
+                          child: LoadingWidget(size: 30),
+                        )
+                      : packages.packages != null && packages.packages!.isNotEmpty
+                          ? Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 16),
+                              child: ListView.builder(
+                                itemCount: packages.packages!.length,
+                                itemBuilder: (context, i) {
+                                  return _buildPackageItem(packages.packages![i], false);
+                                },
+                              ),
+                            )
+                          : EmptyWidget(
+                              text: "暂无套件",
+                            ),
                 ),
-              ),
+                if (packageInfo.config?.blBetaChannel == true)
+                  Container(
+                    child: loadingAll
+                        ? LoadingWidget(size: 30)
+                        : packages.betaPackages != null && packages.betaPackages!.isNotEmpty
+                            ? Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 16),
+                                child: ListView.builder(
+                                  itemCount: packages.betaPackages!.length,
+                                  itemBuilder: (context, i) {
+                                    return _buildPackageItem(packages.betaPackages![i], false);
+                                  },
+                                ),
+                              )
+                            : EmptyWidget(
+                                text: "暂无Beta套件",
+                              ),
+                  ),
+                if (packageInfo.config?.blOtherServer == true)
+                  Container(
+                    child: loadingOthers
+                        ? Center(
+                            child: LoadingWidget(size: 30),
+                          )
+                        : others.packages != null && others.packages!.isNotEmpty
+                            ? ListView.builder(
+                                itemCount: others.betaPackages!.length,
+                                itemBuilder: (context, i) {
+                                  return _buildPackageItem(others.betaPackages![i], false);
+                                },
+                              )
+                            : EmptyWidget(
+                                text: "暂无社群套件",
+                              ),
+                  ),
+              ],
             ),
-        ],
-      ),
     );
   }
 }

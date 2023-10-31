@@ -115,12 +115,12 @@ class Utils {
     String? buildNumber1;
     String versionName2;
     String? buildNumber2;
-    List version1 = v1.split("-");
+    List<String> version1 = v1.split("-");
     versionName1 = version1[0];
     if (version1.length > 1) {
       buildNumber1 = version1[1];
     }
-    List version2 = v2.split("-");
+    List<String> version2 = v2.split("-");
     versionName2 = version2[0];
     if (version2.length > 1) {
       buildNumber2 = version2[1];

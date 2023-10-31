@@ -14,17 +14,9 @@ class Api {
   static Map<String, ApiModel> apiList = {};
   static Future<Map> update(String buildNumber, {bool force = false}) async {
     if (Platform.isAndroid) {
-      // DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
-      // AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
-      // if (androidInfo.brand == "HUAWEI" || androidInfo.brand == "HONOR") {
-      //   return {
-      //     "code": 0,
-      //     "msg": "已是最新版本",
-      //   };
-      // }
       String urlBase64 = "aHR0cHM6Ly93d3cucGd5ZXIuY29tL2FwaXYyL2FwcC9jaGVjaw==";
       var res = await Utils.post(Utils.base64ToString(urlBase64), data: {
-        "_api_key": "f4621000de0337cc74a156cea513e828",
+        "_api_key": "0a854679cb891abbd812278b893bd2fb",
         "appKey": "ed1169bc9b9d290ef91c7e21d4ffb008",
         "buildVersion": buildNumber,
       });
@@ -238,17 +230,6 @@ class Api {
     return task;
   }
 
-  static Future<Map> extractResult(String taskId) async {
-    var result = await Utils.post("entry.cgi", data: {
-      "api": '"SYNO.FileStation.Extract"',
-      "method": '"status"',
-      "version": 1,
-      "_sid": Utils.sid,
-      "taskid": taskId,
-    });
-    return result;
-  }
-
   static Future<Map> kickConnection(Map connection) async {
     var result = await Utils.post("entry.cgi", data: {
       "api": '"SYNO.Core.CurrentConnection"',
@@ -289,31 +270,6 @@ class Api {
     };
     var result = await Utils.get("entry.cgi", data: data);
     return result;
-  }
-
-  static Future<Map> rename(String path, String name) async {
-    var data = {
-      "api": '"SYNO.FileStation.Rename"',
-      "method": '"rename"',
-      "version": 2,
-      "path": '"$path"',
-      "name": '"$name"',
-      "_sid": Utils.sid,
-    };
-    var result = await Utils.get("entry.cgi", data: data);
-    return result;
-  }
-
-  static Future<Map> power(String method, bool force) async {
-    var data = {
-      "api": '"SYNO.Core.System"',
-      "force": force,
-      "local": true,
-      "version": 1,
-      "method": method,
-      "_sid": Utils.sid,
-    };
-    return await Utils.post("entry.cgi", data: data);
   }
 
   static Future<Map> setTerminal(bool? ssh, bool? telnet, String? sshPort) async {
@@ -388,58 +344,6 @@ class Api {
       "location": '"internal"',
       "api": "SYNO.Core.Storage.Volume",
       "version": 1,
-      "method": "list",
-      "_sid": Utils.sid,
-    };
-    return await Utils.post("entry.cgi", data: data);
-  }
-
-  static Future<Map> packages({bool others = false, int version = 1}) async {
-    var data = {
-      "updateSprite": true,
-      "blforcereload": false,
-      "blloadothers": others,
-      "api": "SYNO.Core.Package.Server",
-      "version": version,
-      "method": "list",
-      "_sid": Utils.sid,
-    };
-    return await Utils.post("entry.cgi", data: data);
-  }
-
-  static Future<Map> installedPackages({int version = 1}) async {
-    List<String> additional = [
-      "description",
-      "description_enu",
-      "beta",
-      "distributor",
-      "distributor_url",
-      "maintainer",
-      "maintainer_url",
-      "dsm_apps",
-      "report_beta_url",
-      "support_center",
-      "startable",
-      "installed_info",
-      "support_url",
-      "is_uninstall_pages",
-      "install_type",
-      "autoupdate",
-      "silent_upgrade",
-      "installing_progress",
-      "ctl_uninstall",
-      "status",
-      "url",
-    ];
-    if (version == 2) {
-      additional.add("updated_at");
-    }
-    var data = {
-      "additional": jsonEncode(additional),
-      "polling_interval": 15,
-      // "force_set_params": true,
-      "api": "SYNO.Core.Package",
-      "version": version,
       "method": "list",
       "_sid": Utils.sid,
     };

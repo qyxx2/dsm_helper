@@ -1,5 +1,6 @@
+import 'package:dsm_helper/apis/api.dart';
 import 'package:dsm_helper/models/photos/photo_model.dart';
-import 'package:dsm_helper/utils/utils.dart';
+import 'package:dsm_helper/utils/utils.dart' hide Api;
 
 /// limit : 102
 /// list : [{"day":22,"item_count":2,"month":10,"year":2022},{"day":21,"item_count":6,"month":10,"year":2022},{"day":23,"item_count":43,"month":9,"year":2022},{"day":7,"item_count":4,"month":8,"year":2022},{"day":28,"item_count":2,"month":6,"year":2022},{"day":22,"item_count":1,"month":5,"year":2022},{"day":20,"item_count":5,"month":5,"year":2022},{"day":10,"item_count":1,"month":5,"year":2022},{"day":25,"item_count":12,"month":4,"year":2022},{"day":27,"item_count":26,"month":3,"year":2022}]
@@ -12,13 +13,7 @@ class TimelineModel {
     this.offset,
   });
   static Future<List<TimelineModel>> fetch({bool isTeam = false, String? type, num? geocodingId, num? generalTagId, bool recentlyAdd = false, List<int> itemTypes = const []}) async {
-    Map<String, dynamic> data = {
-      "timeline_group_unit": "day",
-      "api": "SYNO.Foto${isTeam ? 'Team' : ''}.Browse.${recentlyAdd ? 'RecentlyAdded' : 'Timeline'}",
-      "method": recentlyAdd ? "get_timeline" : 'get',
-      "version": 2,
-      "_sid": Utils.sid,
-    };
+    Map<String, dynamic> data = {};
     if (type != null) {
       data['type'] = type;
     }
@@ -33,10 +28,11 @@ class TimelineModel {
     //   data['method'] = "get_with_filter";
     // }
     print(data);
-    var res = await Utils.post("entry.cgi", data: data);
+    DsmResponse res = await Api.dsm.entry("SYNO.Foto${isTeam ? 'Team' : ''}.Browse.${recentlyAdd ? 'RecentlyAdded' : 'Timeline'}", recentlyAdd ? "get_timeline" : 'get', version: 2, data: data);
+    // var res = await Utils.post("entry.cgi", data: data);
     print(res);
-    if (res['success']) {
-      List data = res['data']['section'];
+    if (res.success == true) {
+      List data = res.data!['section'];
       List<TimelineModel> timeline = [];
       data.forEach((e) {
         timeline.add(TimelineModel.fromJson(e));
@@ -113,11 +109,7 @@ class Day {
       "offset": 0,
       "limit": itemCount,
       "additional": '["thumbnail","resolution","orientation","video_convert","video_meta","address"]',
-      "api": "SYNO.Foto${isTeam ? 'Team' : ''}.Browse.${recentlyAdd ? 'RecentlyAdded' : 'Item'}",
-      "method": 'list',
-      "version": 1,
-      "_sid": Utils.sid,
-      "timeline_group_unit": "day",
+      // "timeline_group_unit": "day",
     };
     if (type != null) {
       data['type'] = type;
@@ -143,11 +135,14 @@ class Day {
       //   ]);
       // }
     }
-    var res = await Utils.post("entry.cgi", data: data);
+    String api = "SYNO.Foto${isTeam ? 'Team' : ''}.Browse.${recentlyAdd ? 'RecentlyAdded' : 'Item'}";
+    print(data);
+    DsmResponse res = await Api.dsm.entry(api, "list", version: 1, path: api);
+    // var res = await Utils.post("entry.cgi", data: data);
     // print(res);
-    if (res['success']) {
+    if (res.success == true) {
       photos = [];
-      res['data']['list'].forEach((e) {
+      res.data!['list'].forEach((e) {
         photos.add(PhotoModel.fromJson(e));
       });
     } else {
@@ -161,13 +156,11 @@ class Day {
     Map<String, dynamic> data = {
       "start_time": start,
       "end_time": end,
-      "api": '"SYNO.${Utils.version == 7 ? "Foto" : "Photo"}.Browse.Timeline"',
-      "method": '"get_geocoding"',
-      "version": 1,
       "_sid": Utils.sid,
     };
-    var res = await Utils.post("entry.cgi", data: data);
-    return res;
+    DsmResponse res = await Api.dsm.entry('"SYNO.${Utils.version == 7 ? "Foto" : "Photo"}.Browse.Timeline"', '"get_geocoding"', version: 1);
+    // var res = await Utils.post("entry.cgi", data: data);
+    return res.data;
   }
 
   Day copyWith({
