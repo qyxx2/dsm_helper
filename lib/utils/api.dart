@@ -337,45 +337,6 @@ class Api {
     return result;
   }
 
-  static Future<Map> volumes() async {
-    var data = {
-      "limit": -1,
-      "offset": 0,
-      "location": '"internal"',
-      "api": "SYNO.Core.Storage.Volume",
-      "version": 1,
-      "method": "list",
-      "_sid": Utils.sid,
-    };
-    return await Utils.post("entry.cgi", data: data);
-  }
-
-  static Future<Map> launchedPackages() async {
-    var data = {
-      "action": "load",
-      "load_disabled_port": true,
-      "api": "SYNO.Core.Polling.Data",
-      "version": 1,
-      "method": "get",
-      "_sid": Utils.sid,
-    };
-    return await Utils.post("entry.cgi", data: data);
-  }
-
-  static Future<Map> launchPackage(String id, String app, String method) async {
-    var data = {
-      "id": id,
-      "api": "SYNO.Core.Package.Control",
-      "version": 1,
-      "method": method,
-      "_sid": Utils.sid,
-    };
-    if (method == "start") {
-      data["dsm_apps"] = jsonEncode([app]);
-    }
-    return await Utils.post("entry.cgi", data: data);
-  }
-
   static Future<Map> installPackageTask(String name, String path) async {
     var data = {
       "name": name,

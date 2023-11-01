@@ -2,6 +2,8 @@ import 'package:dsm_helper/models/Syno/Core/Package/InstalledPackage.dart';
 import 'package:dsm_helper/models/Syno/Core/Package/PackageInfo.dart';
 import 'package:dsm_helper/models/Syno/Core/Package/PackageServer.dart';
 import 'package:dsm_helper/pages/packages/detail.dart';
+import 'package:dsm_helper/pages/packages/enums/package_status_enum.dart';
+import 'package:dsm_helper/pages/packages/dialogs/stop_package_dialog.dart';
 import 'package:dsm_helper/themes/app_theme.dart';
 import 'package:dsm_helper/utils/extensions/navigator_ext.dart';
 import 'package:dsm_helper/utils/utils.dart';
@@ -15,6 +17,7 @@ import 'package:dsm_helper/widgets/loading_widget.dart';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_vibrate/flutter_vibrate.dart';
 
 class Packages extends StatefulWidget {
   // final String version;
@@ -98,22 +101,11 @@ class _PackagesState extends State<Packages> with TickerProviderStateMixin {
     getOthers();
     // getLaunchedPackages();
     getInstalledPackages();
-    // getVolumes();
-  }
-
-  getVolumes() async {
-    var res = await Api.volumes();
-    if (res['success']) {
-      setState(() {
-        volumes = res['data']['volumes'];
-      });
-    }
   }
 
   getOthers() async {
-    print("获取第三方套件");
     others = await PackageServer.list(version: packagesVersion, others: true);
-    print("获取第三方套件end");
+    calcInstalledPackage();
     setState(() {
       loadingOthers = false;
     });
@@ -156,6 +148,7 @@ class _PackagesState extends State<Packages> with TickerProviderStateMixin {
       });
       calcInstalledPackage();
     } catch (e) {
+      print(e);
       print("获取已安装套件失败");
     }
   }
@@ -217,167 +210,140 @@ class _PackagesState extends State<Packages> with TickerProviderStateMixin {
   }
 
   Widget _buildButton(PackageItem package, {bool beta = false}) {
-    Widget button;
     if (loadingInstalled) {
-      button = Container(
-        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      return Container(
+        width: 60,
+        padding: EdgeInsets.symmetric(vertical: 6),
         decoration: BoxDecoration(
           color: Theme.of(context).scaffoldBackgroundColor,
           borderRadius: BorderRadius.circular(20),
         ),
-        child: Text("获取中"),
-      );
-    } else if (package.installedPackageItem != null && package.installedPackageItem!.canUpdate) {
-      button = Button(
-        onPressed: () {
-          context.push(PackageDetail(package, beta: beta, method: "update"), name: "package_detail").then((_) async {
-            // await getLaunchedPackages();
-            await getInstalledPackages();
-            setState(() {
-              loading = false;
-            });
-          });
-        },
-        width: 60,
-        padding: EdgeInsets.symmetric(vertical: 6),
-        color: AppTheme.of(context)?.warningColor,
-        borderRadius: 20,
         child: Text(
-          "更新",
+          "获取中",
           style: TextStyle(fontSize: 14),
+          textAlign: TextAlign.center,
         ),
       );
+    } else if (package.loading) {
+      return LoadingWidget(
+        size: 24,
+      );
     } else if (package.installed) {
-      String text = "";
-      if (package.installedPackageItem?.additional?.startable == true) {
-        if (package.installedPackageItem?.additional?.status == 'running') {
-          text = "停用";
-        } else if (package.installedPackageItem?.additional?.status == 'stop') {
-          text = "启动";
-        } else {
-          text = package.installedPackageItem?.additional?.status ?? '未知';
-        }
-      } else {
-        text = "已安装";
-      }
-      button = Button(
-        onPressed: () async {
-          if (text == "启动") {
-            setState(() {
-              loading = true;
-            });
-            var res = await Api.launchPackage(package.id!, package.installedPackageItem!.additional!.dsmApps!, "start");
-            if (res['success']) {
-              Utils.toast("已启动");
+      if (package.installedPackageItem?.canUpdate == true) {
+        return Button(
+          onPressed: () {
+            context.push(PackageDetail(package, beta: beta, method: "update"), name: "package_detail").then((_) async {
               // await getLaunchedPackages();
               await getInstalledPackages();
               setState(() {
                 loading = false;
               });
-            }
-          } else if (text == "停用") {
-            showCupertinoModalPopup(
-              context: context,
-              builder: (context) {
-                return Material(
-                  color: Colors.transparent,
-                  child: Container(
-                    width: double.infinity,
-                    padding: EdgeInsets.all(22),
-                    decoration: BoxDecoration(color: Theme.of(context).scaffoldBackgroundColor, borderRadius: BorderRadius.vertical(top: Radius.circular(22))),
-                    child: SafeArea(
-                      top: false,
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: <Widget>[
-                          Text(
-                            "停用套件",
-                            style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
-                          ),
-                          SizedBox(
-                            height: 12,
-                          ),
-                          Text(
-                            "确认要停用此套件？",
-                            style: TextStyle(fontSize: 20, fontWeight: FontWeight.w400),
-                          ),
-                          SizedBox(
-                            height: 22,
-                          ),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: CupertinoButton(
-                                  onPressed: () async {
-                                    Navigator.of(context).pop();
-                                    setState(() {
-                                      loading = true;
-                                    });
-                                    var res = await Api.launchPackage(package.id!, package.installedPackageItem!.additional!.dsmApps!, "stop");
-                                    if (res['success']) {
-                                      Utils.toast("已停用");
-                                      // await getLaunchedPackages();
-                                      await getInstalledPackages();
-                                      setState(() {
-                                        loading = false;
-                                      });
-                                    }
-                                  },
-                                  color: Theme.of(context).scaffoldBackgroundColor,
-                                  borderRadius: BorderRadius.circular(25),
-                                  padding: EdgeInsets.symmetric(vertical: 10),
-                                  child: Text(
-                                    "停用",
-                                    style: TextStyle(fontSize: 18, color: Colors.redAccent),
-                                  ),
-                                ),
-                              ),
-                              SizedBox(
-                                width: 20,
-                              ),
-                              Expanded(
-                                child: CupertinoButton(
-                                  onPressed: () async {
-                                    Navigator.of(context).pop();
-                                  },
-                                  color: Theme.of(context).scaffoldBackgroundColor,
-                                  borderRadius: BorderRadius.circular(25),
-                                  padding: EdgeInsets.symmetric(vertical: 10),
-                                  child: Text(
-                                    "取消",
-                                    style: TextStyle(fontSize: 18),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          SizedBox(
-                            height: 8,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                );
-              },
-            );
-          }
-        },
-        padding: EdgeInsets.symmetric(vertical: 6),
-        width: 60,
-        color: text == "启动"
-            ? AppTheme.of(context)?.successColor
-            : text == "停用"
-                ? AppTheme.of(context)?.errorColor
-                : Theme.of(context).scaffoldBackgroundColor,
-        borderRadius: 20,
-        child: Text(
-          "$text",
-          style: TextStyle(fontSize: 14, color: text == '已安装' ? Theme.of(context).primaryColor : null),
-        ),
-      );
+            });
+          },
+          width: 60,
+          padding: EdgeInsets.symmetric(vertical: 6),
+          color: AppTheme.of(context)?.warningColor,
+          borderRadius: 20,
+          child: Text(
+            "更新",
+            style: TextStyle(fontSize: 14),
+          ),
+        );
+      } else if (package.installedPackageItem?.additional?.startable == true) {
+        if (package.installedPackageItem?.additional?.statusEnum == PackageStatusEnum.running) {
+          return Button(
+            onPressed: () async {
+              bool? confirm = await StopPackageDialog.show(context: context, package: package.installedPackageItem!);
+              if (confirm == true) {
+                setState(() {
+                  package.loading = true;
+                });
+                bool? res = await package.installedPackageItem!.stop();
+                setState(() {
+                  package.loading = false;
+                });
+                if (res == true) {
+                  setState(() {
+                    package.installedPackageItem!.additional!.status = 'stop';
+                  });
+                  Utils.vibrate(FeedbackType.success);
+                  Utils.toast("${package.dname}停用成功");
+                } else {
+                  Utils.vibrate(FeedbackType.error);
+                  Utils.toast("${package.dname}停用失败");
+                }
+                await getInstalledPackages();
+              }
+            },
+            width: 60,
+            padding: EdgeInsets.symmetric(vertical: 6),
+            color: PackageStatusEnum.stop.color,
+            borderRadius: 20,
+            child: Text(
+              "停用",
+              style: TextStyle(fontSize: 14),
+            ),
+          );
+        } else if (package.installedPackageItem?.additional?.statusEnum == PackageStatusEnum.stop) {
+          return Button(
+            onPressed: () async {
+              setState(() {
+                package.loading = true;
+              });
+              bool? res = await package.installedPackageItem!.start();
+              if (res == true) {
+                Utils.vibrate(FeedbackType.success);
+                Utils.toast("${package.dname}启动成功！");
+                await getInstalledPackages();
+              } else {
+                Utils.vibrate(FeedbackType.error);
+                Utils.toast("${package.dname}启动失败！");
+              }
+              setState(() {
+                package.loading = false;
+              });
+            },
+            width: 60,
+            padding: EdgeInsets.symmetric(vertical: 6),
+            color: PackageStatusEnum.running.color,
+            borderRadius: 20,
+            child: Text(
+              "启动",
+              style: TextStyle(fontSize: 14),
+            ),
+          );
+        } else {
+          return Container(
+            width: 60,
+            padding: EdgeInsets.symmetric(vertical: 6),
+            decoration: BoxDecoration(
+              color: Theme.of(context).scaffoldBackgroundColor,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Text(
+              "${package.installedPackageItem?.additional?.status}",
+              style: TextStyle(fontSize: 14),
+              textAlign: TextAlign.center,
+            ),
+          );
+        }
+      } else {
+        return Container(
+          width: 60,
+          padding: EdgeInsets.symmetric(vertical: 6),
+          decoration: BoxDecoration(
+            color: Theme.of(context).scaffoldBackgroundColor,
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Text(
+            "已安装",
+            style: TextStyle(fontSize: 14),
+            textAlign: TextAlign.center,
+          ),
+        );
+      }
     } else {
-      button = Button(
+      return Button(
         onPressed: () {
           context.push(PackageDetail(package, beta: beta, method: "install"), name: "package_detail").then((_) async {
             // await getLaunchedPackages();
@@ -397,7 +363,6 @@ class _PackagesState extends State<Packages> with TickerProviderStateMixin {
         ),
       );
     }
-    return button;
   }
 
   Widget _buildUpdateItem(PackageItem update) {
@@ -482,6 +447,7 @@ class _PackagesState extends State<Packages> with TickerProviderStateMixin {
 
     return GestureDetector(
       onTap: () {
+        print(package);
         context.push(PackageDetail(package, beta: isBeta), name: "package_detail").then((_) async {
           // await getLaunchedPackages();
           await getInstalledPackages();
@@ -560,10 +526,11 @@ class _PackagesState extends State<Packages> with TickerProviderStateMixin {
         onPressed: getData,
       ),
       appBar: GlassAppBar(
-        leadingWidth: 50,
+        titleSpacing: 0,
         title: TabBar(
           isScrollable: true,
           controller: _tabController,
+          indicatorColor: Colors.transparent,
           tabs: [
             Tab(text: "已安装"),
             Tab(text: "全部套件"),
@@ -580,14 +547,7 @@ class _PackagesState extends State<Packages> with TickerProviderStateMixin {
                 Container(
                   child: loadingInstalled
                       ? Center(
-                          child: Container(
-                            padding: EdgeInsets.all(50),
-                            decoration: BoxDecoration(
-                              color: Theme.of(context).scaffoldBackgroundColor,
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: CupertinoActivityIndicator(radius: 14),
-                          ),
+                          child: LoadingWidget(size: 30),
                         )
                       : installedPackageList.packages != null && installedPackageList.packages!.isNotEmpty
                           ? Padding(
@@ -668,11 +628,14 @@ class _PackagesState extends State<Packages> with TickerProviderStateMixin {
                             child: LoadingWidget(size: 30),
                           )
                         : others.packages != null && others.packages!.isNotEmpty
-                            ? ListView.builder(
-                                itemCount: others.betaPackages!.length,
-                                itemBuilder: (context, i) {
-                                  return _buildPackageItem(others.betaPackages![i], false);
-                                },
+                            ? Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 16),
+                                child: ListView.builder(
+                                  itemCount: others.packages!.length,
+                                  itemBuilder: (context, i) {
+                                    return _buildPackageItem(others.packages![i], false);
+                                  },
+                                ),
                               )
                             : EmptyWidget(
                                 text: "暂无社群套件",

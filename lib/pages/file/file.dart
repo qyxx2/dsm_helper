@@ -323,15 +323,6 @@ class FilesState extends State<Files> {
     }
   }
 
-  Future<List> getVolumes() async {
-    var res = await Api.volumes();
-    if (res['success']) {
-      return res['data']['volumes'];
-    } else {
-      return [];
-    }
-  }
-
   refresh() {
     if (widget.path.isEmpty) {
       getShareList();

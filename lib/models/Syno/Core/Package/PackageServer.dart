@@ -1,5 +1,9 @@
+import 'dart:convert';
+
 import 'package:dsm_helper/apis/api.dart';
 import 'package:dsm_helper/models/Syno/Core/Package/InstalledPackage.dart';
+import 'package:dsm_helper/models/Syno/Core/Package/PackageInstallQueue.dart';
+import 'package:dsm_helper/models/Syno/Core/Package/PackageInstallTask.dart';
 
 class PackageServer {
   PackageServer({
@@ -171,6 +175,36 @@ class PackageItem {
     this.version,
   });
 
+  Future<bool?> feasibilityCheck() async {
+    DsmResponse res = await Api.dsm.entry("SYNO.Core.Package", "feasibility_check", version: 1, data: {
+      "type": "install_check",
+      "packages": jsonEncode([id]),
+    });
+    return res.success;
+  }
+
+  Future<PackageInstallQueue> getInstallQueue() async {
+    DsmResponse res = await Api.dsm.entry("SYNO.Core.Package.Installation", "get_queue", version: 1, parser: PackageInstallQueue.fromJson, data: {
+      "pkgs": jsonEncode([
+        {"pkg": "$id", "version": "$version", "beta": beta}
+      ]),
+    });
+    return res.data;
+  }
+
+  Future<PackageInstallTask> install() async {
+    DsmResponse res = await Api.dsm.entry("SYNO.Core.Package.Installation", "install", version: 1, parser: PackageInstallTask.fromJson, data: {
+      "name": id,
+      "url": link,
+      "checksum": md5,
+      "filesize": size,
+      "type": type,
+      "blqinst": false,
+      "operation": "install",
+    });
+    return res.data;
+  }
+
   PackageItem.fromJson(dynamic json) {
     beta = json['beta'];
     breakpkgs = json['breakpkgs'];
@@ -250,6 +284,7 @@ class PackageItem {
   num? type;
   String? version;
 
+  bool loading = false;
   bool installed = false;
   InstalledPackageItem? installedPackageItem;
 

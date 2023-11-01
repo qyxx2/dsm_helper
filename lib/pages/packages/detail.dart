@@ -1,22 +1,31 @@
 import 'dart:async';
 
+import 'package:cool_ui/cool_ui.dart';
+import 'package:dsm_helper/apis/api.dart';
+import 'package:dsm_helper/models/Syno/Core/Package/PackageInstallTask.dart';
 import 'package:dsm_helper/models/Syno/Core/Package/PackageServer.dart';
 import 'package:dsm_helper/pages/common/browser.dart';
 import 'package:dsm_helper/pages/dashboard/widgets/widget_card.dart';
+import 'package:dsm_helper/pages/packages/dialogs/stop_package_dialog.dart';
+import 'package:dsm_helper/pages/packages/dialogs/uninstall_package_dialog.dart';
+import 'package:dsm_helper/pages/packages/dialogs/update_pause_dialog.dart';
 import 'package:dsm_helper/pages/packages/uninstall.dart';
 import 'package:dsm_helper/themes/app_theme.dart';
 import 'package:dsm_helper/utils/extensions/media_query_ext.dart';
 import 'package:dsm_helper/utils/extensions/navigator_ext.dart';
-import 'package:dsm_helper/utils/utils.dart';
+import 'package:dsm_helper/utils/utils.dart' hide Api;
+import 'package:dsm_helper/widgets/button.dart';
 import 'package:dsm_helper/widgets/cupertino_image.dart';
 import 'package:dsm_helper/widgets/glass/glass_app_bar.dart';
 import 'package:dsm_helper/widgets/glass/glass_scaffold.dart';
 import 'package:dsm_helper/widgets/label.dart';
+import 'package:dsm_helper/widgets/loading_widget.dart';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_swiper_null_safety/flutter_swiper_null_safety.dart';
+import 'package:flutter_vibrate/flutter_vibrate.dart';
 
 class PackageDetail extends StatefulWidget {
   final PackageItem package;
@@ -32,10 +41,10 @@ class _PackageDetailState extends State<PackageDetail> {
   String installVolume = "";
   String installPath = "";
   List volumes = [];
-  double installProgress = 0;
   bool installing = false;
+  bool loading = false;
   Timer? timer;
-  String taskId = "";
+  PackageInstallTask? packageInstallTask;
   @override
   void initState() {
     if (widget.package.installed) {
@@ -53,27 +62,12 @@ class _PackageDetailState extends State<PackageDetail> {
     if (!thumbnailUrl.startsWith("http")) {
       thumbnailUrl = Utils.baseUrl + thumbnailUrl;
     }
-    getVolumes();
     super.initState();
-  }
-
-  getVolumes() async {
-    var res = await Api.volumes();
-    if (res['success']) {
-      setState(() {
-        volumes = res['data']['volumes'];
-      });
-      if (widget.method == "install") {
-        selectVolume();
-      } else if (widget.method == "update") {
-        update();
-      }
-    }
   }
 
   Widget _buildSwiperItem(String url) {
     if (!url.startsWith("http")) {
-      url = Utils.baseUrl + url;
+      url = Api.dsm.baseUrl! + url;
     }
     return CupertinoExtendedImage(
       url,
@@ -82,84 +76,14 @@ class _PackageDetailState extends State<PackageDetail> {
     );
   }
 
-  uninstall() {
+  uninstall() async {
     if (widget.package.installedPackageItem?.additional?.isUninstallPages == true) {
       context.push(UninstallPackage(widget.package), name: "uninstall_package");
     } else {
-      showCupertinoModalPopup(
-        context: context,
-        builder: (context) {
-          return Material(
-            color: Colors.transparent,
-            child: Container(
-              width: double.infinity,
-              padding: EdgeInsets.all(22),
-              decoration: BoxDecoration(color: Theme.of(context).scaffoldBackgroundColor, borderRadius: BorderRadius.vertical(top: Radius.circular(22))),
-              child: SafeArea(
-                top: false,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    Text(
-                      "卸载套件",
-                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
-                    ),
-                    SizedBox(
-                      height: 12,
-                    ),
-                    Text(
-                      "确认要卸载此套件？",
-                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.w400),
-                    ),
-                    SizedBox(
-                      height: 22,
-                    ),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: CupertinoButton(
-                            onPressed: () async {
-                              Navigator.of(context).pop();
-                              uninstallPackage();
-                            },
-                            color: Theme.of(context).scaffoldBackgroundColor,
-                            borderRadius: BorderRadius.circular(25),
-                            padding: EdgeInsets.symmetric(vertical: 10),
-                            child: Text(
-                              "卸载",
-                              style: TextStyle(fontSize: 18, color: Colors.redAccent),
-                            ),
-                          ),
-                        ),
-                        SizedBox(
-                          width: 20,
-                        ),
-                        Expanded(
-                          child: CupertinoButton(
-                            onPressed: () async {
-                              Navigator.of(context).pop();
-                            },
-                            color: Theme.of(context).scaffoldBackgroundColor,
-                            borderRadius: BorderRadius.circular(25),
-                            padding: EdgeInsets.symmetric(vertical: 10),
-                            child: Text(
-                              "取消",
-                              style: TextStyle(fontSize: 18),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(
-                      height: 8,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          );
-        },
-      );
+      bool? res = await UninstallPackageDialog.show(context: context, package: widget.package.installedPackageItem!);
+      if (res == true) {
+        uninstallPackage();
+      }
     }
   }
 
@@ -242,154 +166,162 @@ class _PackageDetailState extends State<PackageDetail> {
     );
   }
 
-  getLaunchedPackages() async {
-    // widget.package['launched'] = true;
-    // widget.package['can_update'] = false;
-  }
-
   update() async {
     setState(() {
       // installButtonText = "请稍后";
     });
-    var res = await Api.installPackageQueue(widget.package.id!, widget.package.version!, beta: widget.beta);
-    if (res['success']) {
-      if (res['data']['paused_pkgs'].length > 0) {
-        showCupertinoModalPopup(
-          context: context,
-          builder: (context) {
-            return Material(
-              color: Colors.transparent,
-              child: Container(
-                width: double.infinity,
-                decoration: BoxDecoration(color: Theme.of(context).scaffoldBackgroundColor, borderRadius: BorderRadius.vertical(top: Radius.circular(22))),
-                child: SafeArea(
-                  top: false,
-                  child: Padding(
-                    padding: EdgeInsets.all(20),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: <Widget>[
-                        Text(
-                          "确认更新",
-                          style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
-                        ),
-                        SizedBox(
-                          height: 12,
-                        ),
-                        Text(
-                          '更新${res['data']['cause_pausing_pkgs'].join(",")}时，${res['data']['paused_pkgs'].join("，")}将被停用。',
-                          style: TextStyle(fontSize: 20, fontWeight: FontWeight.w400),
-                        ),
-                        SizedBox(
-                          height: 22,
-                        ),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: CupertinoButton(
-                                onPressed: () async {
-                                  install(installPath);
-                                  Navigator.of(context).pop();
-                                },
-                                color: Theme.of(context).scaffoldBackgroundColor,
-                                borderRadius: BorderRadius.circular(25),
-                                padding: EdgeInsets.symmetric(vertical: 10),
-                                child: Text(
-                                  "继续更新",
-                                  style: TextStyle(fontSize: 18, color: Colors.redAccent),
-                                ),
-                              ),
-                            ),
-                            SizedBox(
-                              width: 16,
-                            ),
-                            Expanded(
-                              child: CupertinoButton(
-                                onPressed: () async {
-                                  Navigator.of(context).pop();
-                                },
-                                color: Theme.of(context).scaffoldBackgroundColor,
-                                borderRadius: BorderRadius.circular(25),
-                                padding: EdgeInsets.symmetric(vertical: 10),
-                                child: Text(
-                                  "取消",
-                                  style: TextStyle(fontSize: 18),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        SizedBox(
-                          height: 8,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            );
-          },
-        ).then((value) {
-          setState(() {
-            // installButtonText = "更新";
-          });
-        });
+    bool? check = await widget.package.feasibilityCheck();
+    if (check == true) {
+      var queue = await widget.package.getInstallQueue();
+      if (queue.pausedPkgs != null && queue.pausedPkgs!.isNotEmpty) {
+        bool? confirm = await UpdatePauseDialog.show(context: context, queue: queue);
+        if (confirm == true) {
+          install(installPath);
+        }
       } else {
         install(installPath);
       }
     }
+    // var res = await Api.installPackageQueue(widget.package.id!, widget.package.version!, beta: widget.beta);
+    // if (res['success']) {
+    //   if (res['data']['paused_pkgs'].length > 0) {
+    //     showCupertinoModalPopup(
+    //       context: context,
+    //       builder: (context) {
+    //         return Material(
+    //           color: Colors.transparent,
+    //           child: Container(
+    //             width: double.infinity,
+    //             decoration: BoxDecoration(color: Theme.of(context).scaffoldBackgroundColor, borderRadius: BorderRadius.vertical(top: Radius.circular(22))),
+    //             child: SafeArea(
+    //               top: false,
+    //               child: Padding(
+    //                 padding: EdgeInsets.all(20),
+    //                 child: Column(
+    //                   mainAxisSize: MainAxisSize.min,
+    //                   children: <Widget>[
+    //                     Text(
+    //                       "确认更新",
+    //                       style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
+    //                     ),
+    //                     SizedBox(
+    //                       height: 12,
+    //                     ),
+    //                     Text(
+    //                       '更新${res['data']['cause_pausing_pkgs'].join(",")}时，${res['data']['paused_pkgs'].join("，")}将被停用。',
+    //                       style: TextStyle(fontSize: 20, fontWeight: FontWeight.w400),
+    //                     ),
+    //                     SizedBox(
+    //                       height: 22,
+    //                     ),
+    //                     Row(
+    //                       children: [
+    //                         Expanded(
+    //                           child: CupertinoButton(
+    //                             onPressed: () async {
+    //                               install(installPath);
+    //                               Navigator.of(context).pop();
+    //                             },
+    //                             color: Theme.of(context).scaffoldBackgroundColor,
+    //                             borderRadius: BorderRadius.circular(25),
+    //                             padding: EdgeInsets.symmetric(vertical: 10),
+    //                             child: Text(
+    //                               "继续更新",
+    //                               style: TextStyle(fontSize: 18, color: Colors.redAccent),
+    //                             ),
+    //                           ),
+    //                         ),
+    //                         SizedBox(
+    //                           width: 16,
+    //                         ),
+    //                         Expanded(
+    //                           child: CupertinoButton(
+    //                             onPressed: () async {
+    //                               Navigator.of(context).pop();
+    //                             },
+    //                             color: Theme.of(context).scaffoldBackgroundColor,
+    //                             borderRadius: BorderRadius.circular(25),
+    //                             padding: EdgeInsets.symmetric(vertical: 10),
+    //                             child: Text(
+    //                               "取消",
+    //                               style: TextStyle(fontSize: 18),
+    //                             ),
+    //                           ),
+    //                         ),
+    //                       ],
+    //                     ),
+    //                     SizedBox(
+    //                       height: 8,
+    //                     ),
+    //                   ],
+    //                 ),
+    //               ),
+    //             ),
+    //           ),
+    //         );
+    //       },
+    //     ).then((value) {
+    //       setState(() {
+    //         // installButtonText = "更新";
+    //       });
+    //     });
+    //   } else {
+    //     install(installPath);
+    //   }
+    // }
   }
 
   uninstallPackage() async {
-    var res = await Api.uninstallPackageTask(widget.package.id!);
-    if (res['success']) {
-      Utils.toast("卸载成功");
-      Navigator.of(context).pop();
-    } else {
-      Utils.toast("套件卸载失败，错误代码：${res['error']['code']}");
+    var hide = showWeuiLoadingToast(context: context);
+    try {
+      bool? res = await widget.package.installedPackageItem!.uninstall();
+      if (res == true) {
+        Utils.vibrate(FeedbackType.success);
+        Utils.toast("卸载成功");
+        setState(() {
+          widget.package.installed = false;
+        });
+      }
+    } on DsmException catch (e) {
+      Utils.toast("套件卸载失败，错误代码：${e.code}");
+    } catch (e) {
+      Utils.toast("套件卸载失败");
     }
+    hide();
   }
 
   install(path) async {
-    var res = await Api.installPackageTask(widget.package.id!, path);
-    print(res);
-    if (res['success']) {
-      Utils.toast("已开始安装");
+    try {
+      packageInstallTask = await widget.package.install();
       setState(() {
         installing = true;
-        // installButtonText = "准备安装…";
-        installProgress = double.parse(res['data']['progress']);
       });
-      //进度
-      timer = Timer.periodic(Duration(seconds: 5), (timer) {
-        Api.installPackageStatus(res['data']['taskid']).then((value) {
-          print(value);
-          setState(() {
-            installing = !value['data']['finished'];
-            if (value['data']['finished']) {
-              widget.package.installed = true;
-              getLaunchedPackages();
-              timer.cancel();
-            } else if (value['data']['progress'] != null) {
-              if (value['data']['progress'] is double) {
-                installProgress = value['data']['progress'];
-              } else {
-                installProgress = double.parse(value['data']['progress']);
-              }
-              // installButtonText = "下载中:${installProgress.toStringAsFixed(2)}%";
-            } else if (value['data']['status'] == "installing") {
-              // installButtonText = "安装中…";
-            } else if (value['data']['status'] == 'upgrading') {
-              // installButtonText = "更新中…";
-            }
-          });
+    } on DsmException catch (e) {
+      if (e.code == 4501) {
+        Utils.toast("此套件需配置信息，当前暂不支持，请在WEB端安装");
+      } else {
+        Utils.toast("安装套件失败，代码${e.code}");
+      }
+    } catch (e) {
+      Utils.toast("安装套件失败");
+    }
+    setState(() {
+      installing = true;
+    });
+    //进度
+    timer = Timer.periodic(Duration(seconds: 5), (timer) {
+      packageInstallTask!.status().then((value) {
+        setState(() {
+          if (value.finished == true) {
+            installing = false;
+            widget.package.installed = true;
+            timer.cancel();
+          } else {
+            installing = true;
+          }
         });
       });
-    } else if (res['error']['code'] == 4501) {
-      Utils.toast("此套件需配置信息，当前暂不支持，请在WEB端安装");
-    } else {
-      Utils.toast("安装套件失败，代码${res['error']['code']}");
-    }
+    });
   }
 
   @override
@@ -406,20 +338,11 @@ class _PackageDetailState extends State<PackageDetail> {
         actions: [
           if (widget.package.installed)
             CupertinoButton(
-              onPressed: () async {},
+              onPressed: uninstall,
               child: Image.asset(
                 "assets/icons/delete.png",
                 width: 24,
                 height: 24,
-              ),
-            ),
-          if (widget.package.installedPackageItem?.canUpdate == true)
-            CupertinoButton(
-              onPressed: update,
-              child: Icon(
-                Icons.tips_and_updates_outlined,
-                size: 24,
-                color: AppTheme.of(context)?.warningColor,
               ),
             ),
         ],
@@ -436,7 +359,7 @@ class _PackageDetailState extends State<PackageDetail> {
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Padding(
-                    padding: EdgeInsets.all(20),
+                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                     child: Row(
                       children: [
                         CupertinoExtendedImage(
@@ -461,7 +384,73 @@ class _PackageDetailState extends State<PackageDetail> {
                                 ),
                             ],
                           ),
-                        )
+                        ),
+                        if (widget.package.installed && widget.package.installedPackageItem?.additional?.startable == true) ...[
+                          loading
+                              ? LoadingWidget(size: 24)
+                              : widget.package.installedPackageItem?.additional?.status == 'running'
+                                  ? Button(
+                                      width: 60,
+                                      onPressed: () async {
+                                        bool? confirm = await StopPackageDialog.show(context: context, package: widget.package.installedPackageItem!);
+                                        if (confirm == true) {
+                                          setState(() {
+                                            loading = true;
+                                          });
+                                          bool? res = await widget.package.installedPackageItem!.stop();
+                                          setState(() {
+                                            loading = false;
+                                          });
+                                          if (res == true) {
+                                            setState(() {
+                                              widget.package.installedPackageItem!.additional!.status = 'stop';
+                                            });
+                                            Utils.vibrate(FeedbackType.success);
+                                            Utils.toast("停用成功");
+                                          } else {
+                                            Utils.vibrate(FeedbackType.error);
+                                            Utils.toast("停用失败");
+                                          }
+                                        }
+                                      },
+                                      padding: EdgeInsets.symmetric(vertical: 6),
+                                      color: AppTheme.of(context)?.errorColor,
+                                      borderRadius: 50,
+                                      child: Text(
+                                        "停用",
+                                        style: TextStyle(fontSize: 14),
+                                      ),
+                                    )
+                                  : Button(
+                                      width: 60,
+                                      onPressed: () async {
+                                        setState(() {
+                                          loading = true;
+                                        });
+                                        bool? res = await widget.package.installedPackageItem!.start();
+                                        setState(() {
+                                          loading = false;
+                                        });
+                                        if (res == true) {
+                                          Utils.vibrate(FeedbackType.success);
+                                          Utils.toast("启动成功");
+                                          setState(() {
+                                            widget.package.installedPackageItem!.additional!.status = 'running';
+                                          });
+                                        } else {
+                                          Utils.vibrate(FeedbackType.error);
+                                          Utils.toast("启动失败");
+                                        }
+                                      },
+                                      padding: EdgeInsets.symmetric(vertical: 6),
+                                      color: AppTheme.of(context)?.successColor,
+                                      borderRadius: 50,
+                                      child: Text(
+                                        "启动",
+                                        style: TextStyle(fontSize: 14),
+                                      ),
+                                    ),
+                        ]
                       ],
                     ),
                   ),
@@ -646,146 +635,74 @@ class _PackageDetailState extends State<PackageDetail> {
                     ],
                   ),
                 ),
+                SizedBox(height: 16),
               ],
             ),
           ),
         ],
       ),
-      persistentFooterButtons: [
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 10),
-          child: Row(
-            children: [
-              if (widget.package.installed) ...[
-                Expanded(
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 10),
-                    child: widget.package.installedPackageItem?.additional?.status == 'running'
-                        ? CupertinoButton(
-                            onPressed: () {
-                              showCupertinoModalPopup(
-                                context: context,
-                                builder: (context) {
-                                  return Material(
-                                    color: Colors.transparent,
-                                    child: Container(
-                                      width: double.infinity,
-                                      padding: EdgeInsets.all(22),
-                                      decoration: BoxDecoration(color: Theme.of(context).scaffoldBackgroundColor, borderRadius: BorderRadius.vertical(top: Radius.circular(22))),
-                                      child: SafeArea(
-                                        top: false,
-                                        child: Column(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: <Widget>[
-                                            Text(
-                                              "停用套件",
-                                              style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
-                                            ),
-                                            SizedBox(
-                                              height: 12,
-                                            ),
-                                            Text(
-                                              "确认要停用此套件？",
-                                              style: TextStyle(fontSize: 20, fontWeight: FontWeight.w400),
-                                            ),
-                                            SizedBox(
-                                              height: 22,
-                                            ),
-                                            Row(
-                                              children: [
-                                                Expanded(
-                                                  child: CupertinoButton(
-                                                    onPressed: () async {
-                                                      Navigator.of(context).pop();
-                                                      var res = await Api.launchPackage(widget.package.id!, widget.package.installedPackageItem!.additional!.dsmApps!, "stop");
-                                                      if (res['success']) {
-                                                        Utils.toast("已停用");
-                                                        setState(() {
-                                                          // widget.package['launched'] = false;
-                                                        });
-                                                      }
-                                                    },
-                                                    color: Theme.of(context).scaffoldBackgroundColor,
-                                                    borderRadius: BorderRadius.circular(25),
-                                                    padding: EdgeInsets.symmetric(vertical: 10),
-                                                    child: Text(
-                                                      "停用",
-                                                      style: TextStyle(fontSize: 18, color: Colors.redAccent),
-                                                    ),
-                                                  ),
-                                                ),
-                                                SizedBox(
-                                                  width: 20,
-                                                ),
-                                                Expanded(
-                                                  child: CupertinoButton(
-                                                    onPressed: () async {
-                                                      Navigator.of(context).pop();
-                                                    },
-                                                    color: Theme.of(context).scaffoldBackgroundColor,
-                                                    borderRadius: BorderRadius.circular(25),
-                                                    padding: EdgeInsets.symmetric(vertical: 10),
-                                                    child: Text(
-                                                      "取消",
-                                                      style: TextStyle(fontSize: 18),
-                                                    ),
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                            SizedBox(
-                                              height: 8,
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  );
-                                },
-                              );
-                            },
-                            padding: EdgeInsets.symmetric(vertical: 15),
-                            color: Theme.of(context).scaffoldBackgroundColor,
-                            borderRadius: BorderRadius.circular(50),
-                            child: Text("停用"),
-                          )
-                        : CupertinoButton(
-                            onPressed: () async {
-                              var res = await Api.launchPackage(widget.package.id!, widget.package.installedPackageItem!.additional!.dsmApps!, "start");
-                              print(res);
-                              if (res['success']) {
-                                Utils.toast("已启动");
-                                setState(() {
-                                  // widget.package.installedPackageItem = true;
-                                });
-                              }
-                            },
-                            padding: EdgeInsets.symmetric(vertical: 15),
-                            color: Theme.of(context).scaffoldBackgroundColor,
-                            borderRadius: BorderRadius.circular(50),
-                            child: Text("启动"),
-                          ),
-                  ),
-                ),
-              ] else
-                Expanded(
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 10),
-                    child: CupertinoButton(
-                      onPressed: () {
-                        selectVolume();
-                      },
-                      padding: EdgeInsets.symmetric(vertical: 15),
-                      color: Theme.of(context).scaffoldBackgroundColor,
-                      borderRadius: BorderRadius.circular(50),
-                      child: Text("安装"),
+      persistentFooterButtons: packageInstallTask != null
+          ? [
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 10),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Button(
+                        onPressed: () {
+                          selectVolume();
+                        },
+                        padding: EdgeInsets.symmetric(vertical: 12),
+                        color: AppTheme.of(context)?.primaryColor,
+                        borderRadius: 50,
+                        child: Text("${(packageInstallTask!.progress ?? 0) < 100 ? '下载中 ${packageInstallTask!.progress ?? 0}' : packageInstallTask!.installing == true ? '安装中' : ''}"),
+                      ),
                     ),
-                  ),
+                  ],
                 ),
-            ],
-          ),
-        )
-      ],
+              )
+            ]
+          : !widget.package.installed
+              ? [
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 10),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Button(
+                            onPressed: () {
+                              selectVolume();
+                            },
+                            padding: EdgeInsets.symmetric(vertical: 12),
+                            color: AppTheme.of(context)?.primaryColor,
+                            borderRadius: 50,
+                            child: Text("安装"),
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                ]
+              : widget.package.installedPackageItem?.canUpdate == true
+                  ? [
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 10),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Button(
+                                onPressed: update,
+                                padding: EdgeInsets.symmetric(vertical: 12),
+                                color: AppTheme.of(context)?.warningColor,
+                                borderRadius: 50,
+                                child: Text("更新"),
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
+                    ]
+                  : null,
     );
   }
 }
