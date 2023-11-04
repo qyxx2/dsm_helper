@@ -91,6 +91,7 @@ class OpenedFiles {
   String? pid;
   String? service;
   String? user;
+  bool running = false;
   OpenedFiles copyWith({
     String? filename,
     num? hidden,

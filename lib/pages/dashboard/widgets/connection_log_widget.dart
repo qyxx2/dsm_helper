@@ -99,6 +99,7 @@ class _ConnectionLogWidgetState extends State<ConnectionLogWidget> with Automati
                 style: TextStyle(fontSize: 16),
                 overflow: TextOverflow.ellipsis,
               ),
+              SizedBox(height: 5),
               Row(
                 children: [
                   Text(

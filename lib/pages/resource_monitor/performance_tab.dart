@@ -30,7 +30,7 @@ class PerformanceTab extends StatefulWidget {
   _PerformanceTabState createState() => _PerformanceTabState();
 }
 
-class _PerformanceTabState extends State<PerformanceTab> with SingleTickerProviderStateMixin {
+class _PerformanceTabState extends State<PerformanceTab> with TickerProviderStateMixin {
   late TabController _tabController;
   List<Utilization> utilizations = List.generate(30, (index) => Utilization());
   // ChartSeriesController? _cpuChartController;
@@ -75,7 +75,7 @@ class _PerformanceTabState extends State<PerformanceTab> with SingleTickerProvid
   @override
   void initState() {
     final settingProvider = Provider.of<SettingProvider>(context, listen: false);
-    _tabController = TabController(initialIndex: widget.tabIndex, length: 6, vsync: this);
+    _tabController = TabController(initialIndex: widget.tabIndex, length: 8, vsync: this);
     getData();
     timer = Timer.periodic(Duration(seconds: settingProvider.refreshDuration), (timer) {
       getData();
@@ -92,11 +92,12 @@ class _PerformanceTabState extends State<PerformanceTab> with SingleTickerProvid
 
   getData() async {
     Utilization res = await Utilization.get();
-
     utilizations.add(res);
-    print("1111111111");
     if (utilizations.length >= 30) {
       utilizations.removeAt(0);
+    }
+    if (utilizations.last.gpu != null) {
+      _tabController = TabController(initialIndex: widget.tabIndex, length: 9, vsync: this);
     }
     setState(() {
       loading = false;
@@ -138,6 +139,9 @@ class _PerformanceTabState extends State<PerformanceTab> with SingleTickerProvid
                     Tab(text: "网络"),
                     Tab(text: "磁盘"),
                     Tab(text: "存储空间"),
+                    Tab(text: "LUN"),
+                    if (utilizations.last.gpu != null) Tab(text: "GPU"),
+                    Tab(text: "NFS"),
                   ],
                 ),
                 Expanded(
@@ -295,49 +299,443 @@ class _PerformanceTabState extends State<PerformanceTab> with SingleTickerProvid
                           ),
                         ],
                       ),
-                      Container(
-                        child: Column(
-                          children: [
-                            Expanded(child: CpuDetailChartWidget(utilizations.map((e) => e.cpu ?? Cpu()).toList())),
-                            WidgetCard(
-                              title: "利用率",
-                              icon: Text(
-                                "${utilizations.last.cpu?.totalLoad ?? '-'} %",
-                                style: TextStyle(
-                                    color: utilizations.last.cpu?.totalLoad != null
-                                        ? utilizations.last.cpu!.totalLoad > 80
-                                            ? AppTheme.of(context)?.errorColor
-                                            : AppTheme.of(context)?.successColor
-                                        : AppTheme.of(context)?.placeholderColor),
-                              ),
-                              body: Row(
-                                children: [
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Text("用户"),
-                                        Text(
-                                          "${utilizations.last.cpu?.userLoad}%",
-                                          strutStyle: StrutStyle(forceStrutHeight: true),
-                                          style: TextStyle(
-                                            fontSize: 22,
-                                            fontWeight: FontWeight.bold,
-                                            color: AppTheme.of(context)?.successColor,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
+                      ListView(
+                        children: [
+                          WidgetCard(
+                            bodyPadding: EdgeInsets.symmetric(vertical: 14),
+                            body: SizedBox(
+                              height: 300,
+                              child: CpuDetailChartWidget(utilizations.map((e) => e.cpu ?? Cpu()).toList()),
                             ),
-                          ],
-                        ),
+                          ),
+                          WidgetCard(
+                            title: "利用率",
+                            icon: Text(
+                              "${utilizations.last.cpu?.totalLoad ?? '-'} %",
+                              style: TextStyle(
+                                  color: utilizations.last.cpu?.totalLoad != null
+                                      ? utilizations.last.cpu!.totalLoad > 80
+                                          ? AppTheme.of(context)?.errorColor
+                                          : AppTheme.of(context)?.successColor
+                                      : AppTheme.of(context)?.placeholderColor),
+                            ),
+                            body: Row(
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        "用户",
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: AppTheme.of(context)?.placeholderColor,
+                                        ),
+                                      ),
+                                      SizedBox(height: 10),
+                                      Text(
+                                        "${utilizations.last.cpu?.userLoad}%",
+                                        strutStyle: StrutStyle(forceStrutHeight: true),
+                                        style: TextStyle(
+                                          fontSize: 22,
+                                          fontWeight: FontWeight.bold,
+                                          color: AppTheme.of(context)?.successColor,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        "系统",
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: AppTheme.of(context)?.placeholderColor,
+                                        ),
+                                      ),
+                                      SizedBox(height: 10),
+                                      Text(
+                                        "${utilizations.last.cpu?.systemLoad}%",
+                                        strutStyle: StrutStyle(forceStrutHeight: true),
+                                        style: TextStyle(
+                                          fontSize: 22,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.lightBlueAccent,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        "I/O等待",
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: AppTheme.of(context)?.placeholderColor,
+                                        ),
+                                      ),
+                                      SizedBox(height: 10),
+                                      Text(
+                                        "${utilizations.last.cpu?.otherLoad}%",
+                                        strutStyle: StrutStyle(forceStrutHeight: true),
+                                        style: TextStyle(
+                                          fontSize: 22,
+                                          fontWeight: FontWeight.bold,
+                                          color: AppTheme.of(context)?.primaryColor,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          WidgetCard(
+                            title: "平均负载",
+                            icon: Text(
+                              "${utilizations.last.cpu?.totalLoad ?? '-'} %",
+                              style: TextStyle(
+                                  color: utilizations.last.cpu?.totalLoad != null
+                                      ? utilizations.last.cpu!.totalLoad > 80
+                                          ? AppTheme.of(context)?.errorColor
+                                          : AppTheme.of(context)?.successColor
+                                      : AppTheme.of(context)?.placeholderColor),
+                            ),
+                            body: Row(
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        "1分钟",
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: AppTheme.of(context)?.placeholderColor,
+                                        ),
+                                      ),
+                                      SizedBox(height: 10),
+                                      Text(
+                                        "${(utilizations.last.cpu?.minLoad1 ?? 0) / 100}",
+                                        strutStyle: StrutStyle(forceStrutHeight: true),
+                                        style: TextStyle(
+                                          fontSize: 22,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        "5分钟",
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: AppTheme.of(context)?.placeholderColor,
+                                        ),
+                                      ),
+                                      SizedBox(height: 10),
+                                      Text(
+                                        "${(utilizations.last.cpu?.minLoad5 ?? 0) / 100}",
+                                        strutStyle: StrutStyle(forceStrutHeight: true),
+                                        style: TextStyle(
+                                          fontSize: 22,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        "15分钟",
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: AppTheme.of(context)?.placeholderColor,
+                                        ),
+                                      ),
+                                      SizedBox(height: 10),
+                                      Text(
+                                        "${(utilizations.last.cpu?.minLoad15 ?? 0) / 100}",
+                                        strutStyle: StrutStyle(forceStrutHeight: true),
+                                        style: TextStyle(
+                                          fontSize: 22,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          SizedBox(height: 14),
+                        ],
+                      ),
+                      ListView(
+                        children: [
+                          WidgetCard(
+                            bodyPadding: EdgeInsets.symmetric(vertical: 14),
+                            body: SizedBox(
+                              height: 300,
+                              child: MemoryChartWidget(utilizations.map((e) => e.memory ?? Memory()).toList()),
+                            ),
+                          ),
+                          WidgetCard(
+                            title: "内存结构",
+                            icon: Text(
+                              "${utilizations.last.cpu?.totalLoad ?? '-'} %",
+                              style: TextStyle(
+                                  color: utilizations.last.cpu?.totalLoad != null
+                                      ? utilizations.last.cpu!.totalLoad > 80
+                                          ? AppTheme.of(context)?.errorColor
+                                          : AppTheme.of(context)?.successColor
+                                      : AppTheme.of(context)?.placeholderColor),
+                            ),
+                            body: Column(
+                              children: [
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            "已保留",
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              color: AppTheme.of(context)?.placeholderColor,
+                                            ),
+                                          ),
+                                          SizedBox(height: 10),
+                                          Text(
+                                            "${Utils.formatSize(((utilizations.last.memory?.memorySize ?? 0) - (utilizations.last.memory?.totalReal ?? 0)) * 1024, fixed: 1)}",
+                                            strutStyle: StrutStyle(forceStrutHeight: true),
+                                            style: TextStyle(
+                                              fontSize: 22,
+                                              fontWeight: FontWeight.bold,
+                                              color: AppTheme.of(context)?.placeholderColor,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            "已用",
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              color: AppTheme.of(context)?.placeholderColor,
+                                            ),
+                                          ),
+                                          SizedBox(height: 10),
+                                          Text(
+                                            "${Utils.formatSize((utilizations.last.memory?.realUsage ?? 0) * (utilizations.last.memory?.memorySize ?? 0) / 100 * 1024, fixed: 1)}",
+                                            strutStyle: StrutStyle(forceStrutHeight: true),
+                                            style: TextStyle(
+                                              fontSize: 22,
+                                              fontWeight: FontWeight.bold,
+                                              color: AppTheme.of(context)?.warningColor,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            "缓冲",
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              color: AppTheme.of(context)?.placeholderColor,
+                                            ),
+                                          ),
+                                          SizedBox(height: 10),
+                                          Text(
+                                            "${Utils.formatSize((utilizations.last.memory?.buffer ?? 0) * 1024, fixed: 1)}",
+                                            strutStyle: StrutStyle(forceStrutHeight: true),
+                                            style: TextStyle(
+                                              fontSize: 22,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.lightBlueAccent,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                SizedBox(height: 14),
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            "缓存",
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              color: AppTheme.of(context)?.placeholderColor,
+                                            ),
+                                          ),
+                                          SizedBox(height: 10),
+                                          Text(
+                                            "${Utils.formatSize((utilizations.last.memory?.cached ?? 0) * 1024, fixed: 1)}",
+                                            strutStyle: StrutStyle(forceStrutHeight: true),
+                                            style: TextStyle(
+                                              fontSize: 22,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.greenAccent,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            "可用",
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              color: AppTheme.of(context)?.placeholderColor,
+                                            ),
+                                          ),
+                                          SizedBox(height: 10),
+                                          Text(
+                                            "${Utils.formatSize((utilizations.last.memory?.availReal ?? 0) * 1024, fixed: 1)}",
+                                            strutStyle: StrutStyle(forceStrutHeight: true),
+                                            style: TextStyle(
+                                              fontSize: 22,
+                                              fontWeight: FontWeight.bold,
+                                              color: AppTheme.of(context)?.successColor,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            "总计",
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              color: AppTheme.of(context)?.placeholderColor,
+                                            ),
+                                          ),
+                                          SizedBox(height: 10),
+                                          Text(
+                                            "${Utils.formatSize((utilizations.last.memory?.memorySize ?? 0) * 1024, fixed: 1)}",
+                                            strutStyle: StrutStyle(forceStrutHeight: true),
+                                            style: TextStyle(
+                                              fontSize: 22,
+                                              fontWeight: FontWeight.bold,
+                                              color: AppTheme.of(context)?.primaryColor,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                )
+                              ],
+                            ),
+                          ),
+                          SizedBox(height: 14),
+                        ],
+                      ),
+                      ListView.builder(
+                        itemBuilder: (context, i) {
+                          int? deviceIndex = int.tryParse(utilizations.last.network![i + 1].device?.replaceAll("eth", "") ?? '0');
+
+                          return WidgetCard(
+                            title: "局域网 ${deviceIndex != null ? deviceIndex + 1 : ''}",
+                            icon: Row(
+                              children: [
+                                Image.asset(
+                                  "assets/icons/arrow_down.png",
+                                  width: 20,
+                                  height: 20,
+                                ),
+                                Text(
+                                  utilizations.last.network == null ? '-' : Utils.formatSize(utilizations.last.network![i + 1].tx!, showByte: true) + "/S",
+                                  style: TextStyle(color: AppTheme.of(context)?.primaryColor),
+                                ),
+                                SizedBox(width: 20),
+                                Image.asset(
+                                  "assets/icons/arrow_up.png",
+                                  width: 20,
+                                  height: 20,
+                                ),
+                                Text(
+                                  utilizations.last.network == null ? '-' : Utils.formatSize(utilizations.last.network![i + 1].rx!, showByte: true) + "/S",
+                                  style: TextStyle(color: AppTheme.of(context)?.successColor),
+                                ),
+                              ],
+                            ),
+                            body: NetworkChartWidget(utilizations.map((e) => e.network?[i + 1] ?? Network()).toList()),
+                          );
+                        },
+                        itemCount: (utilizations.last.network?.length ?? 0) - 1,
+                      ),
+                      ListView(
+                        children: [
+                          WidgetCard(
+                            title: "读取速度",
+                            icon: Row(
+                              children: [
+                                Text(
+                                  "${utilizations.last.space?.total?.readByte != null ? Utils.formatSize(utilizations.last.space!.total!.readByte!) : '-'}/S",
+                                  style: TextStyle(color: Colors.orange),
+                                ),
+                              ],
+                            ),
+                            body: SpaceChartWidget(
+                              utilizations.map((e) => e.space ?? Space()).toList(),
+                              showWrite: false,
+                            ),
+                          ),
+                          WidgetCard(
+                            title: "写入速度",
+                            icon: Row(
+                              children: [
+                                Text(
+                                  "${utilizations.last.space?.total?.writeByte != null ? Utils.formatSize(utilizations.last.space!.total!.writeByte!) : '-'}/S",
+                                  style: TextStyle(color: Colors.amber),
+                                ),
+                              ],
+                            ),
+                            body: SpaceChartWidget(
+                              utilizations.map((e) => e.space ?? Space()).toList(),
+                              showRead: false,
+                            ),
+                          ),
+                        ],
                       ),
                       Placeholder(),
                       Placeholder(),
-                      Placeholder(),
+                      if (utilizations.last.gpu != null) Placeholder(),
                       Placeholder(),
                     ],
                   ),

@@ -25,58 +25,54 @@ class LunChartWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        SizedBox(
-          height: 150,
-          child: SfCartesianChart(
-            plotAreaBorderWidth: 0,
-            primaryXAxis: NumericAxis(edgeLabelPlacement: EdgeLabelPlacement.shift, isVisible: false, interval: 1, majorGridLines: const MajorGridLines(width: 0)),
-            primaryYAxis: NumericAxis(
-              // labelFormat: '{value}',
-              axisLine: const AxisLine(width: 0),
-              majorTickLines: const MajorTickLines(color: Colors.transparent),
-              interval: Utils.chartInterval(maxLunSpeed),
-              axisLabelFormatter: (args) {
-                return ChartAxisLabel("${Utils.formatSize(args.value, fixed: 0)}", TextStyle());
-              },
-            ),
-            enableAxisAnimation: true,
-            series: <AreaSeries<Lun, num>>[
-              AreaSeries<Lun, num>(
-                onRendererCreated: onWriteRendererCreated,
-                animationDuration: 1000,
-                dataSource: luns,
-                xValueMapper: (Lun lun, index) => index,
-                yValueMapper: (Lun lun, _) => lun.writeThroughput ?? 0,
-                // dataLabelSettings: DataLabelSettings(),
-                // width: 2,
-                name: '写入',
-                markerSettings: const MarkerSettings(isVisible: false),
-                // color: Colors.lightBlue,
-                borderWidth: 2,
-                borderColor: Colors.lightGreen,
-                gradient: LinearGradient(colors: [Colors.lightGreen.withOpacity(0.1), Colors.lightGreen.withOpacity(0.4)], begin: Alignment.bottomCenter, end: Alignment.topCenter),
-              ),
-              AreaSeries<Lun, num>(
-                onRendererCreated: onReadRendererCreated,
-                animationDuration: 1000,
-                dataSource: luns,
-                xValueMapper: (Lun lun, index) => index,
-                yValueMapper: (Lun lun, _) => lun.readThroughput ?? 0,
-                // dataLabelSettings: DataLabelSettings(),
-                // width: 2,
-                name: '读取',
-                markerSettings: const MarkerSettings(isVisible: false),
-                // color: Colors.lightBlue,
-                borderWidth: 2,
-                borderColor: Colors.cyan,
-                gradient: LinearGradient(colors: [Colors.cyan.withOpacity(0.1), Colors.cyan.withOpacity(0.4)], begin: Alignment.bottomCenter, end: Alignment.topCenter),
-              ),
-            ],
-          ),
+    return SizedBox(
+      height: 150,
+      child: SfCartesianChart(
+        plotAreaBorderWidth: 0,
+        primaryXAxis: NumericAxis(edgeLabelPlacement: EdgeLabelPlacement.shift, isVisible: false, interval: 1, majorGridLines: const MajorGridLines(width: 0)),
+        primaryYAxis: NumericAxis(
+          // labelFormat: '{value}',
+          axisLine: const AxisLine(width: 0),
+          majorTickLines: const MajorTickLines(color: Colors.transparent),
+          interval: Utils.chartInterval(maxLunSpeed),
+          axisLabelFormatter: (args) {
+            return ChartAxisLabel("${Utils.formatSize(args.value, fixed: 0)}", TextStyle());
+          },
         ),
-      ],
+        enableAxisAnimation: true,
+        series: <AreaSeries<Lun, num>>[
+          AreaSeries<Lun, num>(
+            onRendererCreated: onWriteRendererCreated,
+            animationDuration: 1000,
+            dataSource: luns,
+            xValueMapper: (Lun lun, index) => index,
+            yValueMapper: (Lun lun, _) => lun.writeThroughput ?? 0,
+            // dataLabelSettings: DataLabelSettings(),
+            // width: 2,
+            name: '写入',
+            markerSettings: const MarkerSettings(isVisible: false),
+            // color: Colors.lightBlue,
+            borderWidth: 2,
+            borderColor: Colors.lightGreen,
+            gradient: LinearGradient(colors: [Colors.lightGreen.withOpacity(0.1), Colors.lightGreen.withOpacity(0.4)], begin: Alignment.bottomCenter, end: Alignment.topCenter),
+          ),
+          AreaSeries<Lun, num>(
+            onRendererCreated: onReadRendererCreated,
+            animationDuration: 1000,
+            dataSource: luns,
+            xValueMapper: (Lun lun, index) => index,
+            yValueMapper: (Lun lun, _) => lun.readThroughput ?? 0,
+            // dataLabelSettings: DataLabelSettings(),
+            // width: 2,
+            name: '读取',
+            markerSettings: const MarkerSettings(isVisible: false),
+            // color: Colors.lightBlue,
+            borderWidth: 2,
+            borderColor: Colors.cyan,
+            gradient: LinearGradient(colors: [Colors.cyan.withOpacity(0.1), Colors.cyan.withOpacity(0.4)], begin: Alignment.bottomCenter, end: Alignment.topCenter),
+          ),
+        ],
+      ),
     );
   }
 }

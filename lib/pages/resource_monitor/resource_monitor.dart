@@ -1,3 +1,4 @@
+import 'package:dsm_helper/pages/resource_monitor/connected_user_tab.dart';
 import 'package:dsm_helper/pages/resource_monitor/performance_tab.dart';
 import 'package:dsm_helper/widgets/glass/glass_app_bar.dart';
 import 'package:dsm_helper/widgets/glass/glass_scaffold.dart';
@@ -11,7 +12,7 @@ class ResourceMonitor extends StatefulWidget {
   _ResourceMonitorState createState() => _ResourceMonitorState();
 }
 
-class _ResourceMonitorState extends State<ResourceMonitor> with SingleTickerProviderStateMixin {
+class _ResourceMonitorState extends State<ResourceMonitor> with SingleTickerProviderStateMixin, AutomaticKeepAliveClientMixin {
   late TabController _tabController;
   @override
   void initState() {
@@ -21,11 +22,13 @@ class _ResourceMonitorState extends State<ResourceMonitor> with SingleTickerProv
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return GlassScaffold(
       appBar: GlassAppBar(
         title: TabBar(
           controller: _tabController,
           isScrollable: true,
+          indicatorColor: Colors.transparent,
           tabs: [
             Tab(text: "性能"),
             Tab(text: "任务管理器"),
@@ -40,9 +43,12 @@ class _ResourceMonitorState extends State<ResourceMonitor> with SingleTickerProv
             tabIndex: 0,
           ),
           Container(),
-          Container(),
+          ConnectedUserTab(),
         ],
       ),
     );
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }

@@ -28,7 +28,7 @@ class Auth {
         "version": 4,
         "api": "SYNO.API.Auth",
         "method": "login",
-        "session": "FileStation",
+        "session": "webui",
         "enable_device_token": "yes",
         "enable_sync_token": "yes",
       },
