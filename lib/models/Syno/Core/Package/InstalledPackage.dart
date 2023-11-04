@@ -96,6 +96,20 @@ class InstalledPackageItem {
     this.version,
   });
 
+  static Future<InstalledPackageItem> get(String id) async {
+    DsmResponse res = await Api.dsm.entry(
+      "SYNO.Core.Package",
+      "get",
+      parser: InstalledPackageItem.fromJson,
+      version: 1,
+      data: {
+        "id": '"$id"',
+        "additional": jsonEncode(["uninstall_pages"]),
+      },
+    );
+    return res.data;
+  }
+
   Future<bool?> start() async {
     DsmResponse res = await Api.dsm.entry("SYNO.Core.Package.Control", "start", version: 1, data: {
       "id": id,
@@ -111,9 +125,11 @@ class InstalledPackageItem {
     return res.success;
   }
 
-  Future<bool?> uninstall() async {
+  Future<bool?> uninstall({Map? extra}) async {
     DsmResponse res = await Api.dsm.entry("SYNO.Core.Package.Uninstallation", "uninstall", version: 1, data: {
       "id": id,
+      "dsm_apps": additional?.dsmApps,
+      if (extra != null) "extra_values": jsonEncode(extra),
     });
     return res.success;
   }
@@ -219,6 +235,7 @@ class Additional {
     this.supportUrl,
     this.updatedAt,
     this.url,
+    this.uninstallPages,
   });
 
   Additional.fromJson(dynamic json) {
@@ -250,6 +267,7 @@ class Additional {
     supportCenter = json['support_center'];
     supportUrl = json['support_url'];
     updatedAt = json['updated_at'];
+    uninstallPages = json['uninstall_pages'];
     url = json['url'] != null ? json['url'].cast<String>() : [];
   }
   bool? autoupdate;
@@ -281,6 +299,7 @@ class Additional {
   bool? supportCenter;
   String? supportUrl;
   String? updatedAt;
+  String? uninstallPages;
   List<dynamic>? url;
   Additional copyWith({
     bool? autoupdate,

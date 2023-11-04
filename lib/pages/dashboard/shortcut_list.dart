@@ -87,7 +87,7 @@ class ShortcutList extends StatelessWidget {
         icon = "assets/applications/${Utils.version}/package_center.png";
         name = "套件中心";
         page = Packages();
-        routerName = "packages";
+        routerName = "package_center";
         // if (appNotify != null && appNotify['SYNO.SDS.PkgManApp.Instance'] != null) {
         //   unread = appNotify['SYNO.SDS.PkgManApp.Instance']['unread'];
         // }

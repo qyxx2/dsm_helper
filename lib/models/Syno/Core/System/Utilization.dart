@@ -9,6 +9,7 @@ import 'package:dsm_helper/apis/api.dart';
 class Utilization {
   Utilization({
     this.cpu,
+    this.gpu,
     this.disk,
     this.memory,
     this.network,
@@ -32,6 +33,7 @@ class Utilization {
 
   Utilization.fromJson(dynamic json) {
     cpu = json['cpu'] != null ? Cpu.fromJson(json['cpu']) : null;
+    gpu = json['gpu'] != null ? Gpu.fromJson(json['gpu']) : null;
     disk = json['disk'] != null ? Disk.fromJson(json['disk']) : null;
     memory = json['memory'] != null ? Memory.fromJson(json['memory']) : null;
     space = json['space'] != null ? Space.fromJson(json['space']) : null;
@@ -56,6 +58,7 @@ class Utilization {
     time = json['time'];
   }
   Cpu? cpu;
+  Gpu? gpu;
   Disk? disk;
   Memory? memory;
   List<Network>? network;
@@ -81,6 +84,7 @@ class Utilization {
   num? time;
   Utilization copyWith({
     Cpu? cpu,
+    Gpu? gpu,
     Disk? disk,
     Memory? memory,
     List<Network>? network,
@@ -99,6 +103,9 @@ class Utilization {
     final map = <String, dynamic>{};
     if (cpu != null) {
       map['cpu'] = cpu?.toJson();
+    }
+    if (gpu != null) {
+      map['gpu'] = gpu?.toJson();
     }
     if (disk != null) {
       map['disk'] = disk?.toJson();
@@ -461,7 +468,7 @@ class Cpu {
   num? systemLoad;
   num? userLoad;
 
-  num get totalLoad => ((userLoad ?? 0) + (systemLoad ?? 0) + (otherLoad ?? 0));
+  num get totalLoad => ((userLoad ?? 0) + (systemLoad ?? 0));
 
   Cpu copyWith({
     num? minLoad15,
@@ -821,6 +828,65 @@ class Nfs {
     map['total_max_latency'] = totalMaxLatency;
     map['write_OPS'] = writeOPS;
     map['write_max_latency'] = writeMaxLatency;
+    return map;
+  }
+}
+
+/// device : "Gpu"
+/// gpu_memory_free : 7968768
+/// gpu_memory_total : 8388608
+/// gpu_memory_used : 0
+/// gpu_memory_utilization : 0
+/// gpu_utilization : 0
+
+class Gpu {
+  Gpu({
+    this.device,
+    this.gpuMemoryFree,
+    this.gpuMemoryTotal,
+    this.gpuMemoryUsed,
+    this.gpuMemoryUtilization,
+    this.gpuUtilization,
+  });
+
+  Gpu.fromJson(dynamic json) {
+    device = json['device'];
+    gpuMemoryFree = json['gpu_memory_free'];
+    gpuMemoryTotal = json['gpu_memory_total'];
+    gpuMemoryUsed = json['gpu_memory_used'];
+    gpuMemoryUtilization = json['gpu_memory_utilization'];
+    gpuUtilization = json['gpu_utilization'];
+  }
+  String? device;
+  num? gpuMemoryFree;
+  num? gpuMemoryTotal;
+  num? gpuMemoryUsed;
+  num? gpuMemoryUtilization;
+  num? gpuUtilization;
+  Gpu copyWith({
+    String? device,
+    num? gpuMemoryFree,
+    num? gpuMemoryTotal,
+    num? gpuMemoryUsed,
+    num? gpuMemoryUtilization,
+    num? gpuUtilization,
+  }) =>
+      Gpu(
+        device: device ?? this.device,
+        gpuMemoryFree: gpuMemoryFree ?? this.gpuMemoryFree,
+        gpuMemoryTotal: gpuMemoryTotal ?? this.gpuMemoryTotal,
+        gpuMemoryUsed: gpuMemoryUsed ?? this.gpuMemoryUsed,
+        gpuMemoryUtilization: gpuMemoryUtilization ?? this.gpuMemoryUtilization,
+        gpuUtilization: gpuUtilization ?? this.gpuUtilization,
+      );
+  Map<String, dynamic> toJson() {
+    final map = <String, dynamic>{};
+    map['device'] = device;
+    map['gpu_memory_free'] = gpuMemoryFree;
+    map['gpu_memory_total'] = gpuMemoryTotal;
+    map['gpu_memory_used'] = gpuMemoryUsed;
+    map['gpu_memory_utilization'] = gpuMemoryUtilization;
+    map['gpu_utilization'] = gpuUtilization;
     return map;
   }
 }

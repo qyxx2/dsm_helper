@@ -193,15 +193,22 @@ class PackageItem {
   }
 
   Future<PackageInstallTask> install() async {
-    DsmResponse res = await Api.dsm.entry("SYNO.Core.Package.Installation", "install", version: 1, parser: PackageInstallTask.fromJson, data: {
-      "name": id,
-      "url": link,
-      "checksum": md5,
-      "filesize": size,
-      "type": type,
-      "blqinst": false,
-      "operation": "install",
-    });
+    DsmResponse res = await Api.dsm.entry(
+      "SYNO.Core.Package.Installation",
+      "install",
+      version: 1,
+      parser: PackageInstallTask.fromJson,
+      data: {
+        "name": id,
+        "url": link,
+        "checksum": md5,
+        "filesize": size,
+        "type": type,
+        "blqinst": false,
+        "operation": "install",
+      },
+    );
+    print(res.data);
     return res.data;
   }
 

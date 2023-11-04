@@ -27,25 +27,56 @@ class PackageInstallTask {
     this.remoteLink,
     this.size,
     this.success,
+    this.status,
     this.taskid,
     this.tmpFolder,
   });
 
-  Future<PackageInstallTask> status() async {
-    DsmResponse res = await Api.dsm.entry("SYNO.Core.Package.Installation", "status", version: 1, parser: PackageInstallTask.fromJson, data: {
-      "taskid": taskid,
-    });
+  Future<PackageInstallTask> installStatus() async {
+    DsmResponse res = await Api.dsm.entry(
+      "SYNO.Core.Package.Installation",
+      "status",
+      version: 1,
+      parser: PackageInstallTask.fromJson,
+      data: {
+        "task_id": taskid,
+      },
+    );
     return res.data;
   }
 
   Future<bool?> cancel() async {
-    DsmResponse res = await Api.dsm.entry("SYNO.Core.Package.Installation", "cancel", version: 1, data: {
-      "taskid": taskid,
-    });
+    DsmResponse res = await Api.dsm.entry(
+      "SYNO.Core.Package.Installation",
+      "cancel",
+      version: 1,
+      data: {
+        "taskid": taskid,
+      },
+    );
+    return res.success;
+  }
+
+  Future<bool?> install(String path, {bool run = true}) async {
+    DsmResponse res = await Api.dsm.entry(
+      "SYNO.Core.Package.Installation",
+      "install",
+      version: 1,
+      data: {
+        "volume_path": path,
+        "extra_values": "{}",
+        "type": 0,
+        "check_codesign": true,
+        "force": true,
+        "installrunpackage": run,
+        "path": tmpFolder,
+      },
+    );
     return res.success;
   }
 
   PackageInstallTask.fromJson(dynamic json) {
+    print(json);
     beta = json['beta'];
     blqinst = json['blqinst'];
     finished = json['finished'];
@@ -57,6 +88,7 @@ class PackageInstallTask {
     remoteLink = json['remote_link'];
     size = json['size'];
     success = json['success'];
+    status = json['status'];
     taskid = json['taskid'];
     tmpFolder = json['tmp_folder'];
   }
@@ -71,6 +103,7 @@ class PackageInstallTask {
   String? remoteLink;
   String? size;
   bool? success;
+  String? status;
   String? taskid;
   String? tmpFolder;
   PackageInstallTask copyWith({

@@ -1,7 +1,14 @@
 import 'dart:convert';
 
+import 'package:dsm_helper/models/Syno/Core/Package/InstalledPackage.dart';
 import 'package:dsm_helper/models/Syno/Core/Package/PackageServer.dart';
+import 'package:dsm_helper/themes/app_theme.dart';
+import 'package:dsm_helper/utils/extensions/navigator_ext.dart';
 import 'package:dsm_helper/utils/utils.dart';
+import 'package:dsm_helper/widgets/button.dart';
+import 'package:dsm_helper/widgets/glass/glass_app_bar.dart';
+import 'package:dsm_helper/widgets/glass/glass_scaffold.dart';
+import 'package:dsm_helper/widgets/loading_widget.dart';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -24,15 +31,15 @@ class _UninstallPackageState extends State<UninstallPackage> {
   }
 
   getData() async {
-    var res = await Api.uninstallPackageInfo(widget.package.id!);
-    if (res['success']) {
+    try {
+      var res = await InstalledPackageItem.get(widget.package.id!);
+      pageData = jsonDecode(Uri.decodeComponent(res.additional!.uninstallPages!));
       setState(() {
         loading = false;
-        pageData = jsonDecode(Uri.decodeComponent(res['data']['additional']['uninstall_pages']));
-        print(pageData);
       });
-    } else {
-      Utils.toast("获取卸载信息失败，代码${res['error']['code']}");
+    } catch (e) {
+      print(e);
+      Utils.toast("获取卸载信息失败");
     }
   }
 
@@ -81,10 +88,10 @@ class _UninstallPackageState extends State<UninstallPackage> {
   }
 
   Widget _buildItem(item) {
-    List subItems = item['subitems'];
+    List subItems = item['subitems'] ?? [];
     return Container(
       decoration: BoxDecoration(
-        color: Theme.of(context).scaffoldBackgroundColor,
+        color: AppTheme.of(context)?.cardColor,
         borderRadius: BorderRadius.circular(20),
       ),
       child: Padding(
@@ -92,10 +99,11 @@ class _UninstallPackageState extends State<UninstallPackage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(item['desc']),
-            SizedBox(
-              height: 20,
-            ),
+            if (item['desc'] != null) Text(item['desc']),
+            if (item['desc'] != null && subItems.isNotEmpty)
+              SizedBox(
+                height: 20,
+              ),
             ...subItems.map(_buildSubItem).toList(),
           ],
         ),
@@ -110,106 +118,80 @@ class _UninstallPackageState extends State<UninstallPackage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            data['step_title'],
-            style: TextStyle(fontSize: 24),
-          ),
-          SizedBox(
-            height: 20,
-          ),
+          if (data['step_title'] != null) ...[
+            Text(
+              data['step_title'],
+              style: TextStyle(fontSize: 24),
+            ),
+            SizedBox(
+              height: 20,
+            ),
+          ],
           ...items.map(_buildItem).toList(),
         ],
       ),
     );
   }
 
+  uninstall() async {
+    //获取额外参数
+    Map extra = {};
+    for (int i = 0; i < pageData.length; i++) {
+      for (int j = 0; j < pageData[i]['items'].length; j++) {
+        for (int k = 0; k < pageData[i]['items'][j]['subitems'].length; k++) {
+          if (pageData[i]['items'][j]['subitems'][k]['checked']) {
+            extra[pageData[i]['items'][j]['subitems'][i]['key']] = pageData[i]['items'][j]['subitems'][i]['checked'];
+          }
+        }
+      }
+    }
+    setState(() {
+      uninstalling = true;
+    });
+    bool? res = await widget.package.installedPackageItem!.uninstall(extra: extra);
+    if (res == true) {
+      Utils.toast("卸载成功");
+      context.popUntil((route) => route.settings.name == 'package_center');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
+    return GlassScaffold(
+      appBar: GlassAppBar(
         title: Text(
           "卸载${widget.package.dname}",
         ),
       ),
       body: loading
           ? Center(
-              child: Container(
-                padding: EdgeInsets.all(50),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).scaffoldBackgroundColor,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: CupertinoActivityIndicator(
-                  radius: 14,
+              child: LoadingWidget(size: 30),
+            )
+          : ListView.builder(
+              itemBuilder: (context, i) {
+                return _buildData(pageData[i]);
+              },
+              itemCount: pageData.length,
+            ),
+      persistentFooterButtons: [
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 10),
+          child: Row(
+            children: [
+              Expanded(
+                child: Button(
+                  onPressed: uninstall,
+                  padding: EdgeInsets.symmetric(vertical: 12),
+                  color: AppTheme.of(context)?.errorColor,
+                  borderRadius: 50,
+                  loading: uninstalling,
+                  child: Text("卸载"),
                 ),
               ),
-            )
-          : Stack(
-              children: [
-                Column(
-                  children: [
-                    Expanded(
-                      child: ListView.builder(
-                        itemBuilder: (context, i) {
-                          return _buildData(pageData[i]);
-                        },
-                        itemCount: pageData.length,
-                      ),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 20),
-                      child: CupertinoButton(
-                        onPressed: () async {
-                          //获取额外参数
-                          Map extra = {};
-                          for (int i = 0; i < pageData.length; i++) {
-                            for (int j = 0; j < pageData[i]['items'].length; j++) {
-                              for (int k = 0; k < pageData[i]['items'][j]['subitems'].length; k++) {
-                                if (pageData[i]['items'][j]['subitems'][k]['checked']) {
-                                  extra[pageData[i]['items'][j]['subitems'][i]['key']] = pageData[i]['items'][j]['subitems'][i]['checked'];
-                                }
-                              }
-                            }
-                          }
-                          setState(() {
-                            uninstalling = true;
-                          });
-                          await Api.uninstallPackageTask(widget.package.id!, extra: extra);
-                          Utils.toast("卸载成功");
-                          Navigator.of(context).pop();
-                          Navigator.of(context).pop();
-                        },
-                        // margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                        padding: EdgeInsets.symmetric(vertical: 20),
-                        color: Theme.of(context).scaffoldBackgroundColor,
-                        borderRadius: BorderRadius.circular(20),
-
-                        child: Text(
-                          "确认卸载",
-                          style: TextStyle(fontSize: 18),
-                        ),
-                      ),
-                    ),
-                    SizedBox(
-                      height: 20,
-                    ),
-                  ],
-                ),
-                if (uninstalling)
-                  Center(
-                    child: Container(
-                      padding: EdgeInsets.all(50),
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).scaffoldBackgroundColor,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: CupertinoActivityIndicator(
-                        radius: 14,
-                      ),
-                    ),
-                  )
-              ],
-            ),
+            ],
+          ),
+        )
+      ],
     );
   }
 }

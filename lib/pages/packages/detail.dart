@@ -296,6 +296,7 @@ class _PackageDetailState extends State<PackageDetail> {
       setState(() {
         installing = true;
       });
+      print(packageInstallTask!.toJson());
     } on DsmException catch (e) {
       if (e.code == 4501) {
         Utils.toast("此套件需配置信息，当前暂不支持，请在WEB端安装");
@@ -309,8 +310,9 @@ class _PackageDetailState extends State<PackageDetail> {
       installing = true;
     });
     //进度
-    timer = Timer.periodic(Duration(seconds: 5), (timer) {
-      packageInstallTask!.status().then((value) {
+    timer = Timer.periodic(Duration(seconds: 1), (timer) {
+      packageInstallTask!.installStatus().then((value) {
+        print(value.toJson());
         setState(() {
           if (value.finished == true) {
             installing = false;
@@ -671,8 +673,10 @@ class _PackageDetailState extends State<PackageDetail> {
                         Expanded(
                           child: Button(
                             onPressed: () {
-                              selectVolume();
+                              install("/volume1");
+                              // selectVolume();
                             },
+                            loading: installing,
                             padding: EdgeInsets.symmetric(vertical: 12),
                             color: AppTheme.of(context)?.primaryColor,
                             borderRadius: 50,
@@ -692,6 +696,7 @@ class _PackageDetailState extends State<PackageDetail> {
                             Expanded(
                               child: Button(
                                 onPressed: update,
+                                loading: installing,
                                 padding: EdgeInsets.symmetric(vertical: 12),
                                 color: AppTheme.of(context)?.warningColor,
                                 borderRadius: 50,
