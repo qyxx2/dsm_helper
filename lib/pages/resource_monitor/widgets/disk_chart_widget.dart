@@ -6,10 +6,10 @@ import 'package:dsm_helper/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
-class SpaceChartWidget extends StatelessWidget {
-  const SpaceChartWidget(this.spaces, {this.showWrite = true, this.showRead = true, this.onReadRendererCreated, this.onWriteRendererCreated, super.key});
+class DiskChartWidget extends StatelessWidget {
+  const DiskChartWidget(this.disks, {this.showWrite = true, this.showRead = true, this.onReadRendererCreated, this.onWriteRendererCreated, super.key});
 
-  final List<Space> spaces;
+  final List<Disk> disks;
   final bool showWrite;
   final bool showRead;
   final Function(ChartSeriesController)? onReadRendererCreated;
@@ -17,8 +17,8 @@ class SpaceChartWidget extends StatelessWidget {
 
   num get maxSpeed {
     num maxSpeed = 0;
-    for (var space in spaces) {
-      num maxVal = max(space.total?.readByte ?? 0, space.total?.writeByte ?? 0);
+    for (var disk in disks) {
+      num maxVal = max(disk.total?.readByte ?? 0, disk.total?.writeByte ?? 0);
       if (maxSpeed < maxVal) {
         maxSpeed = maxVal;
       }
@@ -43,14 +43,14 @@ class SpaceChartWidget extends StatelessWidget {
           },
         ),
         enableAxisAnimation: true,
-        series: <AreaSeries<Space, num>>[
+        series: <AreaSeries<Disk, num>>[
           if (showRead)
-            AreaSeries<Space, num>(
+            AreaSeries<Disk, num>(
               onRendererCreated: onWriteRendererCreated,
               animationDuration: 1000,
-              dataSource: spaces,
-              xValueMapper: (Space space, index) => index,
-              yValueMapper: (Space space, _) => space.total?.readByte ?? 0,
+              dataSource: disks,
+              xValueMapper: (Disk disk, index) => index,
+              yValueMapper: (Disk disk, _) => disk.total?.readByte ?? 0,
               // dataLabelSettings: DataLabelSettings(),
               // width: 2,
               name: '读取',
@@ -61,12 +61,12 @@ class SpaceChartWidget extends StatelessWidget {
               gradient: LinearGradient(colors: [Colors.orange.withOpacity(0.1), Colors.orange.withOpacity(0.4)], begin: Alignment.bottomCenter, end: Alignment.topCenter),
             ),
           if (showWrite)
-            AreaSeries<Space, num>(
+            AreaSeries<Disk, num>(
               onRendererCreated: onReadRendererCreated,
               animationDuration: 1000,
-              dataSource: spaces,
-              xValueMapper: (Space space, index) => index,
-              yValueMapper: (Space space, _) => space.total?.writeByte ?? 0,
+              dataSource: disks,
+              xValueMapper: (Disk disk, index) => index,
+              yValueMapper: (Disk disk, _) => disk.total?.writeByte ?? 0,
               // dataLabelSettings: DataLabelSettings(),
               // width: 2,
               name: '写入',

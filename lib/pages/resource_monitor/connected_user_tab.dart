@@ -162,6 +162,13 @@ class _ConnectedUserTabState extends State<ConnectedUserTab> with SingleTickerPr
                 Text(
                   "${file.service}",
                   overflow: TextOverflow.ellipsis,
+                  style: TextStyle(fontSize: 12, color: AppTheme.of(context)?.placeholderColor),
+                ),
+                SizedBox(height: 5),
+                Text(
+                  "${file.path}",
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(fontSize: 12, color: AppTheme.of(context)?.placeholderColor),
                 ),
               ],
             ),
@@ -173,16 +180,16 @@ class _ConnectedUserTabState extends State<ConnectedUserTab> with SingleTickerPr
             onPressed: file.running
                 ? null
                 : () async {
-                    // bool? res = await KickConnectDialog.show(context: context, user: file);
-                    // if (res == true) {
-                    //   setState(() {
-                    //     file.running = true;
-                    //   });
-                    //   bool? result = await file.kickConnection();
-                    //   if (result == true) {
-                    //     getConnectedUsers();
-                    //   }
-                    // }
+                    setState(() {
+                      file.running = true;
+                    });
+                    bool? res = await file.kick();
+                    if (res == true) {
+                      setState(() {
+                        file.running = false;
+                      });
+                      getConnectedFiles();
+                    }
                   },
             padding: EdgeInsets.zero,
             child: file.running

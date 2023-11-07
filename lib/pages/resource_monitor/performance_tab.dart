@@ -5,12 +5,15 @@ import 'package:dsm_helper/models/Syno/Core/System/Utilization.dart';
 import 'package:dsm_helper/pages/dashboard/widgets/widget_card.dart';
 import 'package:dsm_helper/pages/resource_monitor/widgets/cpu_chart_widget.dart';
 import 'package:dsm_helper/pages/resource_monitor/widgets/cpu_detail_chart_widget.dart';
+import 'package:dsm_helper/pages/resource_monitor/widgets/disk_chart_widget.dart';
 import 'package:dsm_helper/pages/resource_monitor/widgets/gpu_chart_widget.dart';
 import 'package:dsm_helper/pages/resource_monitor/widgets/gpu_memory_chart_widget.dart';
 import 'package:dsm_helper/pages/resource_monitor/widgets/lun_chart_widget.dart';
+import 'package:dsm_helper/pages/resource_monitor/widgets/lun_iops_chart_widget.dart';
+import 'package:dsm_helper/pages/resource_monitor/widgets/lun_latency_chart_widget.dart';
 import 'package:dsm_helper/pages/resource_monitor/widgets/memory_chart_widget.dart';
 import 'package:dsm_helper/pages/resource_monitor/widgets/network_chart_widget.dart';
-import 'package:dsm_helper/pages/resource_monitor/widgets/nfs_chart_widget.dart';
+import 'package:dsm_helper/pages/resource_monitor/widgets/nfs_iops_chart_widget.dart';
 import 'package:dsm_helper/pages/resource_monitor/widgets/storage_chart_widget.dart';
 import 'package:dsm_helper/providers/setting_provider.dart';
 import 'package:dsm_helper/themes/app_theme.dart';
@@ -292,7 +295,7 @@ class _PerformanceTabState extends State<PerformanceTab> with TickerProviderStat
                                 ),
                               ],
                             ),
-                            body: NfsChartWidget(utilizations.map((e) => e.totalNfs ?? Nfs()).toList()),
+                            body: NfsIopsChartWidget(utilizations.map((e) => e.totalNfs ?? Nfs()).toList()),
                           ),
                           SizedBox(
                             height: 14,
@@ -706,6 +709,40 @@ class _PerformanceTabState extends State<PerformanceTab> with TickerProviderStat
                             icon: Row(
                               children: [
                                 Text(
+                                  "${utilizations.last.disk?.total?.readByte != null ? Utils.formatSize(utilizations.last.disk!.total!.readByte!) : '-'}/S",
+                                  style: TextStyle(color: Colors.orange),
+                                ),
+                              ],
+                            ),
+                            body: DiskChartWidget(
+                              utilizations.map((e) => e.disk ?? Disk()).toList(),
+                              showWrite: false,
+                            ),
+                          ),
+                          WidgetCard(
+                            title: "写入速度",
+                            icon: Row(
+                              children: [
+                                Text(
+                                  "${utilizations.last.disk?.total?.writeByte != null ? Utils.formatSize(utilizations.last.disk!.total!.writeByte!) : '-'}/S",
+                                  style: TextStyle(color: Colors.amber),
+                                ),
+                              ],
+                            ),
+                            body: DiskChartWidget(
+                              utilizations.map((e) => e.disk ?? Disk()).toList(),
+                              showRead: false,
+                            ),
+                          ),
+                        ],
+                      ),
+                      ListView(
+                        children: [
+                          WidgetCard(
+                            title: "读取速度",
+                            icon: Row(
+                              children: [
+                                Text(
                                   "${utilizations.last.space?.total?.readByte != null ? Utils.formatSize(utilizations.last.space!.total!.readByte!) : '-'}/S",
                                   style: TextStyle(color: Colors.orange),
                                 ),
@@ -733,10 +770,152 @@ class _PerformanceTabState extends State<PerformanceTab> with TickerProviderStat
                           ),
                         ],
                       ),
-                      Placeholder(),
-                      Placeholder(),
+
+                      // LUN
+                      ListView(
+                        children: [
+                          WidgetCard(
+                            title: "传输性能",
+                            icon: Row(
+                              children: [
+                                Label("R", Colors.cyan, fill: true),
+                                SizedBox(width: 5),
+                                Text(
+                                  "${utilizations.last.totalLun?.readThroughput != null ? Utils.formatSize(utilizations.last.totalLun!.readThroughput!) : '-'}/S",
+                                  style: TextStyle(color: Colors.cyan),
+                                ),
+                                SizedBox(width: 20),
+                                Label("W", Colors.lightGreen, fill: true),
+                                SizedBox(width: 5),
+                                Text(
+                                  "${utilizations.last.totalLun?.writeThroughput != null ? Utils.formatSize(utilizations.last.totalLun!.writeThroughput!) : '-'}/S",
+                                  style: TextStyle(color: Colors.lightGreen),
+                                ),
+                              ],
+                            ),
+                            body: LunChartWidget(
+                              utilizations.map((e) => e.totalLun ?? Lun()).toList(),
+                            ),
+                          ),
+                          WidgetCard(
+                            title: "IOPS",
+                            icon: Row(
+                              children: [
+                                Label("R", Colors.cyan, fill: true),
+                                SizedBox(width: 5),
+                                Text(
+                                  "${utilizations.last.totalLun?.readIops ?? '-'}/S",
+                                  style: TextStyle(color: Colors.cyan),
+                                ),
+                                SizedBox(width: 20),
+                                Label("W", Colors.lightGreen, fill: true),
+                                SizedBox(width: 5),
+                                Text(
+                                  "${utilizations.last.totalLun?.writeIops ?? '-'}/S",
+                                  style: TextStyle(color: Colors.lightGreen),
+                                ),
+                              ],
+                            ),
+                            body: LunIopsChartWidget(
+                              utilizations.map((e) => e.totalLun ?? Lun()).toList(),
+                            ),
+                          ),
+                          WidgetCard(
+                            title: "延迟",
+                            icon: Row(
+                              children: [
+                                Label("R", Colors.cyan, fill: true),
+                                SizedBox(width: 5),
+                                Text(
+                                  "${utilizations.last.totalLun?.readAvgLatency ?? '-'}us",
+                                  style: TextStyle(color: Colors.cyan),
+                                ),
+                                SizedBox(width: 20),
+                                Label("W", Colors.lightGreen, fill: true),
+                                SizedBox(width: 5),
+                                Text(
+                                  "${utilizations.last.totalLun?.writeAvgLatency ?? '-'}us",
+                                  style: TextStyle(color: Colors.lightGreen),
+                                ),
+                              ],
+                            ),
+                            body: LunLatencyChartWidget(
+                              utilizations.map((e) => e.totalLun ?? Lun()).toList(),
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      //GPU
                       if (utilizations.last.gpu != null) Placeholder(),
-                      Placeholder(),
+
+                      //NFS
+                      ListView(
+                        children: [
+                          WidgetCard(
+                            title: "IOPS",
+                            icon: Row(
+                              children: [
+                                Label("R", Colors.deepPurpleAccent, fill: true),
+                                SizedBox(width: 5),
+                                Text(
+                                  "${utilizations.last.totalNfs?.readOPS ?? '-'}/S",
+                                  style: TextStyle(color: Colors.deepPurpleAccent),
+                                ),
+                                SizedBox(width: 10),
+                                Label("W", Colors.purpleAccent, fill: true),
+                                SizedBox(width: 5),
+                                Text(
+                                  "${utilizations.last.totalNfs?.writeOPS ?? '-'}/S",
+                                  style: TextStyle(color: Colors.purpleAccent),
+                                ),
+                                SizedBox(width: 10),
+                                Label("总", AppTheme.of(context)!.primaryColor!, fill: true),
+                                SizedBox(width: 5),
+                                Text(
+                                  "${utilizations.last.totalNfs?.totalOPS ?? '-'}/S",
+                                  style: TextStyle(color: Colors.purpleAccent),
+                                ),
+                              ],
+                            ),
+                            body: NfsIopsChartWidget(
+                              utilizations.map((e) => e.totalNfs ?? Nfs()).toList(),
+                              showTotal: true,
+                            ),
+                          ),
+                          WidgetCard(
+                            title: "延迟",
+                            icon: Row(
+                              children: [
+                                Label("R", Colors.deepPurpleAccent, fill: true),
+                                SizedBox(width: 5),
+                                Text(
+                                  "${utilizations.last.totalNfs?.readMaxLatency ?? '-'}us",
+                                  style: TextStyle(color: Colors.deepPurpleAccent),
+                                ),
+                                SizedBox(width: 10),
+                                Label("W", Colors.purpleAccent, fill: true),
+                                SizedBox(width: 5),
+                                Text(
+                                  "${utilizations.last.totalNfs?.writeMaxLatency ?? '-'}us",
+                                  style: TextStyle(color: Colors.purpleAccent),
+                                ),
+                                SizedBox(width: 10),
+                                Label("总", AppTheme.of(context)!.primaryColor!, fill: true),
+                                SizedBox(width: 5),
+                                Text(
+                                  "${utilizations.last.totalNfs?.totalMaxLatency ?? '-'}us",
+                                  style: TextStyle(color: Colors.purpleAccent),
+                                ),
+                              ],
+                            ),
+                            body: NfsIopsChartWidget(
+                              utilizations.map((e) => e.totalNfs ?? Nfs()).toList(),
+                              showTotal: true,
+                            ),
+                          ),
+                        ],
+                      ),
                     ],
                   ),
                 ),

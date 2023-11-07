@@ -6,8 +6,9 @@ import 'package:dsm_helper/widgets/glass/glass_scaffold.dart';
 import 'package:flutter/material.dart';
 
 class ResourceMonitor extends StatefulWidget {
-  ResourceMonitor({this.tabIndex = 0, super.key});
+  ResourceMonitor({this.tabIndex = 0, this.performanceIndex = 0, super.key});
   final int tabIndex;
+  final int performanceIndex;
   @override
   _ResourceMonitorState createState() => _ResourceMonitorState();
 }
@@ -40,7 +41,7 @@ class _ResourceMonitorState extends State<ResourceMonitor> with SingleTickerProv
         controller: _tabController,
         children: [
           PerformanceTab(
-            tabIndex: 0,
+            tabIndex: widget.performanceIndex,
           ),
           Container(),
           ConnectedUserTab(),

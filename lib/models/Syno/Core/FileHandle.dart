@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:math';
+
 import 'package:dsm_helper/apis/api.dart';
 
 /// OpenedFiles : [{"filename":".发票信息.txt.swp","hidden":0,"host":"192.168.0.76","path":"homes/yaoshuwei/工作文件/王炎/.发票信息.txt.swp","pid":"5251","service":"SSH","user":"yaoshuwei"}]
@@ -74,6 +77,18 @@ class OpenedFiles {
     this.service,
     this.user,
   });
+
+  Future<bool?> kick() async {
+    DsmResponse res = await Api.dsm.entry(
+      "SYNO.Core.FileHandle",
+      "kick",
+      version: 1,
+      data: {
+        "pids": jsonEncode([pid]),
+      },
+    );
+    return res.success;
+  }
 
   OpenedFiles.fromJson(dynamic json) {
     filename = json['filename'];

@@ -34,7 +34,7 @@ class GpuMemoryChartWidget extends StatelessWidget {
             animationDuration: 1000,
             dataSource: gpus,
             xValueMapper: (Gpu gpu, index) => index,
-            yValueMapper: (Gpu gpu, _) => gpu.gpuMemoryUtilization ?? 0,
+            yValueMapper: (Gpu gpu, _) => gpu.gpuMemoryUtilization,
             // dataLabelSettings: DataLabelSettings(),
             // width: 2,
             name: 'GPU内存使用率',
