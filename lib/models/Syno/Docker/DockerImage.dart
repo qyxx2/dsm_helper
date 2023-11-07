@@ -81,10 +81,13 @@ class Images {
   Images({
     this.created,
     this.description,
+    this.digest,
     this.id,
+    this.remoteDigest,
     this.repository,
     this.size,
     this.tags,
+    this.upgradable,
     this.virtualSize,
   });
 
@@ -100,22 +103,43 @@ class Images {
     return res;
   }
 
+  Future<String?> upgradeStart() async {
+    DsmResponse res = await Api.dsm.entry(
+      "SYNO.Docker.Image",
+      "upgrade_start",
+      version: 1,
+      data: {
+        "repository": "$id:${tags?.join(",")}",
+      },
+    );
+    if (res.success == true) {
+      return res.data['task_id'];
+    }
+    return res.data;
+  }
+
   Images.fromJson(dynamic json) {
     created = json['created'];
     description = json['description'];
+    digest = json['digest'];
+    remoteDigest = json['remote_digest'];
     id = json['id'];
     repository = json['repository'];
     size = json['size'];
+    upgradable = json['upgradable'];
     tags = json['tags'] != null ? json['tags'].cast<String>() : [];
     virtualSize = json['virtual_size'];
   }
   int? created;
   String? description;
   String? id;
+  String? digest;
+  String? remoteDigest;
   String? repository;
   int? size;
   List<String>? tags;
   int? virtualSize;
+  bool? upgradable;
   Images copyWith({
     int? created,
     String? description,

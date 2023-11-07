@@ -1,6 +1,9 @@
 import 'package:cool_ui/cool_ui.dart';
+import 'package:dsm_helper/apis/api.dart';
 import 'package:dsm_helper/apis/dsm_api/dsm_response.dart';
 import 'package:dsm_helper/models/Syno/Docker/DockerImage.dart';
+import 'package:dsm_helper/models/Syno/Docker/DockerImageUpgradeTask.dart';
+import 'package:dsm_helper/pages/docker/dialogs/image_upgrade_popup.dart';
 import 'package:dsm_helper/themes/app_theme.dart';
 import 'package:dsm_helper/utils/utils.dart';
 import 'package:dsm_helper/widgets/empty_widget.dart';
@@ -20,6 +23,7 @@ class ImageTab extends StatefulWidget {
 class _ImageTabState extends State<ImageTab> with AutomaticKeepAliveClientMixin {
   bool loading = true;
   DockerImage dockerImage = DockerImage();
+  Map<String, DockerImageUpgradeTask> upgradeTasks = {};
   @override
   void initState() {
     getData();
@@ -31,6 +35,32 @@ class _ImageTabState extends State<ImageTab> with AutomaticKeepAliveClientMixin 
     setState(() {
       loading = false;
     });
+  }
+
+  getUpgradeTask(String taskId) async {
+    try {
+      DockerImageUpgradeTask task = await DockerImageUpgradeTask.upgradeStatus(taskId);
+      if (mounted) {
+        if (task.finished == true) {
+          upgradeTasks.remove(task.image);
+          getData();
+        } else if (task.image == null) {
+          return;
+        } else if (task.image != null) {
+          upgradeTasks[task.image!] = task;
+        }
+        setState(() {});
+        await Future.delayed(Duration(seconds: 5));
+        getUpgradeTask(taskId);
+      }
+    } on DsmException catch (e) {
+      print(e);
+      if (e.code == 103) {
+        getData();
+      }
+    } catch (e) {
+      print(e);
+    }
   }
 
   @override
@@ -54,6 +84,7 @@ class _ImageTabState extends State<ImageTab> with AutomaticKeepAliveClientMixin 
   }
 
   Widget _buildImageItem(Images image) {
+    bool upgrading = upgradeTasks.containsKey("${image.repository}:${image.tags?.join(",")}");
     return Container(
       margin: EdgeInsets.only(top: 14),
       decoration: BoxDecoration(
@@ -68,27 +99,74 @@ class _ImageTabState extends State<ImageTab> with AutomaticKeepAliveClientMixin 
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  ExtendedText(
-                    "${image.repository}",
-                    maxLines: 2,
-                    overflowWidget: TextOverflowWidget(
-                      position: TextOverflowPosition.middle,
-                      align: TextOverflowAlign.right,
-                      child: Text(
-                        "…",
-                        style: TextStyle(color: Colors.grey),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          "${image.repository}:${image.tags?.join(",")}",
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                        ),
                       ),
-                    ),
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      SizedBox(width: 5),
+                      if (image.upgradable == true && !upgrading) ...[
+                        CupertinoButton(
+                          child: Image.asset(
+                            "assets/icons/upgrade.png",
+                            width: 24,
+                            color: AppTheme.of(context)?.primaryColor,
+                          ),
+                          minSize: 30,
+                          padding: EdgeInsets.zero,
+                          onPressed: () async {
+                            getUpgradeTask("@administrators/SYNO_DOCKER_IMAGE_UPGRADE1699366429DABA83C");
+                            // bool? confirm = await ImageUpgradePopup.show(context: context, image: image);
+                            // if (confirm == true) {
+                            //   String? taskId = await image.upgradeStart();
+                            //   print(taskId);
+                            //   if (taskId != null) {
+                            //     getUpgradeTask(taskId);
+                            //   }
+                            // }
+                          },
+                        ),
+                        SizedBox(width: 10),
+                      ],
+                      CupertinoButton(
+                        child: Image.asset(
+                          "assets/icons/delete.png",
+                          width: 24,
+                        ),
+                        minSize: 30,
+                        padding: EdgeInsets.zero,
+                        onPressed: () async {
+                          var hide = showWeuiLoadingToast(context: context, message: Text("删除中"));
+
+                          DsmResponse res = await image.delete();
+                          var data = res.data?['image_objects']?[image.repository]?[image.tags![0]];
+                          if (data['error'] == 1200) {
+                            Utils.toast("镜像删除成功");
+                          } else if (data['error'] == 1400) {
+                            Utils.toast("容器${data['containers'].join(",")}正在使用此镜像，无法删除");
+                          } else if (data['error'] == 1401) {
+                            Utils.toast("镜像不存在");
+                          }
+                          hide();
+                        },
+                      ),
+                    ],
                   ),
                   SizedBox(height: 5),
                   Row(
                     children: [
-                      if (image.tags != null)
+                      if (upgrading)
+                        Padding(padding: EdgeInsets.only(right: 5), child: Label("更新中:${upgradeTasks["${image.repository}:${image.tags?.join(",")}"]?.percent?.toStringAsFixed(2) ?? '-'}%", AppTheme.of(context)?.successColor ?? Colors.green))
+                      else if (image.tags != null)
                         ...image.tags!.map(
                           (tag) => Padding(padding: EdgeInsets.only(right: 5), child: Label(tag, AppTheme.of(context)?.primaryColor ?? Colors.blue)),
                         ),
-                      Label(Utils.formatSize(image.size!, fixed: 0), AppTheme.of(context)?.successColor ?? Colors.green),
+                      Label(Utils.formatSize(image.size!, fixed: 0), AppTheme.of(context)?.placeholderColor ?? Colors.grey),
                     ],
                   ),
                   if (image.description != null && image.description != '') ...[
@@ -97,6 +175,8 @@ class _ImageTabState extends State<ImageTab> with AutomaticKeepAliveClientMixin 
                     ),
                     Text(
                       "${image.description}",
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         color: AppTheme.of(context)?.placeholderColor,
                       ),
@@ -104,27 +184,6 @@ class _ImageTabState extends State<ImageTab> with AutomaticKeepAliveClientMixin 
                   ],
                 ],
               ),
-            ),
-            CupertinoButton(
-              child: Image.asset(
-                "assets/icons/delete.png",
-                width: 24,
-              ),
-              padding: EdgeInsets.zero,
-              onPressed: () async {
-                var hide = showWeuiLoadingToast(context: context, message: Text("删除中"));
-
-                DsmResponse res = await image.delete();
-                var data = res.data['image_objects'][image.repository][image.tags![0]];
-                if (data['error'] == 1200) {
-                  Utils.toast("镜像删除成功");
-                } else if (data['error'] == 1400) {
-                  Utils.toast("容器${data['containers'].join(",")}正在使用此镜像，无法删除");
-                } else if (data['error'] == 1401) {
-                  Utils.toast("镜像不存在");
-                }
-                hide();
-              },
             ),
           ],
         ),

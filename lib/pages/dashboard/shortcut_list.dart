@@ -111,9 +111,7 @@ class ShortcutList extends StatelessWidget {
         if (validAppViewOrder.contains("SYNO.SDS.ContainerManager.Application")) {
           icon = "assets/applications/container_manager.png";
           name = "Container Manager";
-          page = Docker(
-            title: "Container Manager",
-          );
+          page = Docker(isContainer: true);
         } else {
           icon = "assets/applications/docker.png";
           name = "Docker";

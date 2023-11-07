@@ -2,17 +2,15 @@ import 'package:dsm_helper/pages/docker/image_tab.dart';
 import 'package:dsm_helper/pages/docker/log_tab.dart';
 import 'package:dsm_helper/pages/docker/network_tab.dart';
 import 'package:dsm_helper/pages/docker/repository_tab.dart';
-import 'package:dsm_helper/utils/utils.dart';
 import 'package:dsm_helper/widgets/glass/glass_app_bar.dart';
 import 'package:dsm_helper/widgets/glass/glass_scaffold.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'container_tab.dart';
 
 class Docker extends StatefulWidget {
-  final String title;
-  Docker({this.title = 'Docker'});
+  final bool isContainer;
+  Docker({this.isContainer = false});
   @override
   _DockerState createState() => _DockerState();
 }
@@ -30,7 +28,7 @@ class _DockerState extends State<Docker> with SingleTickerProviderStateMixin {
   Widget build(BuildContext context) {
     return GlassScaffold(
       appBar: GlassAppBar(
-        title: Text(widget.title),
+        title: Text(widget.isContainer ? 'Container Manager' : 'Docker'),
         bottom: TabBar(
           isScrollable: true,
           controller: _tabController,
