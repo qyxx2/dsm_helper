@@ -8,7 +8,7 @@ import 'package:dsm_helper/pages/docker/container_detail/container_detail.dart';
 import 'package:dsm_helper/pages/docker/dialogs/container_delete_dialog.dart';
 import 'package:dsm_helper/pages/docker/dialogs/container_reset_dialog.dart';
 import 'package:dsm_helper/pages/docker/dialogs/container_signal_dialog.dart';
-import 'package:dsm_helper/pages/docker/enums/docker_status_enum.dart';
+import 'package:dsm_helper/pages/docker/enums/container_status_enum.dart';
 import 'package:dsm_helper/providers/utilization_provider.dart';
 import 'package:dsm_helper/themes/app_theme.dart';
 import 'package:dsm_helper/utils/extensions/navigator_ext.dart';
@@ -277,7 +277,7 @@ class _ContainerTabState extends State<ContainerTab> with AutomaticKeepAliveClie
                       style: TextStyle(color: container.statusEnum.color, fontSize: 13),
                     ),
                     SizedBox(width: 10),
-                    if (container.statusEnum == DockerStatusEnum.running)
+                    if (container.statusEnum == ContainerStatusEnum.running)
                       Text(
                         DateTime.fromMillisecondsSinceEpoch(container.upTime! * 1000).timeAgo,
                         style: TextStyle(fontSize: 13, color: Colors.grey),
@@ -288,7 +288,7 @@ class _ContainerTabState extends State<ContainerTab> with AutomaticKeepAliveClie
                       child: Transform.scale(
                         scale: 0.8,
                         child: CupertinoSwitch(
-                          value: container.statusEnum == DockerStatusEnum.running,
+                          value: container.statusEnum == ContainerStatusEnum.running,
                           onChanged: containerLoading[container] == true
                               ? null
                               : (v) async {
@@ -350,7 +350,7 @@ class _ContainerTabState extends State<ContainerTab> with AutomaticKeepAliveClie
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
                                           PopupMenuItem(
-                                            enabled: container.statusEnum == DockerStatusEnum.running,
+                                            enabled: container.statusEnum == ContainerStatusEnum.running,
                                             onTap: () async {
                                               bool? confirm = await ContainerSignalDialog.show(context: context, container: container);
                                               if (confirm == true) {
@@ -372,7 +372,7 @@ class _ContainerTabState extends State<ContainerTab> with AutomaticKeepAliveClie
                                             child: Text("强制停止"),
                                           ),
                                           PopupMenuItem(
-                                            enabled: container.statusEnum == DockerStatusEnum.running,
+                                            enabled: container.statusEnum == ContainerStatusEnum.running,
                                             onTap: () async {
                                               setState(() {
                                                 containerLoading[container] = true;
@@ -391,7 +391,7 @@ class _ContainerTabState extends State<ContainerTab> with AutomaticKeepAliveClie
                                             child: Text("重新启动"),
                                           ),
                                           PopupMenuItem(
-                                            enabled: container.statusEnum != DockerStatusEnum.running,
+                                            enabled: container.statusEnum != ContainerStatusEnum.running,
                                             onTap: () async {
                                               bool? confirm = await ContainerResetDialog.show(context: context, container: container);
                                               if (confirm == true) {
@@ -413,7 +413,7 @@ class _ContainerTabState extends State<ContainerTab> with AutomaticKeepAliveClie
                                             child: Text("重置"),
                                           ),
                                           PopupMenuItem(
-                                            enabled: container.statusEnum != DockerStatusEnum.running,
+                                            enabled: container.statusEnum != ContainerStatusEnum.running,
                                             onTap: () async {
                                               bool? confirm = await ContainerDeleteDialog.show(context: context, container: container);
                                               if (confirm == true) {
@@ -467,7 +467,7 @@ class _ContainerTabState extends State<ContainerTab> with AutomaticKeepAliveClie
                 ),
               ],
             ),
-            if (container.statusEnum == DockerStatusEnum.running) ...[
+            if (container.statusEnum == ContainerStatusEnum.running) ...[
               SizedBox(
                 height: 10,
               ),

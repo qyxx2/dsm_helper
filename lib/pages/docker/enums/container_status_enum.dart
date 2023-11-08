@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-enum DockerStatusEnum {
+enum ContainerStatusEnum {
   running(label: "运行中", color: Color(0xFF25B85F)),
   stopped(label: "已停止", color: Color(0xFF7F7F7F)),
   unknown(label: "未知", color: Colors.orangeAccent);
@@ -8,12 +8,12 @@ enum DockerStatusEnum {
   final String label;
   final Color color;
 
-  const DockerStatusEnum({
+  const ContainerStatusEnum({
     required this.label,
     required this.color,
   });
 
-  static DockerStatusEnum fromValue(String value) {
-    return DockerStatusEnum.values.firstWhere((element) => element.name == value, orElse: () => DockerStatusEnum.unknown);
+  static ContainerStatusEnum fromValue(String value) {
+    return ContainerStatusEnum.values.firstWhere((element) => element.name == value, orElse: () => ContainerStatusEnum.unknown);
   }
 }

@@ -95,7 +95,7 @@ class DiskItemWidget extends StatelessWidget {
                   TextSpan(
                     children: [
                       TextSpan(
-                        text: "健康状态：",
+                        text: "SMART状态：",
                         style: TextStyle(color: AppTheme.of(context)?.placeholderColor, fontSize: 12),
                       ),
                       TextSpan(

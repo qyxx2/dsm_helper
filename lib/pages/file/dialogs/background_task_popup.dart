@@ -91,7 +91,7 @@ class _BackgroundTaskPopupContentState extends State<BackgroundTaskPopupContent>
           Row(
             children: [
               Text(
-                "${webManagerStrings[actions[0]][actions[1]]} ${(task.progress! * 100).toStringAsFixed(2)}% ",
+                "${webManagerStrings[actions[0]][actions[1]]} ${task.progress! >= 0 ? "${(task.progress! * 100).toStringAsFixed(2)}%" : '准备中…'}",
                 style: TextStyle(fontSize: 14, color: AppTheme.of(context)?.successColor),
               ),
               Spacer(),

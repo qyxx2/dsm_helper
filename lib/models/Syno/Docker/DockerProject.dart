@@ -1,4 +1,6 @@
 import 'package:dsm_helper/apis/api.dart';
+import 'package:dsm_helper/pages/docker/enums/container_status_enum.dart';
+import 'package:dsm_helper/pages/docker/enums/project_status_enum.dart';
 
 /// containerIds : ["82c220324beeabf83ef751af6b3261053ad2a220cecfd6c79f22d8cf652ebfa3"]
 /// created_at : "2023-11-03T02:17:53.782328Z"
@@ -52,6 +54,30 @@ class DockerProject {
     return projects;
   }
 
+  Future<bool?> start() async {
+    DsmResponse res = await Api.dsm.entry(
+      "SYNO.Docker.Project",
+      "start_stream",
+      version: 1,
+      data: {
+        "id": id,
+      },
+    );
+    return res.success;
+  }
+
+  Future<bool?> stop() async {
+    DsmResponse res = await Api.dsm.entry(
+      "SYNO.Docker.Project",
+      "stop_stream",
+      version: 1,
+      data: {
+        "id": id,
+      },
+    );
+    return res.success;
+  }
+
   DockerProject.fromJson(dynamic json) {
     containerIds = json['containerIds'] != null ? json['containerIds'].cast<String>() : [];
     createdAt = json['created_at'];
@@ -83,6 +109,7 @@ class DockerProject {
   dynamic services;
   String? sharePath;
   String? state;
+  ProjectStatusEnum get statusEnum => ProjectStatusEnum.fromValue(status ?? 'unknown');
   String? status;
   String? updatedAt;
   num? version;
