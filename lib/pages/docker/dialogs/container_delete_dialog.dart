@@ -1,9 +1,8 @@
-import 'package:cool_ui/cool_ui.dart';
 import 'package:dsm_helper/models/Syno/Docker/DockerContainer.dart';
-import 'package:dsm_helper/models/Syno/FileStation/FileStationList.dart';
 import 'package:dsm_helper/themes/app_theme.dart';
 import 'package:dsm_helper/utils/extensions/navigator_ext.dart';
 import 'package:dsm_helper/utils/utils.dart';
+import 'package:dsm_helper/widgets/button.dart';
 import 'package:dsm_helper/widgets/glass/glass_dialog.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -27,16 +26,14 @@ class ContainerDeleteDialog {
             Row(
               children: [
                 Expanded(
-                  child: CupertinoButton(
+                  child: Button(
                     onPressed: () async {
-                      context.pop(true);
+                      context.pop();
                     },
-                    color: AppTheme.of(context)?.errorColor,
-                    borderRadius: BorderRadius.circular(15),
-                    padding: EdgeInsets.symmetric(vertical: 10),
+                    color: Theme.of(context).disabledColor,
                     child: Text(
-                      "删除容器",
-                      style: TextStyle(fontSize: 18),
+                      "取消",
+                      style: TextStyle(fontSize: 18, color: Theme.of(context).primaryColor),
                     ),
                   ),
                 ),
@@ -44,15 +41,13 @@ class ContainerDeleteDialog {
                   width: 20,
                 ),
                 Expanded(
-                  child: CupertinoButton(
+                  child: Button(
                     onPressed: () async {
-                      context.pop();
+                      context.pop(true);
                     },
-                    color: Theme.of(context).disabledColor,
-                    borderRadius: BorderRadius.circular(15),
-                    padding: EdgeInsets.symmetric(vertical: 10),
+                    color: AppTheme.of(context)?.errorColor,
                     child: Text(
-                      "取消",
+                      "删除容器",
                       style: TextStyle(fontSize: 18),
                     ),
                   ),

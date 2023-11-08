@@ -1,5 +1,7 @@
+import 'dart:async';
+import 'dart:typed_data';
+
 import 'package:dsm_helper/apis/api.dart';
-import 'package:dsm_helper/pages/docker/enums/container_status_enum.dart';
 import 'package:dsm_helper/pages/docker/enums/project_status_enum.dart';
 
 /// containerIds : ["82c220324beeabf83ef751af6b3261053ad2a220cecfd6c79f22d8cf652ebfa3"]
@@ -54,8 +56,54 @@ class DockerProject {
     return projects;
   }
 
-  Future<bool?> start() async {
+  // Future<bool?> start() async {
+  //   DsmResponse res = await Api.dsm.entry(
+  //     "SYNO.Docker.Project",
+  //     "start_stream",
+  //     version: 1,
+  //     data: {
+  //       "id": id,
+  //     },
+  //   );
+  //   return res.success;
+  // }
+  Future<DockerProject?> create(String name, String content, String sharePath) async {
     DsmResponse res = await Api.dsm.entry(
+      "SYNO.Docker.Project",
+      "create",
+      version: 1,
+      parser: DockerProject.fromJson,
+      data: {
+        "name": name,
+        "content": content,
+        "share_path": sharePath,
+        "enable_service_port": false,
+        "service_portal_name": "",
+        "service_portal_port": 0,
+        "service_portal_protocol": "",
+      },
+    );
+
+    return res.data;
+  }
+
+  Future<Stream<String>?> build() async {
+    Stream<List<int>>? res = await Api.dsm.stream(
+      "SYNO.Docker.Project",
+      "build_stream",
+      version: 1,
+      data: {
+        "id": id,
+      },
+    );
+    var st = StreamTransformer<Uint8List, String>.fromHandlers(handleData: (Uint8List data, sink) {
+      sink.add(String.fromCharCodes(data));
+    });
+    return res?.transform(st);
+  }
+
+  Future<Stream<String>?> start() async {
+    Stream<List<int>>? res = await Api.dsm.stream(
       "SYNO.Docker.Project",
       "start_stream",
       version: 1,
@@ -63,11 +111,55 @@ class DockerProject {
         "id": id,
       },
     );
-    return res.success;
+    var st = StreamTransformer<Uint8List, String>.fromHandlers(handleData: (Uint8List data, sink) {
+      sink.add(String.fromCharCodes(data));
+    });
+    return res?.transform(st);
   }
 
-  Future<bool?> stop() async {
-    DsmResponse res = await Api.dsm.entry(
+  Future<Stream<String>?> restart() async {
+    Stream<List<int>>? res = await Api.dsm.stream(
+      "SYNO.Docker.Project",
+      "restart_stream",
+      version: 1,
+      data: {
+        "id": id,
+      },
+    );
+    var st = StreamTransformer<Uint8List, String>.fromHandlers(handleData: (Uint8List data, sink) {
+      sink.add(String.fromCharCodes(data));
+    });
+    return res?.transform(st);
+  }
+
+  Future<Stream<String>?> clean() async {
+    Stream<List<int>>? res = await Api.dsm.stream(
+      "SYNO.Docker.Project",
+      "clean_stream",
+      version: 1,
+      data: {
+        "id": id,
+      },
+    );
+    var st = StreamTransformer<Uint8List, String>.fromHandlers(handleData: (Uint8List data, sink) {
+      sink.add(String.fromCharCodes(data));
+    });
+    return res?.transform(st);
+  }
+
+  // Future<bool?> stop() async {
+  //   DsmResponse res = await Api.dsm.entry(
+  //     "SYNO.Docker.Project",
+  //     "stop_stream",
+  //     version: 1,
+  //     data: {
+  //       "id": id,
+  //     },
+  //   );
+  //   return res.success;
+  // }
+  Future<Stream<String>?> stop() async {
+    Stream<List<int>>? res = await Api.dsm.stream(
       "SYNO.Docker.Project",
       "stop_stream",
       version: 1,
@@ -75,6 +167,22 @@ class DockerProject {
         "id": id,
       },
     );
+    var st = StreamTransformer<Uint8List, String>.fromHandlers(handleData: (Uint8List data, sink) {
+      sink.add(String.fromCharCodes(data));
+    });
+    return res?.transform(st);
+  }
+
+  Future<bool?> delete() async {
+    DsmResponse res = await Api.dsm.entry(
+      "SYNO.Docker.Project",
+      "delete",
+      version: 1,
+      data: {
+        "id": id,
+      },
+    );
+
     return res.success;
   }
 

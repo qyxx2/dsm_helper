@@ -4,11 +4,9 @@ import 'package:dsm_helper/apis/api.dart';
 import 'package:dsm_helper/models/Syno/Docker/DockerContainer.dart' hide State;
 import 'package:dsm_helper/models/Syno/Docker/DockerImage.dart';
 import 'package:dsm_helper/themes/app_theme.dart';
-import 'package:dsm_helper/utils/extensions/media_query_ext.dart';
 import 'package:dsm_helper/utils/extensions/navigator_ext.dart';
 import 'package:dsm_helper/widgets/button.dart';
 import 'package:dsm_helper/widgets/dot_widget.dart';
-import 'package:dsm_helper/widgets/empty_widget.dart';
 import 'package:dsm_helper/widgets/loading_widget.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -130,11 +128,9 @@ class _ImageUpgradeState extends State<ImageUpgrade> {
                           context.pop();
                         },
                         color: Theme.of(context).disabledColor,
-                        borderRadius: 15,
-                        padding: EdgeInsets.symmetric(vertical: 10),
                         child: Text(
                           "关闭",
-                          style: TextStyle(fontSize: 18),
+                          style: TextStyle(fontSize: 18, color: Theme.of(context).primaryColor),
                         ),
                       ),
                     ),
@@ -145,8 +141,6 @@ class _ImageUpgradeState extends State<ImageUpgrade> {
                           context.pop(true);
                         },
                         color: AppTheme.of(context)?.primaryColor,
-                        borderRadius: 15,
-                        padding: EdgeInsets.symmetric(vertical: 10),
                         child: Text(
                           "更新",
                           style: TextStyle(fontSize: 18),

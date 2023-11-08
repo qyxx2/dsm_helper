@@ -1,4 +1,5 @@
 import 'package:dsm_helper/models/Syno/Docker/DockerContainer.dart';
+import 'package:dsm_helper/models/Syno/Docker/DockerProject.dart';
 import 'package:dsm_helper/themes/app_theme.dart';
 import 'package:dsm_helper/utils/extensions/navigator_ext.dart';
 import 'package:dsm_helper/utils/utils.dart';
@@ -8,19 +9,19 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_vibrate/flutter_vibrate.dart';
 
-class ContainerResetDialog {
-  static Future<bool?> show({required BuildContext context, required Containers container}) async {
+class ProjectDeleteDialog {
+  static Future<bool?> show({required BuildContext context, required DockerProject project}) async {
     Utils.vibrate(FeedbackType.warning);
     return await showGlassDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
           title: Text(
-            "重置容器",
+            "删除项目",
             textAlign: TextAlign.center,
           ),
           content: Text(
-            "容器${container.name}将会被重置，一旦重置容器，其中所有数据都会一起删除。是否确定要继续？",
+            "容器${project.name}将被删除，删除后，项目内所有的容器和数据将丢失。是否确定要继续？",
           ),
           actions: [
             Row(
@@ -47,7 +48,7 @@ class ContainerResetDialog {
                     },
                     color: AppTheme.of(context)?.errorColor,
                     child: Text(
-                      "重置容器",
+                      "删除项目",
                       style: TextStyle(fontSize: 18),
                     ),
                   ),

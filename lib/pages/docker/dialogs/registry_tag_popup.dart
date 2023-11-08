@@ -4,6 +4,7 @@ import 'package:dsm_helper/models/Syno/Docker/DockerRegistry.dart';
 import 'package:dsm_helper/models/Syno/Docker/Registry/RegistryTag.dart';
 import 'package:dsm_helper/utils/extensions/media_query_ext.dart';
 import 'package:dsm_helper/utils/extensions/navigator_ext.dart';
+import 'package:dsm_helper/widgets/button.dart';
 import 'package:dsm_helper/widgets/empty_widget.dart';
 import 'package:dsm_helper/widgets/loading_widget.dart';
 import 'package:flutter/cupertino.dart';
@@ -96,16 +97,14 @@ class _RegistryTagListState extends State<RegistryTagList> {
                 ),
                 Container(
                   width: double.infinity,
-                  child: CupertinoButton(
+                  child: Button(
                     onPressed: () async {
                       Navigator.of(context).pop();
                     },
                     color: Theme.of(context).disabledColor,
-                    borderRadius: BorderRadius.circular(15),
-                    padding: EdgeInsets.symmetric(vertical: 10),
                     child: Text(
                       "关闭",
-                      style: TextStyle(fontSize: 18),
+                      style: TextStyle(fontSize: 18, color: Theme.of(context).primaryColor),
                     ),
                   ),
                 ),

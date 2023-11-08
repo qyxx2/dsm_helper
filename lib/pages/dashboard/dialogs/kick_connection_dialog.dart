@@ -28,10 +28,13 @@ class KickConnectDialog {
                 Expanded(
                   child: Button(
                     onPressed: () async {
-                      context.pop(true);
+                      context.pop();
                     },
-                    color: AppTheme.of(context)?.errorColor,
-                    child: Text("终止连接"),
+                    color: Theme.of(context).disabledColor,
+                    child: Text(
+                      "取消",
+                      style: TextStyle(fontSize: 18, color: Theme.of(context).primaryColor),
+                    ),
                   ),
                 ),
                 SizedBox(
@@ -40,13 +43,10 @@ class KickConnectDialog {
                 Expanded(
                   child: Button(
                     onPressed: () async {
-                      context.pop();
+                      context.pop(true);
                     },
-                    color: Theme.of(context).disabledColor,
-                    child: Text(
-                      "取消",
-                      // style: TextStyle(color: Colors.black),
-                    ),
+                    color: AppTheme.of(context)?.errorColor,
+                    child: Text("终止连接"),
                   ),
                 ),
               ],

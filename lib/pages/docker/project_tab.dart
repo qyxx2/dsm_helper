@@ -1,6 +1,8 @@
 import 'dart:ui';
 
 import 'package:dsm_helper/models/Syno/Docker/DockerProject.dart';
+import 'package:dsm_helper/pages/docker/dialogs/project_delete_dialog.dart';
+import 'package:dsm_helper/pages/docker/dialogs/stream_dialog.dart';
 import 'package:dsm_helper/pages/docker/enums/container_status_enum.dart';
 import 'package:dsm_helper/pages/docker/enums/project_status_enum.dart';
 import 'package:dsm_helper/pages/docker/project_detail/project_detail.dart';
@@ -107,18 +109,24 @@ class _ProjectTabState extends State<ProjectTab> {
                                     projectLoading[project] = true;
                                   });
                                   try {
+                                    Stream<String>? stream;
                                     if (v) {
-                                      await project.start();
+                                      stream = await project.start();
                                     } else {
-                                      await project.stop();
+                                      stream = await project.stop();
                                     }
-                                    getData(loop: false);
+                                    if (stream != null) {
+                                      StreamDialog.show(context, title: "${v ? '启动' : '停止'}${project.name}", stream: stream, onFinish: () {
+                                        getData(loop: false);
+                                        setState(() {
+                                          projectLoading[project] = false;
+                                        });
+                                      });
+                                    }
                                   } catch (e) {
+                                    print(e);
                                     Utils.toast("操作失败");
                                   }
-                                  setState(() {
-                                    projectLoading[project] = false;
-                                  });
                                 },
                         ),
                       ),
@@ -161,65 +169,93 @@ class _ProjectTabState extends State<ProjectTab> {
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
                                           PopupMenuItem(
+                                            enabled: project.statusEnum != ProjectStatusEnum.RUNNING,
+                                            onTap: () async {
+                                              setState(() {
+                                                projectLoading[project] = true;
+                                              });
+                                              try {
+                                                Stream<String>? stream = await project.build();
+                                                if (stream != null) {
+                                                  StreamDialog.show(context, title: "构建${project.name}", stream: stream, onFinish: () {
+                                                    getData(loop: false);
+                                                    setState(() {
+                                                      projectLoading[project] = false;
+                                                    });
+                                                  });
+                                                }
+                                              } catch (e) {
+                                                print(e);
+                                                Utils.toast("操作失败");
+                                              }
+                                            },
+                                            child: Text("构建"),
+                                          ),
+                                          PopupMenuItem(
                                             enabled: project.statusEnum == ProjectStatusEnum.RUNNING,
                                             onTap: () async {
-                                              // setState(() {
-                                              //   projectLoading[project] = true;
-                                              // });
-                                              // try {
-                                              //   await project.restart();
-                                              //   getData(loop: false);
-                                              // } catch (e) {
-                                              //   print(e);
-                                              //   Utils.toast("重启失败");
-                                              // }
-                                              // setState(() {
-                                              //   projectLoading[project] = false;
-                                              // });
+                                              setState(() {
+                                                projectLoading[project] = true;
+                                              });
+                                              try {
+                                                Stream<String>? stream = await project.restart();
+                                                if (stream != null) {
+                                                  StreamDialog.show(context, title: "重启${project.name}", stream: stream, onFinish: () {
+                                                    getData(loop: false);
+                                                    setState(() {
+                                                      projectLoading[project] = false;
+                                                    });
+                                                  });
+                                                }
+                                              } catch (e) {
+                                                print(e);
+                                                Utils.toast("操作失败");
+                                              }
                                             },
                                             child: Text("重新启动"),
                                           ),
                                           PopupMenuItem(
                                             enabled: project.statusEnum != ProjectStatusEnum.RUNNING,
                                             onTap: () async {
-                                              // bool? confirm = await ContainerResetDialog.show(context: context, container: container);
-                                              // if (confirm == true) {
-                                              //   setState(() {
-                                              //     projectLoading[project] = true;
-                                              //   });
-                                              //   try {
-                                              //     await project.delete(preserveProfile: true);
-                                              //     getData(loop: false);
-                                              //   } catch (e) {
-                                              //     print(e);
-                                              //     Utils.toast("重置失败");
-                                              //   }
-                                              //   setState(() {
-                                              //     projectLoading[project] = false;
-                                              //   });
-                                              // }
+                                              setState(() {
+                                                projectLoading[project] = true;
+                                              });
+                                              try {
+                                                Stream<String>? stream = await project.clean();
+                                                if (stream != null) {
+                                                  StreamDialog.show(context, title: "清除${project.name}", stream: stream, onFinish: () {
+                                                    getData(loop: false);
+                                                    setState(() {
+                                                      projectLoading[project] = false;
+                                                    });
+                                                  });
+                                                }
+                                              } catch (e) {
+                                                print(e);
+                                                Utils.toast("操作失败");
+                                              }
                                             },
-                                            child: Text("重置"),
+                                            child: Text("清除"),
                                           ),
                                           PopupMenuItem(
                                             enabled: project.statusEnum != ProjectStatusEnum.RUNNING,
                                             onTap: () async {
-                                              // bool? confirm = await ContainerDeleteDialog.show(context: context, container: container);
-                                              // if (confirm == true) {
-                                              //   setState(() {
-                                              //     projectLoading[project] = true;
-                                              //   });
-                                              //   try {
-                                              //     await project.delete(preserveProfile: false);
-                                              //     getData(loop: false);
-                                              //   } catch (e) {
-                                              //     print(e);
-                                              //     Utils.toast("删除失败");
-                                              //   }
-                                              //   setState(() {
-                                              //     projectLoading[project] = false;
-                                              //   });
-                                              // }
+                                              bool? confirm = await ProjectDeleteDialog.show(context: context, project: project);
+                                              if (confirm == true) {
+                                                setState(() {
+                                                  projectLoading[project] = true;
+                                                });
+                                                try {
+                                                  await project.delete();
+                                                  getData(loop: false);
+                                                } catch (e) {
+                                                  print(e);
+                                                  Utils.toast("删除失败");
+                                                }
+                                                setState(() {
+                                                  projectLoading[project] = false;
+                                                });
+                                              }
                                             },
                                             child: Text(
                                               "删除",

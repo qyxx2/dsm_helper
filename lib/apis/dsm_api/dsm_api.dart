@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 import 'package:dsm_helper/apis/dsm_api/dsm_exception.dart';
@@ -93,5 +94,42 @@ class DsmApi extends HttpUtil {
       }
     }
     return res;
+  }
+
+  Future<Stream<Uint8List>?> stream<T>(
+    String api,
+    String method, {
+    bool post = true,
+    dynamic data,
+    String? path,
+    int? version,
+    Map<String, dynamic>? parameters,
+    Options? options,
+    T Function(dynamic)? parser,
+  }) async {
+    late Response<ResponseBody> response;
+    options ??= Options(responseType: ResponseType.stream);
+    if (post) {
+      Map<String, dynamic> body = {};
+      if (data != null) {
+        body.addAll(data);
+      }
+      body['version'] = version ?? ApiModel.apiInfo[api]?.version ?? 1;
+      body['api'] = api;
+      body['method'] = method;
+      body['_sid'] = sid;
+      response = await dio!.post("/webapi/entry.cgi${path == null ? '' : "/$path"}", data: body, queryParameters: parameters, options: options);
+    } else {
+      Map<String, dynamic> query = {};
+      if (parameters != null) {
+        query.addAll(parameters);
+      }
+      query['version'] = version ?? ApiModel.apiInfo[api]?.version ?? 1;
+      query['api'] = api;
+      query['method'] = method;
+      query['_sid'] = sid;
+      response = await dio!.get("/webapi/entry.cgi${path == null ? '' : "/$path"}", queryParameters: query, options: options);
+    }
+    return response.data?.stream;
   }
 }
