@@ -158,7 +158,7 @@ class Day {
       "end_time": end,
       "_sid": Utils.sid,
     };
-    DsmResponse res = await Api.dsm.entry('"SYNO.${Utils.version == 7 ? "Foto" : "Photo"}.Browse.Timeline"', '"get_geocoding"', version: 1);
+    DsmResponse res = await Api.dsm.entry('"SYNO.${Utils.version == 7 ? "Foto" : "Photo"}.Browse.Timeline"', '"get_geocoding"', version: 1, data: data);
     // var res = await Utils.post("entry.cgi", data: data);
     return res.data;
   }

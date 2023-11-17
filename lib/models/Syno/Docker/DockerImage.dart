@@ -109,7 +109,7 @@ class Images {
       "upgrade_start",
       version: 1,
       data: {
-        "repository": "$id:${tags?.join(",")}",
+        "repository": "$repository",
       },
     );
     if (res.success == true) {

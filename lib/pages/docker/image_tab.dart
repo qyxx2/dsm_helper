@@ -4,12 +4,12 @@ import 'package:dsm_helper/apis/dsm_api/dsm_response.dart';
 import 'package:dsm_helper/models/Syno/Docker/DockerImage.dart';
 import 'package:dsm_helper/models/Syno/Docker/DockerImageUpgradeTask.dart';
 import 'package:dsm_helper/pages/docker/dialogs/image_upgrade_popup.dart';
+import 'package:dsm_helper/pages/docker/enums/upgrade_state_enum.dart';
 import 'package:dsm_helper/themes/app_theme.dart';
 import 'package:dsm_helper/utils/utils.dart';
 import 'package:dsm_helper/widgets/empty_widget.dart';
 import 'package:dsm_helper/widgets/label.dart';
 import 'package:dsm_helper/widgets/loading_widget.dart';
-import 'package:extended_text/extended_text.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -85,6 +85,8 @@ class _ImageTabState extends State<ImageTab> with AutomaticKeepAliveClientMixin 
 
   Widget _buildImageItem(Images image) {
     bool upgrading = upgradeTasks.containsKey("${image.repository}:${image.tags?.join(",")}");
+    DockerImageUpgradeTask? upgradeTask = upgradeTasks["${image.repository}:${image.tags?.join(",")}"];
+
     return Container(
       margin: EdgeInsets.only(top: 14),
       decoration: BoxDecoration(
@@ -120,15 +122,14 @@ class _ImageTabState extends State<ImageTab> with AutomaticKeepAliveClientMixin 
                           minSize: 30,
                           padding: EdgeInsets.zero,
                           onPressed: () async {
-                            getUpgradeTask("@administrators/SYNO_DOCKER_IMAGE_UPGRADE1699366429DABA83C");
-                            // bool? confirm = await ImageUpgradePopup.show(context: context, image: image);
-                            // if (confirm == true) {
-                            //   String? taskId = await image.upgradeStart();
-                            //   print(taskId);
-                            //   if (taskId != null) {
-                            //     getUpgradeTask(taskId);
-                            //   }
-                            // }
+                            bool? confirm = await ImageUpgradePopup.show(context: context, image: image);
+                            if (confirm == true) {
+                              String? taskId = await image.upgradeStart();
+                              print(taskId);
+                              if (taskId != null) {
+                                getUpgradeTask(taskId);
+                              }
+                            }
                           },
                         ),
                         SizedBox(width: 10),
@@ -161,7 +162,7 @@ class _ImageTabState extends State<ImageTab> with AutomaticKeepAliveClientMixin 
                   Row(
                     children: [
                       if (upgrading)
-                        Padding(padding: EdgeInsets.only(right: 5), child: Label("更新中:${upgradeTasks["${image.repository}:${image.tags?.join(",")}"]?.percent?.toStringAsFixed(2) ?? '-'}%", AppTheme.of(context)?.successColor ?? Colors.green))
+                        Padding(padding: EdgeInsets.only(right: 5), child: Label("${upgradeTask?.stateEnum != UpgradeStateEnum.unknown ? upgradeTask?.stateEnum.label : upgradeTask?.state}:${upgradeTask?.percent?.toStringAsFixed(2) ?? '-'}%", AppTheme.of(context)?.successColor ?? Colors.green))
                       else if (image.tags != null)
                         ...image.tags!.map(
                           (tag) => Padding(padding: EdgeInsets.only(right: 5), child: Label(tag, AppTheme.of(context)?.primaryColor ?? Colors.blue)),

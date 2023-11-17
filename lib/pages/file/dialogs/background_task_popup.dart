@@ -2,7 +2,6 @@ import 'package:dsm_helper/models/Syno/FileStation/BackgroundTask.dart';
 import 'package:dsm_helper/pages/file/dialogs/cancel_background_task_dialog.dart';
 import 'package:dsm_helper/providers/background_task_provider.dart';
 import 'package:dsm_helper/themes/app_theme.dart';
-import 'package:dsm_helper/utils/extensions/navigator_ext.dart';
 import 'package:dsm_helper/utils/strings.dart';
 import 'package:dsm_helper/utils/utils.dart';
 import 'package:dsm_helper/widgets/button.dart';
@@ -77,6 +76,7 @@ class _BackgroundTaskPopupContentState extends State<BackgroundTaskPopupContent>
                 minSize: 0,
                 onPressed: () async {
                   bool? res = await CancelBackgroundTaskDialog.show(context: context, task: task);
+                  if (res == true) {}
                 },
               ),
             ],

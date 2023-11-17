@@ -1,4 +1,3 @@
-import 'package:dsm_helper/utils/extensions/navigator_ext.dart';
 import 'package:dsm_helper/widgets/button.dart';
 import 'package:dsm_helper/widgets/empty_widget.dart';
 import 'package:dsm_helper/widgets/glass/glass_modal_popup.dart';

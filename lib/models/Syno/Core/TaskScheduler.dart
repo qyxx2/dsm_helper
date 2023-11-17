@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:dsm_helper/apis/api.dart';
-import 'package:dsm_helper/models/api_model.dart';
 import 'package:dsm_helper/models/base_model.dart';
 import 'package:dsm_helper/pages/control_panel/task_scheduler/enums/task_type_enum.dart';
 

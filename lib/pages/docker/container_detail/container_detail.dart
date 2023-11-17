@@ -1,12 +1,9 @@
-import 'package:draggable_scrollbar/draggable_scrollbar.dart';
 import 'package:dsm_helper/models/Syno/Docker/DockerContainerDetail.dart';
 import 'package:dsm_helper/pages/docker/container_detail/container_log_tab.dart';
 import 'package:dsm_helper/pages/docker/container_detail/overview_tab.dart';
 import 'package:dsm_helper/pages/docker/container_detail/process_tab.dart';
-import 'package:dsm_helper/utils/utils.dart';
 import 'package:dsm_helper/widgets/glass/glass_app_bar.dart';
 import 'package:dsm_helper/widgets/glass/glass_scaffold.dart';
-import 'package:dsm_helper/widgets/label.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -19,7 +16,6 @@ class ContainerDetail extends StatefulWidget {
 
 class _ContainerDetailState extends State<ContainerDetail> with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  ScrollController _scrollController = ScrollController();
   DockerContainerDetail detail = DockerContainerDetail();
   List logDates = [];
   List logs = [];
@@ -39,15 +35,9 @@ class _ContainerDetailState extends State<ContainerDetail> with SingleTickerProv
           isScrollable: true,
           controller: _tabController,
           tabs: [
-            Tab(
-              text: "总览",
-            ),
-            Tab(
-              text: "进程",
-            ),
-            Tab(
-              text: "日志",
-            ),
+            Tab(text: "总览"),
+            Tab(text: "进程"),
+            Tab(text: "日志"),
           ],
         ),
       ),

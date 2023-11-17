@@ -135,7 +135,6 @@ void main() async {
   bool password = SpUtil.getBool("launch_auth_password", defValue: false)!;
   bool biometrics = SpUtil.getBool("launch_auth_biometrics", defValue: false)!;
   bool showShortcut = SpUtil.getBool("show_shortcut", defValue: true)!;
-  bool showWallpaper = SpUtil.getBool("show_wallpaper", defValue: true)!;
   int refreshDuration = SpUtil.getInt("refresh_duration", defValue: 10)!;
   bool launchAccountPage = SpUtil.getBool("launch_account_page", defValue: false)!;
   PackageInfo packageInfo = await PackageInfo.fromPlatform();

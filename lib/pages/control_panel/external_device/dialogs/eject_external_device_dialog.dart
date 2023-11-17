@@ -1,6 +1,5 @@
 import 'package:cool_ui/cool_ui.dart';
 import 'package:dsm_helper/models/Syno/Core/ExternalDevice/Storage/Device.dart';
-import 'package:dsm_helper/models/Syno/Core/Share.dart';
 import 'package:dsm_helper/pages/dashboard/bus/eject_external_device_bus.dart';
 import 'package:dsm_helper/themes/app_theme.dart';
 import 'package:dsm_helper/utils/bus/bus.dart';

@@ -1,4 +1,5 @@
 import 'package:dsm_helper/apis/api.dart';
+import 'package:dsm_helper/pages/docker/enums/upgrade_state_enum.dart';
 
 /// current : 0
 /// finished : false
@@ -41,6 +42,7 @@ class DockerImageUpgradeTask {
   bool? finished;
   String? image;
   String? state;
+  UpgradeStateEnum get stateEnum => UpgradeStateEnum.fromValue(state ?? 'unknown');
   num? total;
   num? get percent => current != null && total != null && total! > 0 ? current! / total! * 100 : null;
   DockerImageUpgradeTask copyWith({

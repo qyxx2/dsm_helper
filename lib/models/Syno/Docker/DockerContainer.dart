@@ -197,7 +197,7 @@ class Containers {
   String? name;
   dynamic services;
   String? status;
-  ContainerStatusEnum get statusEnum => ContainerStatusEnum.fromValue(status!);
+  ContainerStatusEnum get statusEnum => ContainerStatusEnum.fromValue(status ?? 'unknown');
   String? upStatus;
   int? upTime;
   Resources? resource;

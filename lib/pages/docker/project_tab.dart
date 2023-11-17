@@ -3,13 +3,11 @@ import 'dart:ui';
 import 'package:dsm_helper/models/Syno/Docker/DockerProject.dart';
 import 'package:dsm_helper/pages/docker/dialogs/project_delete_dialog.dart';
 import 'package:dsm_helper/pages/docker/dialogs/stream_dialog.dart';
-import 'package:dsm_helper/pages/docker/enums/container_status_enum.dart';
 import 'package:dsm_helper/pages/docker/enums/project_status_enum.dart';
 import 'package:dsm_helper/pages/docker/project_detail/project_detail.dart';
 import 'package:dsm_helper/themes/app_theme.dart';
 import 'package:dsm_helper/utils/extensions/navigator_ext.dart';
 import 'package:dsm_helper/utils/utils.dart';
-import 'package:dsm_helper/widgets/button.dart';
 import 'package:dsm_helper/widgets/dot_widget.dart';
 import 'package:dsm_helper/widgets/loading_widget.dart';
 import 'package:flutter/cupertino.dart';
@@ -92,7 +90,7 @@ class _ProjectTabState extends State<ProjectTab> {
                     ),
                     SizedBox(width: 10),
                     Text(
-                      "${DateTime.parse(project.createdAt!).format("Y-m-d H:i")}创建",
+                      "${DateTime.parse(project.createdAt!).add(Duration(hours: 8)).format("Y-m-d H:i")}创建",
                       style: TextStyle(fontSize: 12, color: Colors.grey),
                     ),
                     Spacer(),
@@ -282,9 +280,18 @@ class _ProjectTabState extends State<ProjectTab> {
                 SizedBox(
                   height: 5,
                 ),
-                Text(
-                  project.name!,
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Theme.of(context).primaryColor),
+                Row(
+                  children: [
+                    Text(
+                      project.name!,
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Theme.of(context).primaryColor),
+                    ),
+                    SizedBox(width: 5),
+                    Text(
+                      "${project.containerIds?.length ?? 0} 个容器",
+                      style: TextStyle(fontSize: 12, color: AppTheme.of(context)?.placeholderColor),
+                    ),
+                  ],
                 ),
                 Text(
                   project.path!,

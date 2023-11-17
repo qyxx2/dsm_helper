@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:dsm_helper/apis/api.dart';
+import 'package:dsm_helper/models/Syno/Docker/ProjectContainer.dart';
 import 'package:dsm_helper/pages/docker/enums/project_status_enum.dart';
 
 /// containerIds : ["82c220324beeabf83ef751af6b3261053ad2a220cecfd6c79f22d8cf652ebfa3"]
@@ -24,6 +25,7 @@ import 'package:dsm_helper/pages/docker/enums/project_status_enum.dart';
 class DockerProject {
   DockerProject({
     this.containerIds,
+    this.containers,
     this.createdAt,
     this.enableServicePortal,
     this.id,
@@ -40,6 +42,18 @@ class DockerProject {
     this.updatedAt,
     this.version,
   });
+  static Future<DockerProject> get(String id) async {
+    DsmResponse res = await Api.dsm.entry(
+      "SYNO.Docker.Project",
+      "get",
+      parser: DockerProject.fromJson,
+      data: {
+        "id": id,
+      },
+      version: 1,
+    );
+    return res.data;
+  }
 
   static Future<Map<String, DockerProject>> list({String logLevel = ""}) async {
     DsmResponse res = await Api.dsm.entry(
@@ -188,6 +202,12 @@ class DockerProject {
 
   DockerProject.fromJson(dynamic json) {
     containerIds = json['containerIds'] != null ? json['containerIds'].cast<String>() : [];
+    if (json['containers'] != null) {
+      containers = [];
+      json['containers'].forEach((v) {
+        containers?.add(ProjectContainer.fromJson(v));
+      });
+    }
     createdAt = json['created_at'];
     enableServicePortal = json['enable_service_portal'];
     id = json['id'];
@@ -205,6 +225,7 @@ class DockerProject {
     version = json['version'];
   }
   List<String>? containerIds;
+  List<ProjectContainer>? containers;
   String? createdAt;
   bool? enableServicePortal;
   String? id;
@@ -223,6 +244,7 @@ class DockerProject {
   num? version;
   DockerProject copyWith({
     List<String>? containerIds,
+    List<ProjectContainer>? containers,
     String? createdAt,
     bool? enableServicePortal,
     String? id,
