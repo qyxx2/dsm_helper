@@ -98,7 +98,7 @@ class _SharedFoldersState extends State<SharedFolders> {
                     ),
                     Text(
                       "${folder.volume?.displayName}${folder.volume?.description ?? ""}",
-                      style: TextStyle(fontSize: 12, color: AppTheme.of(context)?.placeholderColor),
+                      style: TextStyle(fontSize: 12, color: AppTheme.of(context).placeholderColor),
                     ),
                   ],
                 ),
@@ -195,14 +195,14 @@ class _SharedFoldersState extends State<SharedFolders> {
                                         "assets/icons/delete.png",
                                         width: 20,
                                         height: 20,
-                                        color: AppTheme.of(context)?.warningColor,
+                                        color: AppTheme.of(context).warningColor,
                                       ),
                                       SizedBox(
                                         width: 10,
                                       ),
                                       Text(
                                         "清空回收站",
-                                        style: TextStyle(color: AppTheme.of(context)?.warningColor),
+                                        style: TextStyle(color: AppTheme.of(context).warningColor),
                                       ),
                                     ],
                                   ),
@@ -223,7 +223,7 @@ class _SharedFoldersState extends State<SharedFolders> {
                                     ),
                                     Text(
                                       "删除",
-                                      style: TextStyle(color: AppTheme.of(context)?.errorColor),
+                                      style: TextStyle(color: AppTheme.of(context).errorColor),
                                     ),
                                   ],
                                 ),

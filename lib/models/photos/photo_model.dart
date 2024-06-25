@@ -1,9 +1,10 @@
 import 'dart:convert';
 
+import 'package:dsm_helper/apis/dsm_api/dsm_response.dart';
 import 'package:dsm_helper/models/photos/thumbnail_model.dart';
-import 'package:dsm_helper/utils/utils.dart';
 
 import 'folder_model.dart';
+import 'package:dsm_helper/apis/api.dart' as api;
 
 /// id : 684388
 /// filename : "P8.jpg"
@@ -29,10 +30,6 @@ class PhotoModel {
   });
   static Future<List<PhotoModel>> fetch({List<String> additional = const [], bool isTeam = false, num? albumId, num? geocodingId, String? folderId, String? type, int? limit}) async {
     Map<String, dynamic> data = {
-      "api": 'SYNO.Foto${isTeam ? 'Team' : ''}.Browse.Item',
-      "method": 'list',
-      "version": 1,
-      "_sid": Utils.sid,
       "additional": jsonEncode(additional),
       "sort_by": "takentime",
       "sort_direction": "asc",
@@ -51,9 +48,9 @@ class PhotoModel {
     if (type != null) {
       data['type'] = type;
     }
-    var res = await Utils.post("entry.cgi", data: data);
-    if (res['success']) {
-      List list = res['data']['list'];
+    DsmResponse res = await api.Api.dsm.entry('SYNO.Foto${isTeam ? 'Team' : ''}.Browse.Item', "list", version: 1,data: data);
+    if (res.success!) {
+      List list = res.data['list'];
       List<PhotoModel> photos = [];
       list.forEach((element) {
         photos.add(PhotoModel.fromJson(element));
@@ -66,19 +63,15 @@ class PhotoModel {
 
   static Future<List<PhotoModel>> recentlyAdd({List<String> additional = const [], bool isTeam = false, String? folderId, String? type, int? limit}) async {
     Map<String, dynamic> data = {
-      "api": 'SYNO.Foto${isTeam ? 'Team' : ''}.Browse.RecentlyAdded',
-      "method": 'list',
-      "version": 1,
-      "_sid": Utils.sid,
       "additional": jsonEncode(additional),
       "offset": 0,
       "limit": limit ?? 5000,
     };
     print(data);
-    var res = await Utils.post("entry.cgi", data: data);
+    DsmResponse res = await api.Api.dsm.entry('SYNO.Foto${isTeam ? 'Team' : ''}.Browse.RecentlyAdded', "list", version: 1,data: data);
     print(res);
-    if (res['success']) {
-      List list = res['data']['list'];
+    if (res.success!) {
+      List list = res.data['list'];
       List<PhotoModel> photos = [];
       list.forEach((element) {
         photos.add(PhotoModel.fromJson(element));
@@ -111,11 +104,11 @@ class PhotoModel {
   PhotoAdditional? additional;
 
   String videoUrl({bool isTeam = false}) {
-    return '${Utils.baseUrl}/webapi/entry.cgi?item_id=%5B$id%5D&api=%22SYNO.Foto${isTeam ? 'Team' : ''}.Download%22&method=%22download%22&version=1&_sid=${Utils.sid}';
+    return '${api.Api.dsm.baseUrl!}/webapi/entry.cgi?item_id=%5B$id%5D&api=%22SYNO.Foto${isTeam ? 'Team' : ''}.Download%22&method=%22download%22&version=1&_sid=${api.Api.dsm.sid!}';
   }
 
   String thumbUrl({String size = 'sm', bool isTeam = false}) {
-    return '${Utils.baseUrl}/webapi/entry.cgi?id=${additional?.thumbnail?.unitId}&cache_key="${additional?.thumbnail?.cacheKey}"&type="unit"&size="$size"&api="SYNO.Foto${isTeam ? 'Team' : ''}.Thumbnail"&method="get"&version=1&_sid=${Utils.sid}';
+    return '${api.Api.dsm.baseUrl!}/webapi/entry.cgi?id=${additional?.thumbnail?.unitId}&cache_key="${additional?.thumbnail?.cacheKey}"&type="unit"&size="$size"&api="SYNO.Foto${isTeam ? 'Team' : ''}.Thumbnail"&method="get"&version=1&_sid=${api.Api.dsm.sid!}';
   }
 
   PhotoModel copyWith({

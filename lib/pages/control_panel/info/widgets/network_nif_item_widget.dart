@@ -18,7 +18,7 @@ class NetworkNifItemWidget extends StatelessWidget {
         children: [
           Text(
             "连接状态",
-            style: TextStyle(color: AppTheme.of(context)?.placeholderColor, fontSize: 13),
+            style: TextStyle(color: AppTheme.of(context).placeholderColor, fontSize: 13),
           ),
           Text(
             "${nif.statusEnum != NetworkStatusEnum.unknown ? nif.statusEnum.label : nif.status}",
@@ -27,7 +27,7 @@ class NetworkNifItemWidget extends StatelessWidget {
           Divider(indent: 0, endIndent: 0, height: 20),
           Text(
             "网络物理地址(MAC address)",
-            style: TextStyle(color: AppTheme.of(context)?.placeholderColor, fontSize: 13),
+            style: TextStyle(color: AppTheme.of(context).placeholderColor, fontSize: 13),
           ),
           Text(
             "${nif.mac}",
@@ -36,7 +36,7 @@ class NetworkNifItemWidget extends StatelessWidget {
           Divider(indent: 0, endIndent: 0, height: 20),
           Text(
             "IP地址",
-            style: TextStyle(color: AppTheme.of(context)?.placeholderColor, fontSize: 13),
+            style: TextStyle(color: AppTheme.of(context).placeholderColor, fontSize: 13),
           ),
           Text(
             "${nif.addr}(${nif.useDhcp == true ? 'DHCP' : '静态IP'})",
@@ -45,7 +45,7 @@ class NetworkNifItemWidget extends StatelessWidget {
           Divider(indent: 0, endIndent: 0, height: 20),
           Text(
             "子网掩码(mask)",
-            style: TextStyle(color: AppTheme.of(context)?.placeholderColor, fontSize: 13),
+            style: TextStyle(color: AppTheme.of(context).placeholderColor, fontSize: 13),
           ),
           Text(
             "${nif.mask}",
@@ -56,7 +56,7 @@ class NetworkNifItemWidget extends StatelessWidget {
             ...nif.ipv6!.expand((e) => [
                   Text(
                     "IPv6地址",
-                    style: TextStyle(color: AppTheme.of(context)?.placeholderColor, fontSize: 13),
+                    style: TextStyle(color: AppTheme.of(context).placeholderColor, fontSize: 13),
                   ),
                   Text(
                     "${e.addr}/${e.prefixLen} Scope:${e.scope}",
@@ -66,7 +66,7 @@ class NetworkNifItemWidget extends StatelessWidget {
                 ]),
           Text(
             "网络状态",
-            style: TextStyle(color: AppTheme.of(context)?.placeholderColor, fontSize: 13),
+            style: TextStyle(color: AppTheme.of(context).placeholderColor, fontSize: 13),
           ),
           Text(
             "${nif.speed}Mb/s，${nif.duplex == true ? '全双工' : '半双工'}，MTU ${nif.mtu}",

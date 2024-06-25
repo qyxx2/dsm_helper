@@ -1,7 +1,8 @@
 import 'dart:convert';
 
+import 'package:dsm_helper/apis/dsm_api/dsm_response.dart';
 import 'package:dsm_helper/models/photos/photo_model.dart';
-import 'package:dsm_helper/utils/utils.dart';
+import 'package:dsm_helper/apis/api.dart' as api;
 
 class GeneralTagModel {
   GeneralTagModel({
@@ -11,18 +12,15 @@ class GeneralTagModel {
     this.name,
   });
   static Future<List<GeneralTagModel>> fetch({List<String>? additional, int limit = 5000, bool isTeam = false}) async {
-    var res = await Utils.post("entry.cgi", data: {
-      // "folder_id": id,
-      "api": 'SYNO.Foto${isTeam ? 'Team' : ''}.Browse.GeneralTag',
-      "method": 'list',
-      "version": 1,
-      "_sid": Utils.sid,
+    Map<String, dynamic> data = {
       "additional": jsonEncode(additional),
       "offset": 0,
       "limit": limit,
-    });
-    if (res['success']) {
-      List list = res['data']['list'];
+    };
+    DsmResponse res = await api.Api.dsm.entry('SYNO.Foto${isTeam ? 'Team' : ''}.Browse.GeneralTag', "list", version: 1,data: data);
+
+    if (res.success!) {
+      List list = res.data['list'];
       List<GeneralTagModel> generalTags = [];
       list.forEach((element) {
         generalTags.add(GeneralTagModel.fromJson(element));

@@ -51,7 +51,6 @@ class PhotoItemWidget extends StatelessWidget {
                     height: width,
                     fit: BoxFit.cover,
                     boxShape: BoxShape.rectangle,
-                    borderRadius: BorderRadius.circular(10),
                     placeholder: Container(
                       color: Color(0xffE9E9E9),
                     ),

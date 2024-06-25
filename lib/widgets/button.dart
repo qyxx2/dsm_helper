@@ -109,7 +109,7 @@ class _ButtonState extends State<Button> with SingleTickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    Color fillColor = widget.color ?? AppTheme.of(context)?.primaryColor ?? Theme.of(context).primaryColor;
+    Color fillColor = widget.color ?? AppTheme.of(context).primaryColor ?? Theme.of(context).primaryColor;
     Color defaultTextColor = widget.fill ? Colors.white : fillColor;
     return GestureDetector(
       onTapDown: _handleTapDown,

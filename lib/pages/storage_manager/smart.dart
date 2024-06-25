@@ -472,7 +472,7 @@ class _DiskSmartState extends State<DiskSmart> with SingleTickerProviderStateMix
                                     children: [
                                       Text(
                                         "${quickLast.isNotBlank ? quickLast : "暂无快速检测结果"}",
-                                        style: TextStyle(color: AppTheme.of(context)?.placeholderColor),
+                                        style: TextStyle(color: AppTheme.of(context).placeholderColor),
                                       ),
                                       SizedBox(
                                         width: 10,
@@ -499,7 +499,7 @@ class _DiskSmartState extends State<DiskSmart> with SingleTickerProviderStateMix
                                     children: [
                                       Text(
                                         "${extendLast.isNotBlank ? extendLast : "暂无完整检测结果"}",
-                                        style: TextStyle(color: AppTheme.of(context)?.placeholderColor),
+                                        style: TextStyle(color: AppTheme.of(context).placeholderColor),
                                       ),
                                       SizedBox(
                                         width: 10,
@@ -722,7 +722,7 @@ class _DiskSmartState extends State<DiskSmart> with SingleTickerProviderStateMix
                               : Center(
                                   child: Text(
                                     "暂无历史记录",
-                                    style: TextStyle(color: AppTheme.of(context)?.placeholderColor),
+                                    style: TextStyle(color: AppTheme.of(context).placeholderColor),
                                   ),
                                 ),
                     ],

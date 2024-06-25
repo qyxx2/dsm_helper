@@ -17,7 +17,7 @@ class ResourceMonitorWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    UtilizationProvider utilizationProvider = context.read<UtilizationProvider>();
+    UtilizationProvider utilizationProvider = context.watch<UtilizationProvider>();
     Utilization utilization = utilizationProvider.utilization;
     List<Network> networks = utilizationProvider.networks;
     System system = context.read<SystemInfoProvider>().systemInfo;
@@ -93,12 +93,19 @@ class ResourceMonitorWidget extends StatelessWidget {
                           ],
                           pointers: <GaugePointer>[
                             RangePointer(
+                              enableAnimation: false,
+                              value: 100.0,
+                              width: 8,
+                              cornerStyle: CornerStyle.bothCurve,
+                              color: Colors.black12,
+                            ),
+                            RangePointer(
                               enableAnimation: true,
                               animationDuration: 1000,
                               value: (utilization.cpu?.totalLoad ?? 0).toDouble(),
                               width: 8,
                               cornerStyle: CornerStyle.bothCurve,
-                              gradient: SweepGradient(colors: (utilization.cpu?.totalLoad ?? 0) < 80 ? [Color(0xFF00BAAD), Color(0xFF4BD6CD)] : [AppTheme.of(context)!.errorColor!, AppTheme.of(context)!.warningColor!]),
+                              gradient: SweepGradient(colors: (utilization.cpu?.totalLoad ?? 0) < 80 ? [Color(0xFF00BAAD), Color(0xFF4BD6CD)] : [AppTheme.of(context).errorColor, AppTheme.of(context).warningColor]),
                             ),
                             // MarkerPointer(
                             //   value: utilization.cpu!.totalLoad.toDouble() - 3,
@@ -170,12 +177,19 @@ class ResourceMonitorWidget extends StatelessWidget {
                           ],
                           pointers: <GaugePointer>[
                             RangePointer(
+                              enableAnimation: false,
+                              value: 100.0,
+                              width: 8,
+                              cornerStyle: CornerStyle.bothCurve,
+                              color: Colors.black12,
+                            ),
+                            RangePointer(
                               enableAnimation: true,
                               animationDuration: 1000,
                               value: (utilization.memory?.realUsage ?? 0).toDouble(),
                               width: 8,
                               cornerStyle: CornerStyle.bothCurve,
-                              gradient: SweepGradient(colors: (utilization.memory?.realUsage ?? 0) < 80 ? [AppTheme.of(context)!.primaryColor!, Color(0xFF75ACFF)] : [AppTheme.of(context)!.errorColor!, AppTheme.of(context)!.warningColor!]),
+                              gradient: SweepGradient(colors: (utilization.memory?.realUsage ?? 0) < 80 ? [AppTheme.of(context).primaryColor, Color(0xFF75ACFF)] : [AppTheme.of(context).errorColor, AppTheme.of(context).warningColor]),
                             ),
                             // MarkerPointer(
                             //   value: utilization.cpu!.totalLoad.toDouble() - 3,
@@ -212,7 +226,7 @@ class ResourceMonitorWidget extends StatelessWidget {
                 ),
                 Text(
                   "${system.sysTemp ?? '-'}℃",
-                  style: TextStyle(color: AppTheme.of(context)?.successColor),
+                  style: TextStyle(color: AppTheme.of(context).successColor),
                 ),
                 Spacer(),
                 Image.asset(
@@ -222,7 +236,7 @@ class ResourceMonitorWidget extends StatelessWidget {
                 ),
                 Text(
                   utilization.network == null ? '-' : Utils.formatSize(utilization.network!.first.tx!, showByte: true) + "/S",
-                  style: TextStyle(color: AppTheme.of(context)?.primaryColor),
+                  style: TextStyle(color: AppTheme.of(context).primaryColor),
                 ),
                 SizedBox(width: 20),
                 Image.asset(
@@ -232,7 +246,7 @@ class ResourceMonitorWidget extends StatelessWidget {
                 ),
                 Text(
                   utilization.network == null ? '-' : Utils.formatSize(utilization.network!.first.rx!, showByte: true) + "/S",
-                  style: TextStyle(color: AppTheme.of(context)?.successColor),
+                  style: TextStyle(color: AppTheme.of(context).successColor),
                 ),
               ],
             ),
@@ -268,8 +282,8 @@ class ResourceMonitorWidget extends StatelessWidget {
                     markerSettings: const MarkerSettings(isVisible: false),
                     // color: Colors.lightBlue,
                     borderWidth: 2,
-                    borderColor: AppTheme.of(context)?.primaryColor,
-                    gradient: LinearGradient(colors: [Colors.white24, AppTheme.of(context)!.primaryColor!.withOpacity(0.2)], begin: Alignment.bottomCenter, end: Alignment.topCenter),
+                    borderColor: AppTheme.of(context).primaryColor,
+                    gradient: LinearGradient(colors: [Colors.white24, AppTheme.of(context).primaryColor.withOpacity(0.2)], begin: Alignment.bottomCenter, end: Alignment.topCenter),
                   ),
                   AreaSeries<Network, num>(
                     animationDuration: 1000,
@@ -279,10 +293,10 @@ class ResourceMonitorWidget extends StatelessWidget {
                     xValueMapper: (Network network, index) => index,
                     yValueMapper: (Network network, _) => network.rx,
                     markerSettings: const MarkerSettings(isVisible: false),
-                    color: AppTheme.of(context)?.successColor,
+                    color: AppTheme.of(context).successColor,
                     borderColor: Color(0xFF43CF7C),
                     borderWidth: 2,
-                    gradient: LinearGradient(colors: [Colors.white24, AppTheme.of(context)!.successColor!.withOpacity(0.2)], begin: Alignment.bottomCenter, end: Alignment.topCenter),
+                    gradient: LinearGradient(colors: [Colors.white24, AppTheme.of(context).successColor.withOpacity(0.2)], begin: Alignment.bottomCenter, end: Alignment.topCenter),
                   )
                 ],
                 tooltipBehavior: TooltipBehavior(
@@ -301,12 +315,12 @@ class ResourceMonitorWidget extends StatelessWidget {
                         children: [
                           Text(
                             "上传:${Utils.formatSize(data.tx)}/S",
-                            style: TextStyle(color: AppTheme.of(context)?.primaryColor, fontSize: 13),
+                            style: TextStyle(color: AppTheme.of(context).primaryColor, fontSize: 13),
                           ),
                           SizedBox(height: 5),
                           Text(
                             "下载:${Utils.formatSize(data.rx)}/S",
-                            style: TextStyle(color: AppTheme.of(context)?.successColor, fontSize: 13),
+                            style: TextStyle(color: AppTheme.of(context).successColor, fontSize: 13),
                           ),
                         ],
                       ),

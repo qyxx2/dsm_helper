@@ -16,7 +16,7 @@ class DiskCardItemWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: AppTheme.of(context)?.cardColor,
+        color: AppTheme.of(context).cardColor,
         borderRadius: BorderRadius.circular(22),
       ),
       child: ExpansionContainer(
@@ -26,7 +26,7 @@ class DiskCardItemWidget extends StatelessWidget {
         children: [
           Text(
             "位置",
-            style: TextStyle(color: AppTheme.of(context)?.placeholderColor, fontSize: 13),
+            style: TextStyle(color: AppTheme.of(context).placeholderColor, fontSize: 13),
           ),
           Text(
             "${disk.container?.str}",
@@ -35,13 +35,13 @@ class DiskCardItemWidget extends StatelessWidget {
           Divider(indent: 0, endIndent: 0, height: 20),
           Text(
             "配置用途",
-            style: TextStyle(color: AppTheme.of(context)?.placeholderColor, fontSize: 13),
+            style: TextStyle(color: AppTheme.of(context).placeholderColor, fontSize: 13),
           ),
           if (usedByPool != null) Text("存储池 ${usedByPool!.numId}") else if (usedBySharedCache != null) Text("SSD 缓存群组${usedBySharedCache!.numId}") else Text("-"),
           Divider(indent: 0, endIndent: 0, height: 20),
           Text(
             "分配状态",
-            style: TextStyle(color: AppTheme.of(context)?.placeholderColor, fontSize: 13),
+            style: TextStyle(color: AppTheme.of(context).placeholderColor, fontSize: 13),
           ),
           Text(
             disk.statusEnum != DiskStatusEnum.unknown ? disk.statusEnum.label : disk.status!,
@@ -50,7 +50,7 @@ class DiskCardItemWidget extends StatelessWidget {
           Divider(indent: 0, endIndent: 0, height: 20),
           Text(
             "健康状态",
-            style: TextStyle(color: AppTheme.of(context)?.placeholderColor, fontSize: 13),
+            style: TextStyle(color: AppTheme.of(context).placeholderColor, fontSize: 13),
           ),
           Text(
             disk.smartStatusEnum != DiskSmartStatusEnum.unknown ? disk.smartStatusEnum.label : disk.smartStatus!,
@@ -59,7 +59,7 @@ class DiskCardItemWidget extends StatelessWidget {
           Divider(indent: 0, endIndent: 0, height: 20),
           Text(
             "温度",
-            style: TextStyle(color: AppTheme.of(context)?.placeholderColor, fontSize: 13),
+            style: TextStyle(color: AppTheme.of(context).placeholderColor, fontSize: 13),
           ),
           Text(
             "${disk.temp ?? '-'}℃",
@@ -68,7 +68,7 @@ class DiskCardItemWidget extends StatelessWidget {
           Divider(indent: 0, endIndent: 0, height: 20),
           Text(
             "序列号",
-            style: TextStyle(color: AppTheme.of(context)?.placeholderColor, fontSize: 13),
+            style: TextStyle(color: AppTheme.of(context).placeholderColor, fontSize: 13),
           ),
           Text(
             "${disk.serial ?? '-'}",
@@ -77,7 +77,7 @@ class DiskCardItemWidget extends StatelessWidget {
           Divider(indent: 0, endIndent: 0, height: 20),
           Text(
             "固件版本",
-            style: TextStyle(color: AppTheme.of(context)?.placeholderColor, fontSize: 13),
+            style: TextStyle(color: AppTheme.of(context).placeholderColor, fontSize: 13),
           ),
           Text(
             "${disk.firm ?? '-'}",
@@ -86,7 +86,7 @@ class DiskCardItemWidget extends StatelessWidget {
           Divider(indent: 0, endIndent: 0, height: 20),
           Text(
             "4K原生硬盘",
-            style: TextStyle(color: AppTheme.of(context)?.placeholderColor, fontSize: 13),
+            style: TextStyle(color: AppTheme.of(context).placeholderColor, fontSize: 13),
           ),
           Text(
             "${disk.is4Kn == true ? '是' : '否'}",

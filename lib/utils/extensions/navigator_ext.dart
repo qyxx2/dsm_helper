@@ -1,5 +1,4 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
 
 extension NavigatorExt on BuildContext {
   Future<T?> push<T extends Object?>(Widget page, {RouteSettings? settings, String? name, bool replace = false, bool rootNavigator = false}) async {

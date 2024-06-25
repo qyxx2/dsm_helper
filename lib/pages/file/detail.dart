@@ -128,7 +128,7 @@ class _FileDetailState extends State<FileDetail> {
                           children: [
                             Text(
                               "名称",
-                              style: TextStyle(color: AppTheme.of(context)?.placeholderColor, fontSize: 13),
+                              style: TextStyle(color: AppTheme.of(context).placeholderColor, fontSize: 13),
                             ),
                             Text(
                               widget.file.name!,
@@ -160,7 +160,7 @@ class _FileDetailState extends State<FileDetail> {
                           children: [
                             Text(
                               "位置",
-                              style: TextStyle(color: AppTheme.of(context)?.placeholderColor, fontSize: 13),
+                              style: TextStyle(color: AppTheme.of(context).placeholderColor, fontSize: 13),
                             ),
                             Text(
                               "${widget.file.additional?.realPath}",
@@ -192,7 +192,7 @@ class _FileDetailState extends State<FileDetail> {
                           children: [
                             Text(
                               "大小",
-                              style: TextStyle(color: AppTheme.of(context)?.placeholderColor, fontSize: 13),
+                              style: TextStyle(color: AppTheme.of(context).placeholderColor, fontSize: 13),
                             ),
                             if (widget.file.isdir == true)
                               Text(
@@ -226,7 +226,7 @@ class _FileDetailState extends State<FileDetail> {
                             children: [
                               Text(
                                 "磁盘容量",
-                                style: TextStyle(color: AppTheme.of(context)?.placeholderColor, fontSize: 13),
+                                style: TextStyle(color: AppTheme.of(context).placeholderColor, fontSize: 13),
                               ),
                               Text(
                                 "${diskSize == null ? '--' : Utils.formatSize(diskSize!, showByte: true)}",
@@ -248,7 +248,7 @@ class _FileDetailState extends State<FileDetail> {
                   ],
                   Text(
                     "创建日期",
-                    style: TextStyle(color: AppTheme.of(context)?.placeholderColor, fontSize: 13),
+                    style: TextStyle(color: AppTheme.of(context).placeholderColor, fontSize: 13),
                   ),
                   Text(
                     "${DateTime.fromMillisecondsSinceEpoch((widget.file.additional?.time?.ctime ?? 0) * 1000).format("Y-m-d H:i:s")}",
@@ -257,7 +257,7 @@ class _FileDetailState extends State<FileDetail> {
                   Divider(indent: 0, endIndent: 0, height: 20),
                   Text(
                     "修改日期",
-                    style: TextStyle(color: AppTheme.of(context)?.placeholderColor, fontSize: 13),
+                    style: TextStyle(color: AppTheme.of(context).placeholderColor, fontSize: 13),
                   ),
                   Text(
                     "${DateTime.fromMillisecondsSinceEpoch((widget.file.additional?.time?.mtime ?? 0) * 1000).format("Y-m-d H:i:s")}",
@@ -273,7 +273,7 @@ class _FileDetailState extends State<FileDetail> {
                             children: [
                               Text(
                                 "MD5",
-                                style: TextStyle(color: AppTheme.of(context)?.placeholderColor, fontSize: 13),
+                                style: TextStyle(color: AppTheme.of(context).placeholderColor, fontSize: 13),
                               ),
                               Text(
                                 "${md5?.md5 ?? '--'}",
@@ -328,7 +328,7 @@ class _FileDetailState extends State<FileDetail> {
                   children: [
                     Text(
                       "拥有者",
-                      style: TextStyle(color: AppTheme.of(context)?.placeholderColor, fontSize: 13),
+                      style: TextStyle(color: AppTheme.of(context).placeholderColor, fontSize: 13),
                     ),
                     Text(
                       "${widget.file.additional?.owner?.user ?? '--'}",

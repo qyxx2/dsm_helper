@@ -91,7 +91,7 @@ class _UninstallPackageState extends State<UninstallPackage> {
     List subItems = item['subitems'] ?? [];
     return Container(
       decoration: BoxDecoration(
-        color: AppTheme.of(context)?.cardColor,
+        color: AppTheme.of(context).cardColor,
         borderRadius: BorderRadius.circular(20),
       ),
       child: Padding(
@@ -182,7 +182,7 @@ class _UninstallPackageState extends State<UninstallPackage> {
                 child: Button(
                   onPressed: uninstall,
                   padding: EdgeInsets.symmetric(vertical: 12),
-                  color: AppTheme.of(context)?.errorColor,
+                  color: AppTheme.of(context).errorColor,
                   borderRadius: 50,
                   loading: uninstalling,
                   child: Text("卸载"),

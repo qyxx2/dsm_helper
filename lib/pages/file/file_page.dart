@@ -55,6 +55,7 @@ class FilePageState extends State<FilePage> with AutomaticKeepAliveClientMixin {
             builder: (context) => Files(),
           );
         }
+        return null;
       },
     );
   }

@@ -15,7 +15,7 @@ class ApplicationItemWidget extends StatelessWidget {
     return Button(
       margin: EdgeInsets.all(8),
       padding: EdgeInsets.zero,
-      color: AppTheme.of(context)?.cardColor,
+      color: AppTheme.of(context).cardColor,
       borderRadius: 22,
       onPressed: () {
         if (applicationEnum == ApplicationEnum.xunlei) {

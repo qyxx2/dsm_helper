@@ -381,8 +381,8 @@ class FilesState extends State<Files> {
   }
 
   downloadFiles(List<FileItem> files) async {
-    ConnectivityResult connectivityResult = await Connectivity().checkConnectivity();
-    if (connectivityResult == ConnectivityResult.mobile) {
+    List<ConnectivityResult> connectivityResult = await Connectivity().checkConnectivity();
+    if (connectivityResult.every((element) => element == ConnectivityResult.mobile)) {
       Utils.vibrate(FeedbackType.warning);
       showCupertinoModalBottomSheet(
         context: context,
@@ -630,7 +630,7 @@ class FilesState extends State<Files> {
     String content = "";
     try {
       content = utf8.decode(res);
-    } on FormatException catch (e) {
+    } on FormatException {
       content = gbk_bytes.decode(res);
     }
     hide();
@@ -957,7 +957,7 @@ class FilesState extends State<Files> {
         bottom: 0,
         child: Container(
           width: context.width,
-          color: AppTheme.of(context)?.cardColor,
+          color: AppTheme.of(context).cardColor,
           child: SafeArea(
             top: false,
             child: DefaultTextStyle(
@@ -1116,7 +1116,7 @@ class FilesState extends State<Files> {
                             ),
                             Text(
                               "删除",
-                              style: TextStyle(color: AppTheme.of(context)?.errorColor),
+                              style: TextStyle(color: AppTheme.of(context).errorColor),
                             ),
                           ],
                         ),
@@ -1156,7 +1156,7 @@ class FilesState extends State<Files> {
       child: Text(
         paths[index],
         strutStyle: StrutStyle(forceStrutHeight: true),
-        style: TextStyle(fontSize: 16, color: isLast ? AppTheme.of(context)?.primaryColor : AppTheme.of(context)?.placeholderColor),
+        style: TextStyle(fontSize: 12, color: isLast ? AppTheme.of(context).primaryColor : AppTheme.of(context).placeholderColor),
       ),
     );
   }
@@ -1320,7 +1320,7 @@ class FilesState extends State<Files> {
                               width: 186,
                               padding: EdgeInsets.symmetric(vertical: 8),
                               decoration: BoxDecoration(
-                                color: AppTheme.of(context)?.cardColor,
+                                color: AppTheme.of(context).cardColor,
                                 borderRadius: BorderRadius.circular(23),
                               ),
                               child: Column(
@@ -1345,12 +1345,12 @@ class FilesState extends State<Files> {
                                         children: [
                                           Text(
                                             e.label,
-                                            style: TextStyle(color: sortBy == e ? AppTheme.of(context)?.primaryColor : null),
+                                            style: TextStyle(color: sortBy == e ? AppTheme.of(context).primaryColor : null),
                                           ),
                                           if (sortBy == e)
                                             Text(
                                               sortDirection.label,
-                                              style: TextStyle(color: AppTheme.of(context)?.placeholderColor, fontSize: 12),
+                                              style: TextStyle(color: AppTheme.of(context).placeholderColor, fontSize: 12),
                                             ),
                                         ],
                                       ),
@@ -1396,7 +1396,7 @@ class FilesState extends State<Files> {
                               width: 186,
                               padding: EdgeInsets.symmetric(vertical: 8),
                               decoration: BoxDecoration(
-                                color: AppTheme.of(context)?.cardColor,
+                                color: AppTheme.of(context).cardColor,
                                 borderRadius: BorderRadius.circular(23),
                               ),
                               child: Column(
@@ -1590,7 +1590,7 @@ class FilesState extends State<Files> {
           //   )
           // else
           Container(
-            height: 55,
+            height: 40,
             alignment: Alignment.centerLeft,
             child: Row(
               children: [
@@ -1601,7 +1601,7 @@ class FilesState extends State<Files> {
                   padding: EdgeInsets.symmetric(horizontal: 5, vertical: 2),
                   child: Text(
                     "本机",
-                    style: TextStyle(fontSize: 16, color: widget.path.isEmpty ? AppTheme.of(context)?.primaryColor : AppTheme.of(context)?.placeholderColor),
+                    style: TextStyle(fontSize: 12, color: widget.path.isEmpty ? AppTheme.of(context).primaryColor : AppTheme.of(context).placeholderColor),
                   ),
                   // child: Image.asset(
                   //   "assets/icons/home_line.png",
@@ -1614,8 +1614,8 @@ class FilesState extends State<Files> {
                   Container(
                     child: Icon(
                       CupertinoIcons.right_chevron,
-                      size: 16,
-                      color: AppTheme.of(context)?.placeholderColor,
+                      size: 12,
+                      color: AppTheme.of(context).placeholderColor,
                     ),
                   ),
                 Expanded(
@@ -1629,8 +1629,8 @@ class FilesState extends State<Files> {
                     separatorBuilder: (context, i) {
                       return Icon(
                         CupertinoIcons.right_chevron,
-                        size: 16,
-                        color: AppTheme.of(context)?.placeholderColor,
+                        size: 12,
+                        color: AppTheme.of(context).placeholderColor,
                       );
                     },
                   ),
@@ -1651,7 +1651,7 @@ class FilesState extends State<Files> {
                           )
                         : listType == ListType.list
                             ? DraggableScrollbar.arrows(
-                                backgroundColor: AppTheme.of(context)?.placeholderColor ?? Colors.black54,
+                                backgroundColor: AppTheme.of(context).placeholderColor,
                                 scrollbarTimeToFade: Duration(seconds: 1),
                                 controller: _fileScrollController,
                                 child: ListView.builder(
@@ -1678,7 +1678,7 @@ class FilesState extends State<Files> {
                             : DraggableScrollbar.arrows(
                                 scrollbarTimeToFade: Duration(seconds: 1),
                                 controller: _fileScrollController,
-                                backgroundColor: AppTheme.of(context)?.placeholderColor ?? Colors.black54,
+                                backgroundColor: AppTheme.of(context).placeholderColor,
                                 child: GridView.builder(
                                   controller: _fileScrollController,
                                   padding: EdgeInsets.zero,
@@ -1707,7 +1707,7 @@ class FilesState extends State<Files> {
                           children: [
                             Text(
                               "$msg",
-                              style: TextStyle(color: AppTheme.of(context)?.placeholderColor),
+                              style: TextStyle(color: AppTheme.of(context).placeholderColor),
                             ),
                             SizedBox(
                               height: 20,

@@ -84,31 +84,31 @@ class _BackgroundTaskPopupContentState extends State<BackgroundTaskPopupContent>
           SizedBox(height: 10),
           LineProgressBar(
             value: task.progress! * 100,
-            progressColor: AppTheme.of(context)?.successColor,
-            backgroundColor: AppTheme.of(context)?.primaryColor,
+            progressColor: AppTheme.of(context).successColor,
+            backgroundColor: AppTheme.of(context).primaryColor,
           ),
           SizedBox(height: 5),
           Row(
             children: [
               Text(
                 "${webManagerStrings[actions[0]][actions[1]]} ${task.progress! >= 0 ? "${(task.progress! * 100).toStringAsFixed(2)}%" : '准备中…'}",
-                style: TextStyle(fontSize: 14, color: AppTheme.of(context)?.successColor),
+                style: TextStyle(fontSize: 14, color: AppTheme.of(context).successColor),
               ),
               Spacer(),
               if (task.processedSize != null && task.processedSize! > 0)
                 Text(
                   "${Utils.formatSize(task.processedSize!)}",
-                  style: TextStyle(fontSize: 14, color: AppTheme.of(context)?.successColor),
+                  style: TextStyle(fontSize: 14, color: AppTheme.of(context).successColor),
                 ),
               if (task.processedSize != null && task.processedSize! > 0 && task.total != null && task.total! > 0)
                 Text(
                   " / ",
-                  style: TextStyle(fontSize: 14, color: AppTheme.of(context)?.placeholderColor),
+                  style: TextStyle(fontSize: 14, color: AppTheme.of(context).placeholderColor),
                 ),
               if (task.total != null && task.total! > 0)
                 Text(
                   "${Utils.formatSize(task.total!)}",
-                  style: TextStyle(fontSize: 14, color: AppTheme.of(context)?.primaryColor),
+                  style: TextStyle(fontSize: 14, color: AppTheme.of(context).primaryColor),
                 ),
             ],
           ),

@@ -6,7 +6,6 @@ import 'package:dsm_helper/pages/docker/dialogs/container_reset_dialog.dart';
 import 'package:dsm_helper/pages/docker/dialogs/container_signal_dialog.dart';
 import 'package:dsm_helper/pages/docker/enums/container_status_enum.dart';
 import 'package:dsm_helper/themes/app_theme.dart';
-import 'package:dsm_helper/utils/extensions/datetime_ext.dart';
 import 'package:dsm_helper/utils/extensions/navigator_ext.dart';
 import 'package:dsm_helper/utils/utils.dart';
 import 'package:dsm_helper/widgets/dot_widget.dart';
@@ -34,7 +33,7 @@ class ContainerItemWidget extends StatelessWidget {
             : () {
                 context.push(ContainerDetail(container.name!), name: 'docker_container_detail');
               },
-        color: AppTheme.of(context)?.cardColor,
+        color: AppTheme.of(context).cardColor,
         borderRadius: BorderRadius.circular(22),
         padding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         child: Column(
@@ -48,12 +47,12 @@ class ContainerItemWidget extends StatelessWidget {
                     Padding(
                       padding: EdgeInsets.only(right: 6),
                       child: DotWidget(
-                        color: container.exporting == true ? AppTheme.of(context)?.primaryColor : container.statusEnum.color,
+                        color: container.exporting == true ? AppTheme.of(context).primaryColor : container.statusEnum.color,
                       ),
                     ),
                     Text(
                       container.exporting == true ? '导出中' : container.statusEnum.label,
-                      style: TextStyle(color: container.exporting == true ? AppTheme.of(context)?.primaryColor : container.statusEnum.color, fontSize: 13),
+                      style: TextStyle(color: container.exporting == true ? AppTheme.of(context).primaryColor : container.statusEnum.color, fontSize: 13),
                     ),
                     SizedBox(width: 10),
                     if (container.statusEnum == ContainerStatusEnum.running)
@@ -117,7 +116,7 @@ class ContainerItemWidget extends StatelessWidget {
                                       padding: EdgeInsets.symmetric(vertical: 8),
                                       margin: EdgeInsets.only(top: 50),
                                       decoration: BoxDecoration(
-                                        color: AppTheme.of(context)?.cardColor,
+                                        color: AppTheme.of(context).cardColor,
                                         borderRadius: BorderRadius.circular(23),
                                       ),
                                       child: Column(
@@ -188,7 +187,7 @@ class ContainerItemWidget extends StatelessWidget {
                                             },
                                             child: Text(
                                               "删除",
-                                              style: TextStyle(color: AppTheme.of(context)?.errorColor),
+                                              style: TextStyle(color: AppTheme.of(context).errorColor),
                                             ),
                                           ),
                                         ],
@@ -217,7 +216,7 @@ class ContainerItemWidget extends StatelessWidget {
                 ),
                 Text(
                   container.image!,
-                  style: TextStyle(fontSize: 12, color: AppTheme.of(context)?.placeholderColor),
+                  style: TextStyle(fontSize: 12, color: AppTheme.of(context).placeholderColor),
                 ),
               ],
             ),
@@ -239,7 +238,7 @@ class ContainerItemWidget extends StatelessWidget {
                             Spacer(),
                             Text(
                               "${container.resource?.cpu == null ? '-' : container.resource!.cpu!.toStringAsFixed(2)}%",
-                              style: TextStyle(color: AppTheme.of(context)?.primaryColor, fontWeight: FontWeight.w600),
+                              style: TextStyle(color: AppTheme.of(context).primaryColor, fontWeight: FontWeight.w600),
                             ),
                           ],
                         ),
@@ -268,7 +267,7 @@ class ContainerItemWidget extends StatelessWidget {
                             Spacer(),
                             Text(
                               "${Utils.formatSize(container.resource?.memory ?? 0, fixed: 0)}",
-                              style: TextStyle(color: AppTheme.of(context)?.successColor, fontWeight: FontWeight.w600),
+                              style: TextStyle(color: AppTheme.of(context).successColor, fontWeight: FontWeight.w600),
                             ),
                           ],
                         ),

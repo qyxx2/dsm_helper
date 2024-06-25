@@ -53,7 +53,7 @@ class _ProcessTabState extends State<ProcessTab> {
     return Container(
       margin: EdgeInsets.only(top: 14),
       decoration: BoxDecoration(
-        color: AppTheme.of(context)?.cardColor,
+        color: AppTheme.of(context).cardColor,
         borderRadius: BorderRadius.circular(20),
       ),
       padding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
@@ -66,7 +66,7 @@ class _ProcessTabState extends State<ProcessTab> {
           ),
           SizedBox(height: 5),
           DefaultTextStyle(
-            style: TextStyle(fontSize: 13, color: AppTheme.of(context)?.placeholderColor),
+            style: TextStyle(fontSize: 13, color: AppTheme.of(context).placeholderColor),
             child: Row(
               children: [
                 Expanded(child: Text("进程标识符：${processes.pid}")),

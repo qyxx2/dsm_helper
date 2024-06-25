@@ -176,7 +176,7 @@ class _SelectTerminalServerState extends State<SelectTerminalServer> {
                         width: 200,
                         child: CupertinoButton(
                           padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-                          color: AppTheme.of(context)?.primaryColor,
+                          color: AppTheme.of(context).primaryColor,
                           borderRadius: BorderRadius.circular(15),
                           onPressed: () {
                             context.push(AddServer(), name: 'add_terminal_server').then((res) {

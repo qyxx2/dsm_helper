@@ -46,7 +46,7 @@ class FileListItemWidget extends StatelessWidget {
       children: [
         ExtendedText(
           file.name!,
-          style: TextStyle(fontSize: 16, color: file.additional?.mountPointType == "remotefail" ? AppTheme.of(context)?.placeholderColor : null),
+          style: TextStyle(fontSize: 16, color: file.additional?.mountPointType == "remotefail" ? AppTheme.of(context).placeholderColor : null),
           overflowWidget: TextOverflowWidget(
             position: TextOverflowPosition.middle,
             align: TextOverflowAlign.right,
@@ -69,13 +69,13 @@ class FileListItemWidget extends StatelessWidget {
                 ),
               if (file.isdir == false) TextSpan(text: " · ${Utils.formatSize(file.additional!.size!, showByte: true)}"),
             ],
-            style: TextStyle(fontSize: 12, color: AppTheme.of(context)?.placeholderColor),
+            style: TextStyle(fontSize: 12, color: AppTheme.of(context).placeholderColor),
           ),
         ),
         if (remote)
           Text(
             file.path!,
-            style: TextStyle(fontSize: 12, color: AppTheme.of(context)?.placeholderColor),
+            style: TextStyle(fontSize: 12, color: AppTheme.of(context).placeholderColor),
           ),
       ],
     );
@@ -86,7 +86,7 @@ class FileListItemWidget extends StatelessWidget {
             alignment: Alignment.center,
             child: Container(
               decoration: BoxDecoration(
-                color: selected ? AppTheme.of(context)?.primaryColor : Theme.of(context).disabledColor,
+                color: selected ? AppTheme.of(context).primaryColor : Theme.of(context).disabledColor,
                 borderRadius: BorderRadius.circular(10),
               ),
               width: 20,
@@ -131,7 +131,7 @@ class FileListItemWidget extends StatelessWidget {
                       padding: EdgeInsets.symmetric(vertical: 8),
                       margin: EdgeInsets.only(top: 50),
                       decoration: BoxDecoration(
-                        color: AppTheme.of(context)?.cardColor,
+                        color: AppTheme.of(context).cardColor,
                         borderRadius: BorderRadius.circular(23),
                       ),
                       child: Column(
@@ -218,7 +218,7 @@ class FileListItemWidget extends StatelessWidget {
                                   ),
                                   Text(
                                     "取消收藏",
-                                    style: TextStyle(color: AppTheme.of(context)?.errorColor),
+                                    style: TextStyle(color: AppTheme.of(context).errorColor),
                                   ),
                                 ],
                               ),
@@ -370,7 +370,7 @@ class FileListItemWidget extends StatelessWidget {
                                                 style: TextStyle(color: Colors.grey),
                                               ),
                                             ),
-                                            style: TextStyle(color: AppTheme.of(context)?.placeholderColor, fontSize: 12),
+                                            style: TextStyle(color: AppTheme.of(context).placeholderColor, fontSize: 12),
                                           ),
                                         ],
                                       ),
@@ -415,7 +415,7 @@ class FileListItemWidget extends StatelessWidget {
                                                 style: TextStyle(color: Colors.grey),
                                               ),
                                             ),
-                                            style: TextStyle(color: AppTheme.of(context)?.placeholderColor, fontSize: 12),
+                                            style: TextStyle(color: AppTheme.of(context).placeholderColor, fontSize: 12),
                                           ),
                                         ],
                                       ),
@@ -459,7 +459,7 @@ class FileListItemWidget extends StatelessWidget {
                                   ),
                                   Text(
                                     "删除",
-                                    style: TextStyle(color: AppTheme.of(context)?.errorColor),
+                                    style: TextStyle(color: AppTheme.of(context).errorColor),
                                   ),
                                 ],
                               ),

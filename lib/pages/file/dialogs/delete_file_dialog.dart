@@ -37,7 +37,7 @@ class DeleteFileDialog {
                       hide();
                       context.pop(taskId);
                     },
-                    color: AppTheme.of(context)?.errorColor,
+                    color: AppTheme.of(context).errorColor,
                     borderRadius: BorderRadius.circular(15),
                     padding: EdgeInsets.symmetric(vertical: 10),
                     child: Text(

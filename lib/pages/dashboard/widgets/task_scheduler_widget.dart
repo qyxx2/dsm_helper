@@ -122,12 +122,12 @@ class _TaskSchedulerItemState extends State<TaskSchedulerItem> {
                 children: [
                   DotWidget(
                     size: 10,
-                    color: widget.task.enable == true ? AppTheme.of(context)?.successColor : AppTheme.of(context)?.placeholderColor,
+                    color: widget.task.enable == true ? AppTheme.of(context).successColor : AppTheme.of(context).placeholderColor,
                   ),
                   SizedBox(width: 5),
                   Text(
                     "已${widget.task.enable == true ? '启用' : '禁用'}",
-                    style: TextStyle(color: widget.task.enable == true ? AppTheme.of(context)?.successColor : AppTheme.of(context)?.placeholderColor, fontSize: 12),
+                    style: TextStyle(color: widget.task.enable == true ? AppTheme.of(context).successColor : AppTheme.of(context).placeholderColor, fontSize: 12),
                   ),
                   SizedBox(width: 5),
                   Text(

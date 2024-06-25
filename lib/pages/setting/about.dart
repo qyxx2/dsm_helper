@@ -10,7 +10,6 @@ import 'package:dsm_helper/widgets/glass/glass_scaffold.dart';
 import 'package:dsm_helper/widgets/loading_widget.dart';
 
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -70,7 +69,7 @@ class _AboutState extends State<About> {
                     Text(
                       "v${packageInfo?.version} build:${packageInfo?.buildNumber}",
                       style: TextStyle(
-                        color: AppTheme.of(context)?.placeholderColor,
+                        color: AppTheme.of(context).placeholderColor,
                         fontSize: 16,
                       ),
                     ),
@@ -107,7 +106,7 @@ class _AboutState extends State<About> {
                                   ),
                                   Spacer(),
                                   CupertinoButton(
-                                    color: AppTheme.of(context)?.primaryColor,
+                                    color: AppTheme.of(context).primaryColor,
                                     borderRadius: BorderRadius.circular(15),
                                     padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                                     minSize: 0,
@@ -155,7 +154,7 @@ class _AboutState extends State<About> {
                                   ),
                                   Spacer(),
                                   CupertinoButton(
-                                    color: AppTheme.of(context)?.primaryColor,
+                                    color: AppTheme.of(context).primaryColor,
                                     borderRadius: BorderRadius.circular(15),
                                     padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                                     minSize: 0,
@@ -203,7 +202,7 @@ class _AboutState extends State<About> {
                                 ),
                                 Spacer(),
                                 CupertinoButton(
-                                  color: AppTheme.of(context)?.primaryColor,
+                                  color: AppTheme.of(context).primaryColor,
                                   borderRadius: BorderRadius.circular(15),
                                   padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                                   minSize: 0,
@@ -251,7 +250,7 @@ class _AboutState extends State<About> {
                         ),
                         Spacer(),
                         CupertinoButton(
-                          color: AppTheme.of(context)?.primaryColor,
+                          color: AppTheme.of(context).primaryColor,
                           borderRadius: BorderRadius.circular(15),
                           padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                           minSize: 0,
@@ -296,7 +295,7 @@ class _AboutState extends State<About> {
                         ),
                         Spacer(),
                         CupertinoButton(
-                          color: AppTheme.of(context)?.primaryColor,
+                          color: AppTheme.of(context).primaryColor,
                           borderRadius: BorderRadius.circular(15),
                           padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                           minSize: 0,
@@ -338,7 +337,7 @@ class _AboutState extends State<About> {
                         ),
                         Spacer(),
                         CupertinoButton(
-                          color: AppTheme.of(context)?.primaryColor,
+                          color: AppTheme.of(context).primaryColor,
                           borderRadius: BorderRadius.circular(15),
                           padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                           minSize: 0,
@@ -367,7 +366,7 @@ class _AboutState extends State<About> {
               children: [
                 Text(
                   "Copyright © 2020-${DateTime.now().year} 青岛阿派派软件有限公司",
-                  style: TextStyle(fontSize: 12, color: AppTheme.of(context)?.placeholderColor),
+                  style: TextStyle(fontSize: 12, color: AppTheme.of(context).placeholderColor),
                 ),
                 SizedBox(height: 5),
                 GestureDetector(
@@ -379,12 +378,12 @@ class _AboutState extends State<About> {
                     children: [
                       Text(
                         "ICP备案号：鲁ICP备2021022006号-4A",
-                        style: TextStyle(fontSize: 12, color: AppTheme.of(context)?.placeholderColor),
+                        style: TextStyle(fontSize: 12, color: AppTheme.of(context).placeholderColor),
                       ),
                       Icon(
                         CupertinoIcons.right_chevron,
                         size: 12,
-                        color: AppTheme.of(context)?.placeholderColor,
+                        color: AppTheme.of(context).placeholderColor,
                       ),
                     ],
                   ),
@@ -399,13 +398,13 @@ class _AboutState extends State<About> {
                       },
                       child: Text(
                         "用户协议",
-                        style: TextStyle(fontSize: 12, color: AppTheme.of(context)?.placeholderColor),
+                        style: TextStyle(fontSize: 12, color: AppTheme.of(context).placeholderColor),
                       ),
                     ),
                     Container(
                       height: 10,
                       width: 1,
-                      color: AppTheme.of(context)?.placeholderColor,
+                      color: AppTheme.of(context).placeholderColor,
                       margin: EdgeInsets.symmetric(horizontal: 14),
                     ),
                     GestureDetector(
@@ -419,7 +418,7 @@ class _AboutState extends State<About> {
                       },
                       child: Text(
                         "隐私政策",
-                        style: TextStyle(fontSize: 12, color: AppTheme.of(context)?.placeholderColor),
+                        style: TextStyle(fontSize: 12, color: AppTheme.of(context).placeholderColor),
                       ),
                     ),
                   ],
@@ -442,7 +441,7 @@ class _AboutState extends State<About> {
                           checking = false;
                         });
                       },
-                      color: AppTheme.of(context)?.primaryColor,
+                      color: AppTheme.of(context).primaryColor,
                       borderRadius: BorderRadius.circular(15),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,

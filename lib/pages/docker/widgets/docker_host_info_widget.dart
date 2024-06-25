@@ -19,7 +19,7 @@ class DockerHostInfoWidget extends StatelessWidget {
             height: 140,
             padding: EdgeInsets.symmetric(vertical: 14),
             decoration: BoxDecoration(
-              color: AppTheme.of(context)?.cardColor,
+              color: AppTheme.of(context).cardColor,
               borderRadius: BorderRadius.circular(22),
             ),
             child: SfRadialGauge(
@@ -56,14 +56,14 @@ class DockerHostInfoWidget extends StatelessWidget {
                                 ),
                                 TextSpan(
                                   text: '%',
-                                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 10, color: AppTheme.of(context)?.placeholderColor),
+                                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 10, color: AppTheme.of(context).placeholderColor),
                                 ),
                               ],
                             ),
                           ),
                           Text(
                             "CPU",
-                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 10, color: AppTheme.of(context)?.placeholderColor),
+                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 10, color: AppTheme.of(context).placeholderColor),
                           ),
                         ],
                       ),
@@ -76,7 +76,7 @@ class DockerHostInfoWidget extends StatelessWidget {
                       value: (utilization.cpu?.totalLoad ?? 0).toDouble(),
                       width: 8,
                       cornerStyle: CornerStyle.bothCurve,
-                      gradient: SweepGradient(colors: (utilization.cpu?.totalLoad ?? 0) < 80 ? [Color(0xFF00BAAD), Color(0xFF4BD6CD)] : [AppTheme.of(context)!.errorColor!, AppTheme.of(context)!.warningColor!]),
+                      gradient: SweepGradient(colors: (utilization.cpu?.totalLoad ?? 0) < 80 ? [Color(0xFF00BAAD), Color(0xFF4BD6CD)] : [AppTheme.of(context).errorColor, AppTheme.of(context).warningColor]),
                     ),
                     // MarkerPointer(
                     //   value: utilization.cpu!.totalLoad.toDouble() - 3,
@@ -95,7 +95,7 @@ class DockerHostInfoWidget extends StatelessWidget {
             height: 140,
             padding: EdgeInsets.symmetric(vertical: 14),
             decoration: BoxDecoration(
-              color: AppTheme.of(context)?.cardColor,
+              color: AppTheme.of(context).cardColor,
               borderRadius: BorderRadius.circular(22),
             ),
             child: SfRadialGauge(
@@ -132,14 +132,14 @@ class DockerHostInfoWidget extends StatelessWidget {
                                 ),
                                 TextSpan(
                                   text: '%',
-                                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 10, color: AppTheme.of(context)?.placeholderColor),
+                                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 10, color: AppTheme.of(context).placeholderColor),
                                 ),
                               ],
                             ),
                           ),
                           Text(
                             "RAM",
-                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 10, color: AppTheme.of(context)?.placeholderColor),
+                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 10, color: AppTheme.of(context).placeholderColor),
                           ),
                         ],
                       ),
@@ -152,7 +152,7 @@ class DockerHostInfoWidget extends StatelessWidget {
                       value: (utilization.memory?.realUsage ?? 0).toDouble(),
                       width: 8,
                       cornerStyle: CornerStyle.bothCurve,
-                      gradient: SweepGradient(colors: (utilization.memory?.realUsage ?? 0) < 80 ? [AppTheme.of(context)!.primaryColor!, Color(0xFF75ACFF)] : [AppTheme.of(context)!.errorColor!, AppTheme.of(context)!.warningColor!]),
+                      gradient: SweepGradient(colors: (utilization.memory?.realUsage ?? 0) < 80 ? [AppTheme.of(context).primaryColor, Color(0xFF75ACFF)] : [AppTheme.of(context).errorColor, AppTheme.of(context).warningColor]),
                     ),
                     // MarkerPointer(
                     //   value: utilization.cpu!.totalLoad.toDouble() - 3,

@@ -43,7 +43,7 @@ class SettingItem extends StatelessWidget {
         onPressed: onPressed,
         // margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
         padding: EdgeInsets.all(16),
-        color: AppTheme.of(context)?.cardColor,
+        color: AppTheme.of(context).cardColor,
         borderRadius: BorderRadius.circular(10),
 
         child: Row(
@@ -63,7 +63,7 @@ class SettingItem extends StatelessWidget {
             ),
             Icon(
               CupertinoIcons.right_chevron,
-              color: AppTheme.of(context)?.placeholderColor,
+              color: AppTheme.of(context).placeholderColor,
               size: 16,
             ),
           ],
@@ -425,7 +425,7 @@ class _SettingState extends State<Setting> {
                                       "${Api.dsm.baseUrl}",
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
-                                      style: TextStyle(color: AppTheme.of(context)?.placeholderColor, fontSize: 14, shadows: [BoxShadow(color: Colors.white, spreadRadius: 30, blurRadius: 15)]),
+                                      style: TextStyle(color: AppTheme.of(context).placeholderColor, fontSize: 14, shadows: [BoxShadow(color: Colors.white, spreadRadius: 30, blurRadius: 15)]),
                                     ),
                                   ],
                                 ),
@@ -486,7 +486,7 @@ class _SettingState extends State<Setting> {
                                       child: Image.asset(
                                         "assets/icons/ssh.png",
                                         width: 20,
-                                        color: terminal.enableSsh! ? AppTheme.of(context)?.successColor : Colors.white,
+                                        color: terminal.enableSsh! ? AppTheme.of(context).successColor : Colors.white,
                                       ),
                                     ),
                                   CupertinoButton(
@@ -500,7 +500,7 @@ class _SettingState extends State<Setting> {
                                         : Image.asset(
                                             "assets/icons/reboot.png",
                                             width: 20,
-                                            color: AppTheme.of(context)?.warningColor,
+                                            color: AppTheme.of(context).warningColor,
                                           ),
                                   ),
                                   CupertinoButton(
@@ -510,7 +510,7 @@ class _SettingState extends State<Setting> {
                                         : Image.asset(
                                             "assets/icons/shutdown.png",
                                             width: 20,
-                                            color: AppTheme.of(context)?.errorColor,
+                                            color: AppTheme.of(context).errorColor,
                                           ),
                                   ),
                                 ],

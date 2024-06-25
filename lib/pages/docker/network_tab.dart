@@ -46,7 +46,7 @@ class _NetworkTabState extends State<NetworkTab> with AutomaticKeepAliveClientMi
   Widget _buildNetworkItem(Network network) {
     return Container(
       decoration: BoxDecoration(
-        color: AppTheme.of(context)?.cardColor,
+        color: AppTheme.of(context).cardColor,
         borderRadius: BorderRadius.circular(20),
       ),
       margin: EdgeInsets.only(left: 16, right: 16, top: 14),
@@ -61,7 +61,7 @@ class _NetworkTabState extends State<NetworkTab> with AutomaticKeepAliveClientMi
             ),
             Text(
               "${network.containers!.length}个容器",
-              style: TextStyle(fontSize: 14, color: AppTheme.of(context)?.placeholderColor),
+              style: TextStyle(fontSize: 14, color: AppTheme.of(context).placeholderColor),
             )
           ],
         ),
@@ -74,7 +74,7 @@ class _NetworkTabState extends State<NetworkTab> with AutomaticKeepAliveClientMi
               children: [
                 Text(
                   "驱动程序",
-                  style: TextStyle(color: AppTheme.of(context)?.placeholderColor, fontSize: 13),
+                  style: TextStyle(color: AppTheme.of(context).placeholderColor, fontSize: 13),
                 ),
                 Text(
                   "${network.driver}",
@@ -84,7 +84,7 @@ class _NetworkTabState extends State<NetworkTab> with AutomaticKeepAliveClientMi
                   Divider(indent: 0, endIndent: 0, height: 20),
                   Text(
                     "子网",
-                    style: TextStyle(color: AppTheme.of(context)?.placeholderColor, fontSize: 13),
+                    style: TextStyle(color: AppTheme.of(context).placeholderColor, fontSize: 13),
                   ),
                   Text(
                     "${network.subnet}",
@@ -95,7 +95,7 @@ class _NetworkTabState extends State<NetworkTab> with AutomaticKeepAliveClientMi
                   Divider(indent: 0, endIndent: 0, height: 20),
                   Text(
                     "网关",
-                    style: TextStyle(color: AppTheme.of(context)?.placeholderColor, fontSize: 13),
+                    style: TextStyle(color: AppTheme.of(context).placeholderColor, fontSize: 13),
                   ),
                   Text(
                     "${network.gateway}",
@@ -105,7 +105,7 @@ class _NetworkTabState extends State<NetworkTab> with AutomaticKeepAliveClientMi
                 Divider(indent: 0, endIndent: 0, height: 20),
                 Text(
                   "IPv6",
-                  style: TextStyle(color: AppTheme.of(context)?.placeholderColor, fontSize: 13),
+                  style: TextStyle(color: AppTheme.of(context).placeholderColor, fontSize: 13),
                 ),
                 Text(
                   "${network.enableIpv6 == true ? '已启用' : '已禁用'}",
@@ -114,7 +114,7 @@ class _NetworkTabState extends State<NetworkTab> with AutomaticKeepAliveClientMi
                 Divider(indent: 0, endIndent: 0, height: 20),
                 Text(
                   "容器",
-                  style: TextStyle(color: AppTheme.of(context)?.placeholderColor, fontSize: 13),
+                  style: TextStyle(color: AppTheme.of(context).placeholderColor, fontSize: 13),
                 ),
                 SizedBox(
                   height: 5,
@@ -123,7 +123,7 @@ class _NetworkTabState extends State<NetworkTab> with AutomaticKeepAliveClientMi
                   Wrap(
                     spacing: 5,
                     runSpacing: 5,
-                    children: network.containers!.map((e) => Label(e, AppTheme.of(context)?.primaryColor ?? Colors.blue)).toList(),
+                    children: network.containers!.map((e) => Label(e, AppTheme.of(context).primaryColor)).toList(),
                   )
                 else
                   Text("无"),

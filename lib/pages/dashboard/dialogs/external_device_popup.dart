@@ -9,7 +9,6 @@ import 'package:dsm_helper/widgets/glass/glass_modal_popup.dart';
 import 'package:dsm_helper/widgets/glass/popup_header.dart';
 import 'package:dsm_helper/widgets/label.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class ExternalDevicePopupContent extends StatefulWidget {
@@ -78,7 +77,7 @@ class _ExternalDevicePopupContentState extends State<ExternalDevicePopupContent>
                 SizedBox(height: 5),
                 Text(
                   "${device.product ?? '-'}",
-                  style: TextStyle(fontSize: 12, color: AppTheme.of(context)?.placeholderColor),
+                  style: TextStyle(fontSize: 12, color: AppTheme.of(context).placeholderColor),
                 ),
               ],
             ),
@@ -87,7 +86,7 @@ class _ExternalDevicePopupContentState extends State<ExternalDevicePopupContent>
             child: Image.asset(
               "assets/icons/eject.png",
               width: 24,
-              color: AppTheme.of(context)?.warningColor,
+              color: AppTheme.of(context).warningColor,
             ),
             padding: EdgeInsets.zero,
             minSize: 0,

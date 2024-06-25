@@ -214,7 +214,7 @@ class _TaskManagerState extends State<TaskManager> with SingleTickerProviderStat
           : Column(
               children: [
                 Container(
-                  color: Theme.of(context).backgroundColor,
+                  color: Theme.of(context).colorScheme.surface,
                   child: TabBar(
                     isScrollable: true,
                     controller: _tabController,

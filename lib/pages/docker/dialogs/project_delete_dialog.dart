@@ -44,7 +44,7 @@ class ProjectDeleteDialog {
                     onPressed: () async {
                       context.pop(true);
                     },
-                    color: AppTheme.of(context)?.errorColor,
+                    color: AppTheme.of(context).errorColor,
                     child: Text(
                       "删除项目",
                       style: TextStyle(fontSize: 18),

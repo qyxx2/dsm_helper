@@ -167,7 +167,7 @@ class _NetworkState extends State<Network> with SingleTickerProviderStateMixin {
                         children: [
                           Text(
                             "请输入服务器名称、域名服务器 (DNS) 及默认网关。",
-                            style: TextStyle(color: AppTheme.of(context)?.placeholderColor, fontSize: 14),
+                            style: TextStyle(color: AppTheme.of(context).placeholderColor, fontSize: 14),
                           ),
                           TextField(
                             controller: _serverNameController,
@@ -182,7 +182,7 @@ class _NetworkState extends State<Network> with SingleTickerProviderStateMixin {
                           ),
                           Text(
                             "默认网关(gateway)",
-                            style: TextStyle(color: AppTheme.of(context)?.placeholderColor, fontSize: 13),
+                            style: TextStyle(color: AppTheme.of(context).placeholderColor, fontSize: 13),
                           ),
                           Text(
                             "${network.gateway} (${network.gatewayInfo?.ifnameEnum != InterfaceTypeEnum.unknown ? network.gatewayInfo?.ifnameEnum.label : network.gatewayInfo?.ifname})",
@@ -191,7 +191,7 @@ class _NetworkState extends State<Network> with SingleTickerProviderStateMixin {
                           Divider(),
                           Text(
                             "IPv6默认网关",
-                            style: TextStyle(color: AppTheme.of(context)?.placeholderColor, fontSize: 13),
+                            style: TextStyle(color: AppTheme.of(context).placeholderColor, fontSize: 13),
                           ),
                           Text(
                             "${network.v6gateway == null || network.v6gateway == "" ? "-" : network.v6gateway}",
@@ -304,7 +304,7 @@ class _NetworkState extends State<Network> with SingleTickerProviderStateMixin {
                       ...ethernets.ethernets!.map((ethernet) {
                         return Container(
                           decoration: BoxDecoration(
-                            color: AppTheme.of(context)?.cardColor,
+                            color: AppTheme.of(context).cardColor,
                             borderRadius: BorderRadius.circular(20),
                           ),
                           margin: EdgeInsets.only(left: 16, right: 16, top: 14),
@@ -342,12 +342,12 @@ class _NetworkState extends State<Network> with SingleTickerProviderStateMixin {
                                     children: [
                                       Text(
                                         ethernet.ip ?? '',
-                                        style: TextStyle(color: AppTheme.of(context)?.placeholderColor),
+                                        style: TextStyle(color: AppTheme.of(context).placeholderColor),
                                       ),
                                       SizedBox(
                                         width: 10,
                                       ),
-                                      Label(ethernet.useDhcp == true ? 'DHCP' : '静态IP', AppTheme.of(context)?.primaryColor ?? Colors.blue),
+                                      Label(ethernet.useDhcp == true ? 'DHCP' : '静态IP', AppTheme.of(context).primaryColor),
                                     ],
                                   ),
                               ],
@@ -355,7 +355,7 @@ class _NetworkState extends State<Network> with SingleTickerProviderStateMixin {
                             children: [
                               Text(
                                 "子网掩码(mask)",
-                                style: TextStyle(color: AppTheme.of(context)?.placeholderColor, fontSize: 13),
+                                style: TextStyle(color: AppTheme.of(context).placeholderColor, fontSize: 13),
                               ),
                               Text(
                                 ethernet.mask == '' ? '--' : ethernet.mask ?? '--',
@@ -364,7 +364,7 @@ class _NetworkState extends State<Network> with SingleTickerProviderStateMixin {
                               Divider(),
                               Text(
                                 "IPv6地址",
-                                style: TextStyle(color: AppTheme.of(context)?.placeholderColor, fontSize: 13),
+                                style: TextStyle(color: AppTheme.of(context).placeholderColor, fontSize: 13),
                               ),
                               ethernet.ipv6 != null && ethernet.ipv6!.isNotEmpty
                                   ? Column(
@@ -380,7 +380,7 @@ class _NetworkState extends State<Network> with SingleTickerProviderStateMixin {
                               Divider(),
                               Text(
                                 "网络状态",
-                                style: TextStyle(color: AppTheme.of(context)?.placeholderColor, fontSize: 13),
+                                style: TextStyle(color: AppTheme.of(context).placeholderColor, fontSize: 13),
                               ),
                               Text(
                                 "${ethernet.maxSupportedSpeed} Mb/s,${ethernet.duplex == true ? '全双工' : '半双工'}, MTU ${ethernet.mtu}",
@@ -395,7 +395,7 @@ class _NetworkState extends State<Network> with SingleTickerProviderStateMixin {
                       ...pppoes.pppoes!.map((pppoe) {
                         return Container(
                           decoration: BoxDecoration(
-                            color: AppTheme.of(context)?.cardColor,
+                            color: AppTheme.of(context).cardColor,
                             borderRadius: BorderRadius.circular(20),
                           ),
                           margin: EdgeInsets.only(left: 16, right: 16, top: 14),
@@ -437,7 +437,7 @@ class _NetworkState extends State<Network> with SingleTickerProviderStateMixin {
                             children: [
                               Text(
                                 "子网掩码(mask)",
-                                style: TextStyle(color: AppTheme.of(context)?.placeholderColor, fontSize: 13),
+                                style: TextStyle(color: AppTheme.of(context).placeholderColor, fontSize: 13),
                               ),
                               Text(
                                 pppoe.mask == '' ? '--' : pppoe.mask ?? '--',
@@ -446,7 +446,7 @@ class _NetworkState extends State<Network> with SingleTickerProviderStateMixin {
                               Divider(),
                               Text(
                                 "IPv6地址",
-                                style: TextStyle(color: AppTheme.of(context)?.placeholderColor, fontSize: 13),
+                                style: TextStyle(color: AppTheme.of(context).placeholderColor, fontSize: 13),
                               ),
                               pppoe.ipv6 != null && pppoe.ipv6!.isNotEmpty
                                   ? Column(

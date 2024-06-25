@@ -7,8 +7,8 @@ import 'package:flutter_vibrate/flutter_vibrate.dart';
 import 'package:gesture_password_widget/gesture_password_widget.dart';
 import 'package:local_auth/error_codes.dart' as auth_error;
 import 'package:local_auth/local_auth.dart';
-import 'package:local_auth_ios/local_auth_ios.dart';
 import 'package:local_auth_android/local_auth_android.dart';
+import 'package:local_auth_darwin/local_auth_darwin.dart';
 import 'package:sp_util/sp_util.dart';
 
 class AuthPage extends StatefulWidget {
@@ -122,7 +122,7 @@ class _AuthPageState extends State<AuthPage> {
     }
   }
 
-  Future<bool> onWillPop() {
+  void onWillPop(bool isWillPop) {
     Utils.vibrate(FeedbackType.light);
     if (lastPopTime == null || DateTime.now().difference(lastPopTime!) > Duration(seconds: 2)) {
       lastPopTime = DateTime.now();
@@ -132,7 +132,6 @@ class _AuthPageState extends State<AuthPage> {
       // 退出app
       SystemNavigator.pop();
     }
-    return Future.value(false);
   }
 
   @override
@@ -142,8 +141,9 @@ class _AuthPageState extends State<AuthPage> {
         automaticallyImplyLeading: false,
         title: Text('安全验证'),
       ),
-      body: WillPopScope(
-        onWillPop: onWillPop,
+      body: PopScope(
+        canPop: false,
+        onPopInvoked: onWillPop,
         child: Center(
           child: Column(
             mainAxisSize: MainAxisSize.min,

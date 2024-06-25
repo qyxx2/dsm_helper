@@ -88,7 +88,7 @@ class _UpdateState extends State<Update> {
                   child: Text(
                     "v${widget.data['buildVersion']} build ${widget.data['buildVersionNo']}",
                     style: TextStyle(
-                      color: AppTheme.of(context)?.placeholderColor,
+                      color: AppTheme.of(context).placeholderColor,
                       fontSize: 16,
                     ),
                   ),
@@ -101,7 +101,7 @@ class _UpdateState extends State<Update> {
                   body: Container(
                     child: Text(
                       "${widget.data['buildUpdateDescription'] == "" ? "暂无更新日志" : widget.data['buildUpdateDescription']}",
-                      style: TextStyle(color: AppTheme.of(context)?.placeholderColor),
+                      style: TextStyle(color: AppTheme.of(context).placeholderColor),
                     ),
                   ),
                 ),
@@ -114,7 +114,7 @@ class _UpdateState extends State<Update> {
             },
             child: Text(
               "使用浏览器下载",
-              style: TextStyle(color: AppTheme.of(context)?.placeholderColor, decoration: TextDecoration.underline, fontSize: 14),
+              style: TextStyle(color: AppTheme.of(context).placeholderColor, decoration: TextDecoration.underline, fontSize: 14),
             ),
           ),
           SafeArea(
@@ -127,7 +127,7 @@ class _UpdateState extends State<Update> {
                       onPressed: () {
                         download();
                       },
-                      color: AppTheme.of(context)?.primaryColor,
+                      color: AppTheme.of(context).primaryColor,
                       borderRadius: BorderRadius.circular(15),
                       child: Text(
                         "下载更新",

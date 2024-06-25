@@ -102,9 +102,13 @@ class Day {
   int? year;
   num? startPosition;
   num? endPosition;
+  bool? loading;
   List<PhotoModel> photos = [];
 
   Future fetchPhotos({bool isTeam = false, String? type, num? geocodingId, num? generalTagId, bool recentlyAdd = false, List<int> itemTypes = const []}) async {
+    if(photos.isNotEmpty){
+      return photos;
+    }
     Map<String, dynamic> data = {
       "offset": 0,
       "limit": itemCount,
@@ -136,15 +140,17 @@ class Day {
       // }
     }
     String api = "SYNO.Foto${isTeam ? 'Team' : ''}.Browse.${recentlyAdd ? 'RecentlyAdded' : 'Item'}";
-    print(data);
-    DsmResponse res = await Api.dsm.entry(api, "list", version: 1, path: api);
+    DsmResponse res = await Api.dsm.entry(api, "list", version: 1, path: api,data: data, parser: (json){
+      photos = [];
+      json['list'].forEach((e) {
+        photos.add(PhotoModel.fromJson(e));
+      });
+      return photos;
+    },);
     // var res = await Utils.post("entry.cgi", data: data);
     // print(res);
     if (res.success == true) {
-      photos = [];
-      res.data!['list'].forEach((e) {
-        photos.add(PhotoModel.fromJson(e));
-      });
+      photos = res.data;
     } else {
       throw Exception();
     }

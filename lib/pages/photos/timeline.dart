@@ -1,20 +1,22 @@
-import 'package:draggable_scrollbar/draggable_scrollbar.dart';
 import 'package:dsm_helper/models/photos/photo_model.dart';
 import 'package:dsm_helper/models/photos/timeline_model.dart';
 import 'package:dsm_helper/pages/common/image_preview.dart';
 import 'package:dsm_helper/pages/common/video_player.dart';
 import 'package:dsm_helper/widgets/cupertino_image.dart';
+import 'package:dsm_helper/widgets/empty_widget.dart';
 import 'package:dsm_helper/widgets/transparent_router.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class Timeline extends StatefulWidget {
   const Timeline(this.isTeam, {this.type, this.geocodingId, this.generalTagId, this.recentlyAdd = false, super.key});
+
   final bool isTeam;
   final String? type;
   final num? geocodingId;
   final num? generalTagId;
   final bool recentlyAdd;
+
   @override
   State<Timeline> createState() => TimelineState();
 }
@@ -27,6 +29,7 @@ class TimelineState extends State<Timeline> {
   List<Day> days = [];
   List<int> itemTypes = [];
   bool isTeam = false;
+
   @override
   void initState() {
     isTeam = widget.isTeam;
@@ -81,116 +84,133 @@ class TimelineState extends State<Timeline> {
             ),
           )
         : days.length > 0
-            ? DraggableScrollbar.semicircle(
-                labelTextBuilder: (position) {
-                  var line = days.where((day) => day.startPosition! <= position && day.endPosition! >= position).toList();
-                  if (line.length > 0) {
-                    return Text.rich(
-                      TextSpan(
-                        children: [
-                          TextSpan(
-                            text: "${line[0].month}月",
-                            style: TextStyle(fontSize: 30),
-                          ),
-                          TextSpan(
-                            text: "${line[0].day.toString().padLeft(2, "0")}日",
-                            style: TextStyle(fontSize: 30),
-                          ),
-                          TextSpan(
-                            text: "${line[0].year}",
-                            style: TextStyle(fontSize: 30),
-                          ),
-                        ],
-                      ),
-                    );
-                    // return Container(
-                    //   padding: EdgeInsets.symmetric(horizontal: 20),
-                    //   child: Row(
-                    //     mainAxisAlignment: MainAxisAlignment.end,
-                    //     children: [
-                    //       Text(
-                    //         "${line[0].month}月",
-                    //         style: TextStyle(fontSize: 30),
-                    //       ),
-                    //       Column(
-                    //         mainAxisAlignment: MainAxisAlignment.center,
-                    //         children: [
-                    //           Text("${line[0].day.toString().padLeft(2, "0")}日"),
-                    //           Text("${line[0].year}"),
-                    //         ],
-                    //       )
-                    //     ],
-                    //   ),
-                    // );
-                  } else {
-                    return Text("");
-                  }
-                },
-                labelConstraints: BoxConstraints(minHeight: 60, maxHeight: 60, minWidth: 140, maxWidth: 140),
+            ? CustomScrollView(
                 controller: _scrollController,
-                child: ListView.builder(
-                  controller: _scrollController,
-                  itemBuilder: (context, i) {
-                    return _buildTimelineItem(days[i]);
-                  },
-                  itemCount: days.length,
-                ),
+                slivers: days.map(_buildTimelineItem).toList(),
               )
-            : Center(
-                child: Text("无项目"),
+            // DraggableScrollbar.semicircle(
+            //             labelTextBuilder: (position) {
+            //               var line = days.where((day) => day.startPosition! <= position && day.endPosition! >= position).toList();
+            //               if (line.length > 0) {
+            //                 return Text.rich(
+            //                   TextSpan(
+            //                     children: [
+            //                       TextSpan(
+            //                         text: "${line[0].month}月",
+            //                         style: TextStyle(fontSize: 20),
+            //                       ),
+            //                       TextSpan(
+            //                         text: "${line[0].day.toString().padLeft(2, "0")}日\n",
+            //                         style: TextStyle(fontSize: 20),
+            //                       ),
+            //                       TextSpan(
+            //                         text: "${line[0].year}年",
+            //                         style: TextStyle(fontSize: 16),
+            //                       ),
+            //                     ],
+            //                   ),
+            //                 );
+            //               } else {
+            //                 return Text("");
+            //               }
+            //             },
+            //             labelConstraints: BoxConstraints(minHeight: 60, maxHeight: 60, minWidth: 140, maxWidth: 140),
+            //             controller: _scrollController,
+            //             child: ListView.builder(
+            //               controller: _scrollController,
+            //               itemBuilder: (context, i) {
+            //                 return _buildTimelineItem(days[i]);
+            //               },
+            //               itemCount: days.length,
+            //             ),
+            //           )
+            : EmptyWidget(
+                text: "暂无照片",
               );
   }
 
   Widget _buildTimelineItem(Day day) {
-    if (day.photos.isEmpty) {
-      day
-          .fetchPhotos(
-        isTeam: isTeam,
-        type: widget.type,
-        itemTypes: itemTypes,
-        geocodingId: widget.geocodingId,
-        generalTagId: widget.generalTagId,
-        recentlyAdd: widget.recentlyAdd,
-      )
-          .then((_) {
-        setState(() {});
-      });
-    }
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          alignment: Alignment.centerLeft,
-          height: 40,
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: Row(
-            children: [
-              Text(
-                "${day.year}-${day.month.toString().padLeft(2, "0")}-${day.day.toString().padLeft(2, "0")}",
+    return FutureBuilder(future: day
+        .fetchPhotos(
+      isTeam: isTeam,
+      type: widget.type,
+      itemTypes: itemTypes,
+      geocodingId: widget.geocodingId,
+      generalTagId: widget.generalTagId,
+      recentlyAdd: widget.recentlyAdd,
+    ), builder: (context, snapshot){
+      return SliverMainAxisGroup(
+        slivers: [
+          SliverToBoxAdapter(
+            child: Container(
+              alignment: Alignment.centerLeft,
+              height: 40,
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Row(
+                children: [
+                  Text(
+                    "${day.year}-${day.month.toString().padLeft(2, "0")}-${day.day.toString().padLeft(2, "0")}",
+                  ),
+                  // if (line['location'] != null && ((line['location']['first_level'] != null && line['location']['first_level'] != ""))) Text("   ${line['location']['first_level']}"),
+                  // if (line['location'] != null && ((line['location']['second_level'] != null && line['location']['second_level'].length > 0))) Text("${line['location']['second_level'].join(",")}"),
+                ],
               ),
-              // if (line['location'] != null && ((line['location']['first_level'] != null && line['location']['first_level'] != ""))) Text("   ${line['location']['first_level']}"),
-              // if (line['location'] != null && ((line['location']['second_level'] != null && line['location']['second_level'].length > 0))) Text("${line['location']['second_level'].join(",")}"),
-            ],
+            ),
           ),
-        ),
-        Wrap(
-          spacing: 2,
-          runSpacing: 2,
-          children: day.photos.isEmpty
-              ? List.generate(day.itemCount!, (index) {
-                  return Container(
-                    color: Color(0xffE9E9E9),
-                    width: photoWidth,
-                    height: photoWidth,
-                  );
-                })
-              : day.photos.map((item) {
-                  return _buildPhotoItem(item, day.photos);
-                }).toList(),
-        ),
-      ],
-    );
+          SliverGrid(
+            delegate: SliverChildBuilderDelegate((context, index) {
+              if (day.photos.isEmpty) {
+                return Container(
+                  color: Color(0xffE9E9E9),
+                  width: photoWidth,
+                  height: photoWidth,
+                );
+              }
+              return _buildPhotoItem(day.photos[index], day.photos);
+            }, childCount: day.itemCount),
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 4,
+              mainAxisSpacing: 2,
+              crossAxisSpacing: 2,
+            ),
+          ),
+        ],
+      );
+    });
+    // return Column(
+    //   crossAxisAlignment: CrossAxisAlignment.start,
+    //   children: [
+    //     Container(
+    //       alignment: Alignment.centerLeft,
+    //       height: 40,
+    //       padding: const EdgeInsets.symmetric(horizontal: 20),
+    //       child: Row(
+    //         children: [
+    //           Text(
+    //             "${day.year}-${day.month.toString().padLeft(2, "0")}-${day.day.toString().padLeft(2, "0")}",
+    //           ),
+    //           // if (line['location'] != null && ((line['location']['first_level'] != null && line['location']['first_level'] != ""))) Text("   ${line['location']['first_level']}"),
+    //           // if (line['location'] != null && ((line['location']['second_level'] != null && line['location']['second_level'].length > 0))) Text("${line['location']['second_level'].join(",")}"),
+    //         ],
+    //       ),
+    //     ),
+    //     Wrap(
+    //       spacing: 2,
+    //       runSpacing: 2,
+    //       children: day.photos.isEmpty
+    //           ? List.generate(day.itemCount!, (index) {
+    //               return Container(
+    //                 color: Color(0xffE9E9E9),
+    //                 width: photoWidth,
+    //                 height: photoWidth,
+    //               );
+    //             })
+    //           : day.photos.map((item) {
+    //               return _buildPhotoItem(item, day.photos);
+    //             }).toList(),
+    //     ),
+    //   ],
+    // );
   }
 
   Widget _buildPhotoItem(PhotoModel photo, List<PhotoModel> photos) {

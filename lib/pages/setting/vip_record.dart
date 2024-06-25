@@ -61,7 +61,7 @@ class _VipRecordState extends State<VipRecord> {
                     : Center(
                         child: Text(
                           "暂无开通记录",
-                          style: TextStyle(color: AppTheme.of(context)?.placeholderColor),
+                          style: TextStyle(color: AppTheme.of(context).placeholderColor),
                         ),
                       ),
           ),

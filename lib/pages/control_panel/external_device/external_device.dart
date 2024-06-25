@@ -78,7 +78,7 @@ class _ExternalDeviceState extends State<ExternalDevice> with SingleTickerProvid
               SizedBox(width: 10),
               Text(
                 "${partition.shareName == null || partition.shareName == '' ? '未共享' : partition.shareName}",
-                style: TextStyle(fontSize: 13, color: AppTheme.of(context)?.placeholderColor),
+                style: TextStyle(fontSize: 13, color: AppTheme.of(context).placeholderColor),
               ),
             ],
           ),
@@ -96,16 +96,16 @@ class _ExternalDeviceState extends State<ExternalDevice> with SingleTickerProvid
               children: [
                 Text(
                   "已用 ${partition.usedSizeMb != null ? Utils.formatSize(partition.usedSizeMb! * 1024 * 1024, showByte: true) : '--'} ",
-                  style: TextStyle(color: partition.usedPercent > 80 ? AppTheme.of(context)?.errorColor : AppTheme.of(context)?.primaryColor),
+                  style: TextStyle(color: partition.usedPercent > 80 ? AppTheme.of(context).errorColor : AppTheme.of(context).primaryColor),
                 ),
                 Text(
                   "/ ${partition.totalSizeMb != null ? Utils.formatSize(partition.totalSizeMb! * 1024 * 1024, showByte: true) : '--'}",
-                  style: TextStyle(color: AppTheme.of(context)?.placeholderColor),
+                  style: TextStyle(color: AppTheme.of(context).placeholderColor),
                 ),
                 Spacer(),
                 Text(
                   "可用：${Utils.formatSize(partition.freeSizeMb * 1024 * 1024)}",
-                  style: TextStyle(color: AppTheme.of(context)?.successColor),
+                  style: TextStyle(color: AppTheme.of(context).successColor),
                 ),
               ],
             ),
@@ -212,7 +212,7 @@ class _ExternalDeviceState extends State<ExternalDevice> with SingleTickerProvid
             child: Image.asset(
               "assets/icons/eject.png",
               width: 24,
-              color: AppTheme.of(context)?.warningColor,
+              color: AppTheme.of(context).warningColor,
             ),
             padding: EdgeInsets.zero,
             onPressed: () {
@@ -226,7 +226,7 @@ class _ExternalDeviceState extends State<ExternalDevice> with SingleTickerProvid
         children: [
           Text(
             "制造商",
-            style: TextStyle(color: AppTheme.of(context)?.placeholderColor, fontSize: 13),
+            style: TextStyle(color: AppTheme.of(context).placeholderColor, fontSize: 13),
           ),
           Text(
             "${device.producer ?? '-'}",
@@ -235,7 +235,7 @@ class _ExternalDeviceState extends State<ExternalDevice> with SingleTickerProvid
           Divider(indent: 0, endIndent: 0, height: 20),
           Text(
             "产品名称",
-            style: TextStyle(color: AppTheme.of(context)?.placeholderColor, fontSize: 13),
+            style: TextStyle(color: AppTheme.of(context).placeholderColor, fontSize: 13),
           ),
           Text(
             "${device.product ?? '-'}",

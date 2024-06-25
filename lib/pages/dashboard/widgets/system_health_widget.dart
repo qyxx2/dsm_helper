@@ -37,7 +37,7 @@ class SystemHealthWidget extends StatelessWidget {
                     children: [
                       Text(
                         "系统名称",
-                        style: TextStyle(color: AppTheme.of(context)?.placeholderColor, fontSize: 16),
+                        style: TextStyle(color: AppTheme.of(context).placeholderColor, fontSize: 16),
                       ),
                       Text(
                         "${initData.session?.hostname}",
@@ -71,7 +71,7 @@ class SystemHealthWidget extends StatelessWidget {
                     children: [
                       Text(
                         "运行时间",
-                        style: TextStyle(color: AppTheme.of(context)?.placeholderColor, fontSize: 16),
+                        style: TextStyle(color: AppTheme.of(context).placeholderColor, fontSize: 16),
                       ),
                       Text(
                         "${system.upTime != null ? Utils.parseOpTime(system.upTime!) : '-'}",

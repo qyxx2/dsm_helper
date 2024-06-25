@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:typed_data';
 
 import 'package:dartssh2/dartssh2.dart';
 
@@ -69,7 +68,7 @@ class _SshState extends State<Ssh> {
     };
 
     terminal.onOutput = (data) {
-      session.write(utf8.encode(data) as Uint8List);
+      session.write(utf8.encode(data));
     };
 
     session.stdout.cast<List<int>>().transform(Utf8Decoder()).listen(terminal.write);

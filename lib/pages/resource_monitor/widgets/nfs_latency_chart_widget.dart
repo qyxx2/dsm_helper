@@ -1,8 +1,6 @@
-import 'dart:math';
 
 import 'package:dsm_helper/models/Syno/Core/System/Utilization.dart';
 import 'package:dsm_helper/themes/app_theme.dart';
-import 'package:dsm_helper/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
@@ -71,8 +69,8 @@ class NfsLatencyChartWidget extends StatelessWidget {
               markerSettings: const MarkerSettings(isVisible: false),
               // color: Colors.lightBlue,
               borderWidth: 2,
-              borderColor: AppTheme.of(context)?.primaryColor,
-              gradient: LinearGradient(colors: [AppTheme.of(context)!.primaryColor!.withOpacity(0.1), AppTheme.of(context)!.primaryColor!.withOpacity(0.4)], begin: Alignment.bottomCenter, end: Alignment.topCenter),
+              borderColor: AppTheme.of(context).primaryColor,
+              gradient: LinearGradient(colors: [AppTheme.of(context).primaryColor.withOpacity(0.1), AppTheme.of(context).primaryColor.withOpacity(0.4)], begin: Alignment.bottomCenter, end: Alignment.topCenter),
             ),
         ],
       ),

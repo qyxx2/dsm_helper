@@ -48,7 +48,7 @@ class DsmException implements Exception {
   String toString() {
     String report = "DsmException($code)";
     Object? message = this.message;
-    if (message != null && "" != message) {
+    if (message != '') {
       report = "$report: $message";
     }
     int? offset = this.offset;

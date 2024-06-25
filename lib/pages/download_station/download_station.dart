@@ -380,7 +380,7 @@ class _DownloadStationState extends State<DownloadStation> {
               : Center(
                   child: Text(
                     "暂无下载任务",
-                    style: TextStyle(color: AppTheme.of(context)?.placeholderColor),
+                    style: TextStyle(color: AppTheme.of(context).placeholderColor),
                   ),
                 ),
     );

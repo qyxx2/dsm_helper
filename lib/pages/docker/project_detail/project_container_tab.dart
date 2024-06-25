@@ -17,6 +17,8 @@ class _ProjectContainerTabState extends State<ProjectContainerTab> {
     return widget.project.containers != null && widget.project.containers!.isNotEmpty
         ? ListView.builder(
             itemBuilder: (context, i) {
+              return null;
+
               // return ContainerItemWidget(widget.project.containers![i]);
             },
           )

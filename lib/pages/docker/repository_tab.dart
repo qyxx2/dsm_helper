@@ -101,7 +101,7 @@ class _RepositoryTabState extends State<RepositoryTab> with AutomaticKeepAliveCl
                         child: Image.asset(
                           "assets/icons/official.png",
                           width: 16,
-                          color: AppTheme.of(context)?.primaryColor,
+                          color: AppTheme.of(context).primaryColor,
                         ),
                       ),
                     Padding(
@@ -122,7 +122,7 @@ class _RepositoryTabState extends State<RepositoryTab> with AutomaticKeepAliveCl
                   Text(
                     "${registry.description}",
                     style: TextStyle(
-                      color: AppTheme.of(context)?.placeholderColor,
+                      color: AppTheme.of(context).placeholderColor,
                     ),
                   )
                 ],
@@ -133,7 +133,7 @@ class _RepositoryTabState extends State<RepositoryTab> with AutomaticKeepAliveCl
             child: Image.asset(
               "assets/icons/download_cloud.png",
               width: 24,
-              color: AppTheme.of(context)?.primaryColor,
+              color: AppTheme.of(context).primaryColor,
             ),
             padding: EdgeInsets.zero,
             onPressed: () async {

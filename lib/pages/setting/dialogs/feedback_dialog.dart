@@ -30,7 +30,7 @@ class FeedbackDialog {
                       SpUtil.putBool("feedback_confirm", true);
                       Fluwx().open(target: MiniProgram(username: "gh_6c07712ef0fb"));
                     },
-                    color: AppTheme.of(context)?.errorColor,
+                    color: AppTheme.of(context).errorColor,
                     borderRadius: BorderRadius.circular(15),
                     padding: EdgeInsets.symmetric(vertical: 10),
                     child: Text(

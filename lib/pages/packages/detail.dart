@@ -357,7 +357,7 @@ class _PackageDetailState extends State<PackageDetail> {
                 Container(
                   margin: EdgeInsets.only(top: 14, left: 16, right: 16),
                   decoration: BoxDecoration(
-                    color: AppTheme.of(context)?.cardColor,
+                    color: AppTheme.of(context).cardColor,
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Padding(
@@ -416,7 +416,7 @@ class _PackageDetailState extends State<PackageDetail> {
                                         }
                                       },
                                       padding: EdgeInsets.symmetric(vertical: 6),
-                                      color: AppTheme.of(context)?.errorColor,
+                                      color: AppTheme.of(context).errorColor,
                                       borderRadius: 50,
                                       child: Text(
                                         "停用",
@@ -445,7 +445,7 @@ class _PackageDetailState extends State<PackageDetail> {
                                         }
                                       },
                                       padding: EdgeInsets.symmetric(vertical: 6),
-                                      color: AppTheme.of(context)?.successColor,
+                                      color: AppTheme.of(context).successColor,
                                       borderRadius: 50,
                                       child: Text(
                                         "启动",
@@ -461,7 +461,7 @@ class _PackageDetailState extends State<PackageDetail> {
                   Container(
                     margin: EdgeInsets.only(top: 14, left: 16, right: 16),
                     decoration: BoxDecoration(
-                      color: AppTheme.of(context)?.cardColor,
+                      color: AppTheme.of(context).cardColor,
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Padding(
@@ -474,7 +474,7 @@ class _PackageDetailState extends State<PackageDetail> {
                             child: Swiper(
                               autoplay: true,
                               autoplayDelay: 5000,
-                              pagination: SwiperPagination(alignment: Alignment.bottomCenter, builder: DotSwiperPaginationBuilder(activeColor: AppTheme.of(context)?.primaryColor, size: 7, activeSize: 7)),
+                              pagination: SwiperPagination(alignment: Alignment.bottomCenter, builder: DotSwiperPaginationBuilder(activeColor: AppTheme.of(context).primaryColor, size: 7, activeSize: 7)),
                               itemCount: widget.package.snapshot!.length,
                               itemBuilder: (context, i) {
                                 return _buildSwiperItem(widget.package.snapshot![i]);
@@ -520,13 +520,13 @@ class _PackageDetailState extends State<PackageDetail> {
                           children: [
                             Text(
                               "开发者",
-                              style: TextStyle(color: AppTheme.of(context)?.placeholderColor, fontSize: 13),
+                              style: TextStyle(color: AppTheme.of(context).placeholderColor, fontSize: 13),
                             ),
                             if (widget.package.maintainerUrl != null && widget.package.maintainerUrl != "")
                               GestureDetector(
                                 child: Text(
                                   "${widget.package.maintainer}",
-                                  style: TextStyle(color: AppTheme.of(context)?.primaryColor, fontSize: 16),
+                                  style: TextStyle(color: AppTheme.of(context).primaryColor, fontSize: 16),
                                 ),
                                 onTap: () {
                                   context.push(Browser(url: widget.package.maintainerUrl!));
@@ -548,13 +548,13 @@ class _PackageDetailState extends State<PackageDetail> {
                             children: [
                               Text(
                                 "发布人员",
-                                style: TextStyle(color: AppTheme.of(context)?.placeholderColor, fontSize: 13),
+                                style: TextStyle(color: AppTheme.of(context).placeholderColor, fontSize: 13),
                               ),
                               if (widget.package.distributorUrl != null && widget.package.distributorUrl != "")
                                 GestureDetector(
                                   child: Text(
                                     "${widget.package.distributor}",
-                                    style: TextStyle(color: AppTheme.of(context)?.primaryColor, fontSize: 16),
+                                    style: TextStyle(color: AppTheme.of(context).primaryColor, fontSize: 16),
                                   ),
                                   onTap: () {
                                     context.push(Browser(url: widget.package.distributorUrl!));
@@ -575,7 +575,7 @@ class _PackageDetailState extends State<PackageDetail> {
                           children: [
                             Text(
                               "下载次数",
-                              style: TextStyle(color: AppTheme.of(context)?.placeholderColor, fontSize: 13),
+                              style: TextStyle(color: AppTheme.of(context).placeholderColor, fontSize: 13),
                             ),
                             Text(
                               "${widget.package.downloadCount}",
@@ -592,7 +592,7 @@ class _PackageDetailState extends State<PackageDetail> {
                             children: [
                               Text(
                                 "已安装版本",
-                                style: TextStyle(color: AppTheme.of(context)?.placeholderColor, fontSize: 13),
+                                style: TextStyle(color: AppTheme.of(context).placeholderColor, fontSize: 13),
                               ),
                               Text(
                                 "${widget.package.installedPackageItem?.version}",
@@ -608,7 +608,7 @@ class _PackageDetailState extends State<PackageDetail> {
                             children: [
                               Text(
                                 "安装位置",
-                                style: TextStyle(color: AppTheme.of(context)?.placeholderColor, fontSize: 13),
+                                style: TextStyle(color: AppTheme.of(context).placeholderColor, fontSize: 13),
                               ),
                               Text(
                                 "${installVolume.replaceAll("volume", "存储空间 ")}",
@@ -625,7 +625,7 @@ class _PackageDetailState extends State<PackageDetail> {
                           children: [
                             Text(
                               "最新版本",
-                              style: TextStyle(color: AppTheme.of(context)?.placeholderColor, fontSize: 13),
+                              style: TextStyle(color: AppTheme.of(context).placeholderColor, fontSize: 13),
                             ),
                             Text(
                               "${widget.package.version}",
@@ -655,7 +655,7 @@ class _PackageDetailState extends State<PackageDetail> {
                           selectVolume();
                         },
                         padding: EdgeInsets.symmetric(vertical: 12),
-                        color: AppTheme.of(context)?.primaryColor,
+                        color: AppTheme.of(context).primaryColor,
                         borderRadius: 50,
                         child: Text("${(packageInstallTask!.progress ?? 0) < 100 ? '下载中 ${packageInstallTask!.progress ?? 0}' : packageInstallTask!.installing == true ? '安装中' : ''}"),
                       ),
@@ -678,7 +678,7 @@ class _PackageDetailState extends State<PackageDetail> {
                             },
                             loading: installing,
                             padding: EdgeInsets.symmetric(vertical: 12),
-                            color: AppTheme.of(context)?.primaryColor,
+                            color: AppTheme.of(context).primaryColor,
                             borderRadius: 50,
                             child: Text("安装"),
                           ),
@@ -698,7 +698,7 @@ class _PackageDetailState extends State<PackageDetail> {
                                 onPressed: update,
                                 loading: installing,
                                 padding: EdgeInsets.symmetric(vertical: 12),
-                                color: AppTheme.of(context)?.warningColor,
+                                color: AppTheme.of(context).warningColor,
                                 borderRadius: 50,
                                 child: Text("更新"),
                               ),

@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 enum UpgradeStateEnum {
   PULLING_IMAGE(label: "拉取镜像"),
   UPGRADING_CONTAINERS(label: "更新容器"),

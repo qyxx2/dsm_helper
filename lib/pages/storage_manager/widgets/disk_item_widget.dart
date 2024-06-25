@@ -26,13 +26,13 @@ class DiskItemWidget extends StatelessWidget {
             SizedBox(width: 5),
             Label(
               "${disk.isSsd == true ? 'SSD' : 'HDD'}",
-              AppTheme.of(context)?.primaryColor ?? Colors.blue,
+              AppTheme.of(context).primaryColor,
               fill: disk.isSsd == true,
             ),
             SizedBox(width: 5),
             Label(
               "${disk.temp ?? '-'}℃",
-              disk.temp != null && disk.temp! < 80 ? AppTheme.of(context)!.successColor! : AppTheme.of(context)!.errorColor!,
+              disk.temp != null && disk.temp! < 80 ? AppTheme.of(context).successColor : AppTheme.of(context).errorColor,
               fill: true,
             ),
             SizedBox(width: 5),
@@ -63,7 +63,7 @@ class DiskItemWidget extends StatelessWidget {
                 "${disk.vendor?.trim()} ${disk.model}",
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(color: AppTheme.of(context)?.placeholderColor, fontSize: 12),
+                style: TextStyle(color: AppTheme.of(context).placeholderColor, fontSize: 12),
               ),
             ),
           ],
@@ -78,7 +78,7 @@ class DiskItemWidget extends StatelessWidget {
                     children: [
                       TextSpan(
                         text: "分配状态：",
-                        style: TextStyle(color: AppTheme.of(context)?.placeholderColor, fontSize: 12),
+                        style: TextStyle(color: AppTheme.of(context).placeholderColor, fontSize: 12),
                       ),
                       TextSpan(
                         text: "${disk.statusEnum.label}",
@@ -86,7 +86,7 @@ class DiskItemWidget extends StatelessWidget {
                       ),
                     ],
                   ),
-                  style: TextStyle(color: AppTheme.of(context)?.placeholderColor, fontSize: 12),
+                  style: TextStyle(color: AppTheme.of(context).placeholderColor, fontSize: 12),
                 ),
               ),
               SizedBox(width: 10),
@@ -96,7 +96,7 @@ class DiskItemWidget extends StatelessWidget {
                     children: [
                       TextSpan(
                         text: "SMART状态：",
-                        style: TextStyle(color: AppTheme.of(context)?.placeholderColor, fontSize: 12),
+                        style: TextStyle(color: AppTheme.of(context).placeholderColor, fontSize: 12),
                       ),
                       TextSpan(
                         text: "${disk.smartStatusEnum.label}",
@@ -104,7 +104,7 @@ class DiskItemWidget extends StatelessWidget {
                       ),
                     ],
                   ),
-                  style: TextStyle(color: AppTheme.of(context)?.placeholderColor, fontSize: 12),
+                  style: TextStyle(color: AppTheme.of(context).placeholderColor, fontSize: 12),
                 ),
               ),
             ],

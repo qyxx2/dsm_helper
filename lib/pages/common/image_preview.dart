@@ -3,7 +3,6 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:dsm_helper/utils/utils.dart';
-import 'package:dsm_helper/widgets/hero_widget.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -201,7 +200,7 @@ class _ImagePreviewState extends State<ImagePreview> with SingleTickerProviderSt
                       case LoadState.loading:
                         final ImageChunkEvent? loadingProgress = state.loadingProgress;
                         final double? progress = loadingProgress?.expectedTotalBytes != null ? loadingProgress!.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes! : null;
-                        if (widget.thumbs!.length > index + 1) {
+                        if (widget.thumbs !=null && widget.thumbs!.length > index + 1) {
                           return Stack(
                             alignment: Alignment.center,
                             children: [
@@ -505,10 +504,11 @@ class MySwiperPlugin extends StatelessWidget {
                       Icon(
                         Icons.file_download,
                         size: 13,
+                        color: Colors.black,
                       ),
                       Text(
                         " 保存图片",
-                        style: TextStyle(fontSize: 12),
+                        style: TextStyle(fontSize: 12,color: Colors.black),
                       ),
                     ],
                   ),

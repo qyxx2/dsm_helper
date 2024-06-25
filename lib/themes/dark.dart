@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:dsm_helper/themes/app_theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -79,6 +78,6 @@ ThemeData darkTheme = ThemeData.dark().copyWith(
     ),
     colorScheme: ColorScheme.dark(
       secondary: Color(0xff888888),
-      background: Color(0xff121212),
+      surface: Color(0xff121212),
     ),
-    useMaterial3: true);
+);

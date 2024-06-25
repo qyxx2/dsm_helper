@@ -48,16 +48,11 @@ class _NotifyState extends State<Notify> {
 
             replaceContent = replaceContent.replaceAll("%LINK_BEGIN%", "").replaceAll("%LINK_END%", "").replaceAll("%PRE_APP_LINK%", "").replaceAll("%POST_APP_LINK%", "");
 
-            // if (replaceContent.contains("<a")) {
-            //   var document = parse(replaceContent);
-            //
-            //   replaceContent = parse(document.body?.text).documentElement?.text ?? '';
-            // }
-            // replaceContent.replaceAll(RegExp(r'<[^>]*>|&[^;]+;'), '');
-
             msgMap.forEach((key, value) {
               replaceContent = replaceContent.replaceAll(key, value);
             });
+            // 移除html标签
+            replaceContent = replaceContent.replaceAll(RegExp(r'<[^>]*>|&[^;]+;'), '');
             msgContent.add(replaceContent);
           }
         } else {
@@ -85,6 +80,7 @@ class _NotifyState extends State<Notify> {
           msgContent = msgs;
         }
       }
+
       notify.contents = msgContent;
       if (notifyGroups[title] == null) {
         notifyGroups[title] = [notify];

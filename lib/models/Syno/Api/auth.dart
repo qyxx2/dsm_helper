@@ -31,6 +31,7 @@ class Auth {
         "session": "webui",
         "enable_device_token": "yes",
         "enable_sync_token": "yes",
+        "rememberme": 1,
       },
       parameters: {
         "api": "SYNO.API.Auth",

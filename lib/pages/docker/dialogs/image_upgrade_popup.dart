@@ -69,7 +69,7 @@ class _ImageUpgradeState extends State<ImageUpgrade> {
                   children: [
                     Text(
                       "目前标签",
-                      style: TextStyle(color: AppTheme.of(context)?.placeholderColor, fontSize: 13),
+                      style: TextStyle(color: AppTheme.of(context).placeholderColor, fontSize: 13),
                     ),
                     Text(
                       "${widget.image.tags?.join(",")}(${widget.image.digest?.replaceAll("sha256:", "")})",
@@ -78,7 +78,7 @@ class _ImageUpgradeState extends State<ImageUpgrade> {
                     Divider(indent: 0, endIndent: 0, height: 20),
                     Text(
                       "新标签",
-                      style: TextStyle(color: AppTheme.of(context)?.placeholderColor, fontSize: 13),
+                      style: TextStyle(color: AppTheme.of(context).placeholderColor, fontSize: 13),
                     ),
                     Text(
                       "${widget.image.tags?.join(",")}(${widget.image.remoteDigest?.replaceAll("sha256:", "")})",
@@ -87,7 +87,7 @@ class _ImageUpgradeState extends State<ImageUpgrade> {
                     Divider(indent: 0, endIndent: 0, height: 20),
                     Text(
                       "注意事项",
-                      style: TextStyle(color: AppTheme.of(context)?.placeholderColor, fontSize: 13),
+                      style: TextStyle(color: AppTheme.of(context).placeholderColor, fontSize: 13),
                     ),
                     Text(
                       "相关容器的服务可能停止；容器数据可能被清除。",
@@ -96,7 +96,7 @@ class _ImageUpgradeState extends State<ImageUpgrade> {
                     Divider(indent: 0, endIndent: 0, height: 20),
                     Text(
                       "使用该镜像的容器",
-                      style: TextStyle(color: AppTheme.of(context)?.placeholderColor, fontSize: 13),
+                      style: TextStyle(color: AppTheme.of(context).placeholderColor, fontSize: 13),
                     ),
                     Container(
                       // height: context.height * 0.4,
@@ -113,7 +113,7 @@ class _ImageUpgradeState extends State<ImageUpgrade> {
                     ),
                     Text(
                       "为了避免数据丢失，请确保您更新前已遵循本映像的 Dockerhub 页面备注。您确定要更新映像吗？",
-                      style: TextStyle(color: AppTheme.of(context)?.errorColor, fontSize: 13),
+                      style: TextStyle(color: AppTheme.of(context).errorColor, fontSize: 13),
                     ),
                   ],
                 ),
@@ -140,7 +140,7 @@ class _ImageUpgradeState extends State<ImageUpgrade> {
                         onPressed: () async {
                           context.pop(true);
                         },
-                        color: AppTheme.of(context)?.primaryColor,
+                        color: AppTheme.of(context).primaryColor,
                         child: Text(
                           "更新",
                           style: TextStyle(fontSize: 18),

@@ -45,7 +45,7 @@ class _AlbumPageState extends State<AlbumPage> {
               flexibleSpace: FlexibleSpaceBar(
                 title: Text(
                   "${widget.album.name}",
-                  style: TextStyle(color: Theme.of(context).appBarTheme.titleTextStyle?.color, shadows: [BoxShadow(color: Colors.white, offset: Offset(1, 1), blurRadius: 5, spreadRadius: 5)]),
+                  style: TextStyle(color: Colors.black, shadows: [BoxShadow(color: Colors.white, offset: Offset(1, 1), blurRadius: 5, spreadRadius: 5)]),
                 ),
                 centerTitle: true,
                 background: Hero(

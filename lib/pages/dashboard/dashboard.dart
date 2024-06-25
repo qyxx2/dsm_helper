@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:dsm_helper/apis/api.dart';
-import 'package:dsm_helper/apis/dsm_api/dsm_response.dart';
 import 'package:dsm_helper/models/Syno/Core/CurrentConnection.dart';
 import 'package:dsm_helper/models/Syno/Core/Desktop/InitData.dart';
 import 'package:dsm_helper/models/Syno/Core/ExternalDevice/Storage/Device.dart';
@@ -282,7 +281,7 @@ class DashboardState extends State<Dashboard> {
                   "assets/icons/message.png",
                   width: 24,
                   height: 24,
-                  color: dsmNotify.items == null ? AppTheme.of(context)?.placeholderColor : Theme.of(context).primaryColor,
+                  color: dsmNotify.items == null ? AppTheme.of(context).placeholderColor : Theme.of(context).primaryColor,
                 ),
                 if (dsmNotify.items != null && dsmNotify.items!.isNotEmpty)
                   Container(
@@ -330,7 +329,7 @@ class DashboardState extends State<Dashboard> {
                             width: 200,
                             child: CupertinoButton(
                               padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-                              color: AppTheme.of(context)?.primaryColor,
+                              color: AppTheme.of(context).primaryColor,
                               borderRadius: BorderRadius.circular(15),
                               onPressed: () {
                                 context.push(WidgetSetting(), name: "widget_setting");
@@ -358,7 +357,7 @@ class DashboardState extends State<Dashboard> {
                         width: 200,
                         child: CupertinoButton(
                           padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-                          color: AppTheme.of(context)?.primaryColor,
+                          color: AppTheme.of(context).primaryColor,
                           borderRadius: BorderRadius.circular(15),
                           onPressed: () {
                             getData();

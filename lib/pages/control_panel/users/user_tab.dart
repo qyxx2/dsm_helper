@@ -79,7 +79,7 @@ class _UserTabState extends State<UserTab> {
                   children: [
                     Row(
                       children: [
-                        if (user.expiredEnum == UserExpiredEnum.date) Label("${user.expired}", AppTheme.of(context)!.warningColor!) else Label(user.expiredEnum.label, user.expiredEnum.color),
+                        if (user.expiredEnum == UserExpiredEnum.date) Label("${user.expired}", AppTheme.of(context).warningColor) else Label(user.expiredEnum.label, user.expiredEnum.color),
                         SizedBox(
                           width: 5,
                         ),

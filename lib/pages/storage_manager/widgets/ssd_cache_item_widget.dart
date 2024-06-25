@@ -1,9 +1,6 @@
 import 'package:dsm_helper/models/Syno/Storage/Cgi/Storage.dart';
-import 'package:dsm_helper/pages/dashboard/enums/volume_status_enum.dart';
-import 'package:dsm_helper/pages/storage_manager/enums/disk_status_enum.dart';
 import 'package:dsm_helper/themes/app_theme.dart';
 import 'package:dsm_helper/utils/utils.dart';
-import 'package:dsm_helper/widgets/label.dart';
 import 'package:dsm_helper/widgets/line_progress_bar.dart';
 import 'package:flutter/material.dart';
 
@@ -38,16 +35,16 @@ class SharedCacheItemWidget extends StatelessWidget {
             children: [
               Text(
                 "已用 ${Utils.formatSize(sharedCache.size!.usedNum)} ",
-                style: TextStyle(color: sharedCache.size!.usedPercent > 80 ? AppTheme.of(context)?.errorColor : AppTheme.of(context)?.primaryColor),
+                style: TextStyle(color: sharedCache.size!.usedPercent > 80 ? AppTheme.of(context).errorColor : AppTheme.of(context).primaryColor),
               ),
               Text(
                 "/ ${Utils.formatSize(sharedCache.size!.totalNum)}",
-                style: TextStyle(color: AppTheme.of(context)?.placeholderColor),
+                style: TextStyle(color: AppTheme.of(context).placeholderColor),
               ),
               Spacer(),
               Text(
                 "可用：${Utils.formatSize(sharedCache.size!.freeNum)}",
-                style: TextStyle(color: AppTheme.of(context)?.successColor),
+                style: TextStyle(color: AppTheme.of(context).successColor),
               ),
             ],
           ),

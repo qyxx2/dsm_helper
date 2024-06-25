@@ -8,8 +8,6 @@ import 'package:dsm_helper/widgets/glass/glass_dialog.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_vibrate/flutter_vibrate.dart';
-import 'package:fluwx/fluwx.dart';
-import 'package:sp_util/sp_util.dart';
 
 class LogoutConfirmDialog extends StatefulWidget {
   final bool otpEnable;
@@ -46,7 +44,7 @@ class _LogoutConfirmDialogState extends State<LogoutConfirmDialog> {
                 children: [
                   Container(
                     decoration: BoxDecoration(
-                      color: forget ? AppTheme.of(context)?.primaryColor : Theme.of(context).disabledColor,
+                      color: forget ? AppTheme.of(context).primaryColor : Theme.of(context).disabledColor,
                       borderRadius: BorderRadius.circular(10),
                     ),
                     width: 20,
@@ -63,7 +61,7 @@ class _LogoutConfirmDialogState extends State<LogoutConfirmDialog> {
                   SizedBox(width: 10),
                   Text(
                     "取消记住本设备",
-                    style: TextStyle(color: AppTheme.of(context)?.placeholderColor),
+                    style: TextStyle(color: AppTheme.of(context).placeholderColor),
                   ),
                 ],
               ),
@@ -88,7 +86,7 @@ class _LogoutConfirmDialogState extends State<LogoutConfirmDialog> {
                   // Utils.removeStorage("smid");
                   context.push(SelectServer(), name: "select_server", replace: true);
                 },
-                color: AppTheme.of(context)?.errorColor,
+                color: AppTheme.of(context).errorColor,
                 borderRadius: BorderRadius.circular(15),
                 padding: EdgeInsets.symmetric(vertical: 10),
                 child: Text(

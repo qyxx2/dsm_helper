@@ -5,7 +5,6 @@ import 'package:dsm_helper/utils/bus/bus.dart';
 import 'package:dsm_helper/utils/utils.dart';
 import 'package:dsm_helper/widgets/empty_widget.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
 import 'package:background_downloader/background_downloader.dart';
 
 class DownloadTab extends StatefulWidget {
@@ -127,7 +126,7 @@ class _DownloadTabState extends State<DownloadTab> {
                 onTap: () async {
                   TaskRecord? taskRecord = await downloader.database.recordForId(downloads[i].taskId);
                   List<TaskRecord>? taskRecords = await downloader.database.allRecords();
-                  print(taskRecord?.toJsonMap());
+                  print(taskRecord?.toJson());
                   print(taskRecords);
                 },
                 child: Container(

@@ -112,7 +112,7 @@ class _SelectServerState extends State<SelectServer> {
       margin: EdgeInsets.only(left: 16, right: 16, top: 10, bottom: 10),
       // padding: EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppTheme.of(context)?.cardColor,
+        color: AppTheme.of(context).cardColor,
         borderRadius: BorderRadius.circular(22),
       ),
       child: Column(
@@ -170,7 +170,7 @@ class _SelectServerState extends State<SelectServer> {
                                   children: [
                                     Icon(
                                       server.ssl ? Icons.lock_outline : Icons.lock_open,
-                                      color: server.ssl ? AppTheme.of(context)?.successColor : Colors.white,
+                                      color: server.ssl ? AppTheme.of(context).successColor : Colors.white,
                                       size: 16,
                                     ),
                                     SizedBox(
@@ -221,7 +221,7 @@ class _SelectServerState extends State<SelectServer> {
                                       padding: EdgeInsets.symmetric(vertical: 8),
                                       margin: EdgeInsets.only(top: 50),
                                       decoration: BoxDecoration(
-                                        color: AppTheme.of(context)?.cardColor,
+                                        color: AppTheme.of(context).cardColor,
                                         borderRadius: BorderRadius.circular(23),
                                       ),
                                       child: Column(
@@ -291,7 +291,7 @@ class _SelectServerState extends State<SelectServer> {
                                                 ),
                                                 Text(
                                                   "删除服务器",
-                                                  style: TextStyle(color: AppTheme.of(context)?.errorColor),
+                                                  style: TextStyle(color: AppTheme.of(context).errorColor),
                                                 ),
                                               ],
                                             ),
@@ -455,7 +455,7 @@ class _SelectServerState extends State<SelectServer> {
                                               value: 50.toDouble(),
                                               width: 8,
                                               cornerStyle: CornerStyle.bothCurve,
-                                              gradient: SweepGradient(colors: <Color>[AppTheme.of(context)!.primaryColor!, Color(0xFF75ACFF)]),
+                                              gradient: SweepGradient(colors: <Color>[AppTheme.of(context).primaryColor, Color(0xFF75ACFF)]),
                                             ),
                                             // MarkerPointer(
                                             //   value: utilization.cpu!.totalLoad.toDouble() - 3,
@@ -482,7 +482,7 @@ class _SelectServerState extends State<SelectServer> {
                                           ),
                                           Text(
                                             Utils.formatSize(10000) + "/S",
-                                            style: TextStyle(color: AppTheme.of(context)?.primaryColor),
+                                            style: TextStyle(color: AppTheme.of(context).primaryColor),
                                           ),
                                         ],
                                       ),
@@ -565,7 +565,7 @@ class _SelectServerState extends State<SelectServer> {
       DbUtils.db.updateAccount(account.copyWith(
         sid: authModel.sid!,
       ));
-      Api.dsm = DsmApi(baseUrl: server.url, deviceId: account.deviceId, sid: account.sid);
+      Api.dsm = DsmApi(baseUrl: server.url, deviceId: account.deviceId, sid: authModel.sid);
       hide();
       context.push(Home(), replace: true);
     } on DsmException catch (e) {

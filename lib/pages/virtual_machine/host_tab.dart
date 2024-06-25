@@ -53,7 +53,7 @@ class _HostTabState extends State<HostTab> {
   Widget _buildHostItem(Hosts host) {
     return Container(
       decoration: BoxDecoration(
-        color: AppTheme.of(context)?.cardColor,
+        color: AppTheme.of(context).cardColor,
         borderRadius: BorderRadius.circular(22),
       ),
       margin: EdgeInsets.only(top: 14, left: 16, right: 16),
@@ -83,7 +83,7 @@ class _HostTabState extends State<HostTab> {
             ),
             Text(
               "${host.model}",
-              style: TextStyle(fontSize: 12, color: AppTheme.of(context)?.placeholderColor),
+              style: TextStyle(fontSize: 12, color: AppTheme.of(context).placeholderColor),
             ),
             if (host.statusEnum == GuestStatusEnum.running) ...[
               SizedBox(

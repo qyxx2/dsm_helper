@@ -21,7 +21,7 @@ class DeleteServerDialog {
               children: [
                 Expanded(
                   child: Button(
-                    color: AppTheme.of(context)?.errorColor,
+                    color: AppTheme.of(context).errorColor,
                     child: Text("删除"),
                     onPressed: () {
                       context.pop(true);

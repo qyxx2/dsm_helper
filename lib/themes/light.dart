@@ -23,7 +23,7 @@ ThemeData lightTheme = ThemeData.light().copyWith(
     bodyLarge: TextStyle(fontSize: 18.0, color: Colors.black),
     bodyMedium: TextStyle(fontSize: 15.0, color: Colors.black),
     bodySmall: TextStyle(fontSize: 12.0, color: Colors.black),
-    // titleLarge: TextStyle(fontSize: 16, color: Colors.black),
+    titleLarge: TextStyle(fontSize: 22, color: Colors.black),
     titleMedium: TextStyle(fontSize: 18.0, color: Colors.black),
   ),
   dialogBackgroundColor: Color(0xF000000),
@@ -60,6 +60,7 @@ ThemeData lightTheme = ThemeData.light().copyWith(
     dividerColor: Colors.transparent,
     unselectedLabelColor: Colors.black,
     labelColor: Color(0xff2A82E4),
+    tabAlignment: TabAlignment.start
   ),
   cupertinoOverrideTheme: CupertinoThemeData(primaryColor: Color(0xff2A82E4), applyThemeToAll: true),
   splashFactory: NoSplash.splashFactory,
@@ -88,7 +89,7 @@ ThemeData lightTheme = ThemeData.light().copyWith(
   ),
   colorScheme: ColorScheme.light(
     primary: Colors.black,
-    background: Color(0xFFF4F4F4),
+    surface: Color(0xFFF4F4F4),
   ),
   dialogTheme: DialogTheme(
     backgroundColor: Colors.white,
@@ -97,5 +98,4 @@ ThemeData lightTheme = ThemeData.light().copyWith(
     shadowColor: Colors.transparent,
   ),
   scaffoldBackgroundColor: Color(0xFFF4F4F4),
-  useMaterial3: true,
 );

@@ -1,5 +1,4 @@
 import 'package:cool_ui/cool_ui.dart';
-import 'package:dsm_helper/models/Syno/FileStation/FileStationList.dart';
 import 'package:dsm_helper/models/Syno/Virtualization/VirtualizationGuest.dart';
 import 'package:dsm_helper/themes/app_theme.dart';
 import 'package:dsm_helper/utils/extensions/navigator_ext.dart';
@@ -43,7 +42,7 @@ class GuestPowerOffDialog {
                         Utils.toast("${action == "reboot" ? "重新启动" : "关机"}请求发送失败");
                       }
                     },
-                    color: AppTheme.of(context)?.errorColor,
+                    color: AppTheme.of(context).errorColor,
                     borderRadius: BorderRadius.circular(15),
                     padding: EdgeInsets.symmetric(vertical: 10),
                     child: Text(

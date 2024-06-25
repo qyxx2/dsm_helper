@@ -42,7 +42,7 @@ class EjectExternalDeviceDialog {
                         Utils.toast("删除失败");
                       }
                     },
-                    color: AppTheme.of(context)?.errorColor,
+                    color: AppTheme.of(context).errorColor,
                     borderRadius: BorderRadius.circular(15),
                     padding: EdgeInsets.symmetric(vertical: 10),
                     child: Text(

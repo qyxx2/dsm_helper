@@ -67,7 +67,7 @@ class _ProjectTabState extends State<ProjectTab> {
             : () {
                 context.push(ProjectDetail(project), name: 'docker_project_detail');
               },
-        color: AppTheme.of(context)?.cardColor,
+        color: AppTheme.of(context).cardColor,
         borderRadius: BorderRadius.circular(22),
         padding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         child: Column(
@@ -160,7 +160,7 @@ class _ProjectTabState extends State<ProjectTab> {
                                       padding: EdgeInsets.symmetric(vertical: 8),
                                       margin: EdgeInsets.only(top: 50),
                                       decoration: BoxDecoration(
-                                        color: AppTheme.of(context)?.cardColor,
+                                        color: AppTheme.of(context).cardColor,
                                         borderRadius: BorderRadius.circular(23),
                                       ),
                                       child: Column(
@@ -257,7 +257,7 @@ class _ProjectTabState extends State<ProjectTab> {
                                             },
                                             child: Text(
                                               "删除",
-                                              style: TextStyle(color: AppTheme.of(context)?.errorColor),
+                                              style: TextStyle(color: AppTheme.of(context).errorColor),
                                             ),
                                           ),
                                         ],
@@ -289,13 +289,13 @@ class _ProjectTabState extends State<ProjectTab> {
                     SizedBox(width: 5),
                     Text(
                       "${project.containerIds?.length ?? 0} 个容器",
-                      style: TextStyle(fontSize: 12, color: AppTheme.of(context)?.placeholderColor),
+                      style: TextStyle(fontSize: 12, color: AppTheme.of(context).placeholderColor),
                     ),
                   ],
                 ),
                 Text(
                   project.path!,
-                  style: TextStyle(fontSize: 12, color: AppTheme.of(context)?.placeholderColor),
+                  style: TextStyle(fontSize: 12, color: AppTheme.of(context).placeholderColor),
                 ),
               ],
             ),

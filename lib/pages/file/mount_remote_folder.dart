@@ -144,7 +144,7 @@ class _MountRemoteFolderState extends State<MountRemoteFolder> with SingleTicker
                       height: 20,
                     ),
                     Button(
-                      color: AppTheme.of(context)?.primaryColor,
+                      color: AppTheme.of(context).primaryColor,
                       onPressed: () async {
                         if (mountPoint == "") {
                           Utils.toast("请选择保存位置");

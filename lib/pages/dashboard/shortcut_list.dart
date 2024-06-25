@@ -121,11 +121,7 @@ class ShortcutList extends StatelessWidget {
         routerName = "docker";
         break;
       case "SYNO.SDS.Docker.ContainerDetail.Instance":
-        if (validAppViewOrder.contains("SYNO.SDS.ContainerManager.Application")) {
-          icon = "assets/applications/container_manager.png";
-        } else {
-          icon = "assets/applications/docker.png";
-        }
+        icon = "assets/applications/container_manager.png";
         name = "${shortcut.param?.data?.name}";
         if (shortcut.type == 'url') {
           page = Browser(

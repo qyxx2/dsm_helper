@@ -366,8 +366,8 @@ class SeekBarState extends State<SeekBar> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(RegExp(r'((^0*[1-9]\d*:)?\d{2}:\d{2})\.\d+$').firstMatch("$_position")?.group(1) ?? '$_position', style: TextStyle(color: AppTheme.of(context)?.placeholderColor, fontSize: 12)),
-                      Text(RegExp(r'((^0*[1-9]\d*:)?\d{2}:\d{2})\.\d+$').firstMatch("$_remaining")?.group(1) ?? '$_remaining', style: TextStyle(color: AppTheme.of(context)?.placeholderColor, fontSize: 12))
+                      Text(RegExp(r'((^0*[1-9]\d*:)?\d{2}:\d{2})\.\d+$').firstMatch("$_position")?.group(1) ?? '$_position', style: TextStyle(color: AppTheme.of(context).placeholderColor, fontSize: 12)),
+                      Text(RegExp(r'((^0*[1-9]\d*:)?\d{2}:\d{2})\.\d+$').firstMatch("$_remaining")?.group(1) ?? '$_remaining', style: TextStyle(color: AppTheme.of(context).placeholderColor, fontSize: 12))
                     ],
                   ),
                 )

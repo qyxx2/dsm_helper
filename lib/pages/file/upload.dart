@@ -152,7 +152,7 @@ class _UploadState extends State<Upload> {
                   if (upload.subPath.isNotBlank)
                     Text(
                       upload.subPath,
-                      style: TextStyle(fontSize: 12, color: AppTheme.of(context)?.placeholderColor),
+                      style: TextStyle(fontSize: 12, color: AppTheme.of(context).placeholderColor),
                     ),
                   SizedBox(
                     height: 5,
@@ -306,7 +306,7 @@ class _UploadState extends State<Upload> {
                     children: [
                       Text(
                         "上传位置",
-                        style: TextStyle(color: AppTheme.of(context)?.placeholderColor, fontSize: 13),
+                        style: TextStyle(color: AppTheme.of(context).placeholderColor, fontSize: 13),
                       ),
                       Text(
                         savePath == "" ? "请选择上传位置" : savePath,
@@ -334,7 +334,7 @@ class _UploadState extends State<Upload> {
                   children: [
                     Expanded(
                       child: Button(
-                        color: AppTheme.of(context)?.successColor,
+                        color: AppTheme.of(context).successColor,
                         icon: Image.asset(
                           "assets/icons/plus_circle.png",
                           color: Colors.white,
@@ -503,7 +503,7 @@ class _UploadState extends State<Upload> {
                     ),
                     Expanded(
                       child: Button(
-                        color: AppTheme.of(context)?.primaryColor,
+                        color: AppTheme.of(context).primaryColor,
                         icon: Image.asset(
                           "assets/icons/upload_cloud.png",
                           color: Colors.white,

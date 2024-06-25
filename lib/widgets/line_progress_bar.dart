@@ -18,7 +18,7 @@ class LineProgressBar extends StatelessWidget {
           child: Container(
             height: 6,
             decoration: BoxDecoration(
-              color: progressColor ?? (value > 80 ? AppTheme.of(context)?.errorColor : AppTheme.of(context)?.primaryColor),
+              color: progressColor ?? (value > 80 ? AppTheme.of(context).errorColor : AppTheme.of(context).primaryColor),
               borderRadius: BorderRadius.circular(2),
             ),
           ),
@@ -29,7 +29,7 @@ class LineProgressBar extends StatelessWidget {
           child: Container(
             height: 6,
             decoration: BoxDecoration(
-              color: backgroundColor ?? AppTheme.of(context)?.successColor,
+              color: backgroundColor ?? AppTheme.of(context).successColor,
               borderRadius: BorderRadius.circular(2),
             ),
           ),

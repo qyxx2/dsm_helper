@@ -1,7 +1,6 @@
 import 'dart:math';
 
 import 'package:dsm_helper/models/Syno/Core/System/Utilization.dart';
-import 'package:dsm_helper/themes/app_theme.dart';
 import 'package:dsm_helper/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';

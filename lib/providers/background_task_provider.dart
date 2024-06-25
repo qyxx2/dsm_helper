@@ -1,4 +1,3 @@
-import 'package:dsm_helper/models/Syno/Core/ExternalDevice/Storage/Device.dart';
 import 'package:dsm_helper/models/Syno/FileStation/BackgroundTask.dart';
 import 'package:flutter/material.dart';
 

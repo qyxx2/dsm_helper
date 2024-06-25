@@ -28,7 +28,7 @@ class SshDialog {
                     onPressed: () async {
                       context.pop(enable);
                     },
-                    color: AppTheme.of(context)?.errorColor,
+                    color: AppTheme.of(context).errorColor,
                     borderRadius: BorderRadius.circular(15),
                     padding: EdgeInsets.symmetric(vertical: 10),
                     child: Text(

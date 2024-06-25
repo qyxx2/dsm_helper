@@ -17,7 +17,7 @@ class UsbDeviceItem extends StatelessWidget {
         children: [
           Text(
             dev.classEnum != UsbDeviceClassEnum.unknown ? dev.classEnum.label : dev.cls ?? '未知',
-            style: TextStyle(color: AppTheme.of(context)?.placeholderColor, fontSize: 13),
+            style: TextStyle(color: AppTheme.of(context).placeholderColor, fontSize: 13),
           ),
           Text(
             "${dev.product} - ${dev.producer}",

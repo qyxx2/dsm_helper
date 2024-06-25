@@ -50,7 +50,7 @@ class CreateFolderDialog {
                       }
                       hide();
                     },
-                    color: AppTheme.of(context)?.primaryColor,
+                    color: AppTheme.of(context).primaryColor,
                     borderRadius: BorderRadius.circular(15),
                     padding: EdgeInsets.symmetric(vertical: 10),
                     child: Text(

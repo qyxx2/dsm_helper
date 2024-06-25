@@ -23,9 +23,9 @@ class _TimelinePageState extends State<TimelinePage> {
       ),
       body: Timeline(
         widget.isTeam,
-        type: widget.type!,
-        geocodingId: widget.geocodingId!,
-        generalTagId: widget.generalTagId!,
+        type: widget.type,
+        geocodingId: widget.geocodingId,
+        generalTagId: widget.generalTagId,
         recentlyAdd: widget.recentlyAdd,
       ),
     );

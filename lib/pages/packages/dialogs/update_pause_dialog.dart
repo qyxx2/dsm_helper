@@ -1,5 +1,3 @@
-import 'package:cool_ui/cool_ui.dart';
-import 'package:dsm_helper/models/Syno/Core/Package/InstalledPackage.dart';
 import 'package:dsm_helper/models/Syno/Core/Package/PackageInstallQueue.dart';
 import 'package:dsm_helper/themes/app_theme.dart';
 import 'package:dsm_helper/utils/extensions/navigator_ext.dart';
@@ -31,7 +29,7 @@ class UpdatePauseDialog {
                     onPressed: () async {
                       context.pop(true);
                     },
-                    color: AppTheme.of(context)?.warningColor,
+                    color: AppTheme.of(context).warningColor,
                     borderRadius: BorderRadius.circular(15),
                     padding: EdgeInsets.symmetric(vertical: 10),
                     child: Text(

@@ -21,7 +21,9 @@ class Share extends StatefulWidget {
   final List<String>? paths;
   final ShareLinks? shareLink;
   final bool fileRequest;
+
   Share({this.paths, this.shareLink, this.fileRequest = false});
+
   @override
   _ShareState createState() => _ShareState();
 }
@@ -115,7 +117,7 @@ class _ShareState extends State<Share> {
         ),
         Text(
           link.path!,
-          style: TextStyle(color: AppTheme.of(context)?.placeholderColor, fontSize: 14),
+          style: TextStyle(color: AppTheme.of(context).placeholderColor, fontSize: 14),
         ),
         WidgetCard(
           title: "链接设置",
@@ -124,7 +126,7 @@ class _ShareState extends State<Share> {
             children: [
               Text(
                 "共享链接：",
-                style: TextStyle(fontSize: 14, color: AppTheme.of(context)?.placeholderColor),
+                style: TextStyle(fontSize: 14, color: AppTheme.of(context).placeholderColor),
               ),
               Row(
                 children: [
@@ -170,6 +172,7 @@ class _ShareState extends State<Share> {
                     locale: LocaleType.zh,
                   );
                 },
+                behavior: HitTestBehavior.opaque,
                 child: SizedBox(
                   width: double.infinity,
                   child: Column(
@@ -177,7 +180,7 @@ class _ShareState extends State<Share> {
                     children: [
                       Text(
                         "起始时间：",
-                        style: TextStyle(fontSize: 14, color: AppTheme.of(context)?.placeholderColor),
+                        style: TextStyle(fontSize: 14, color: AppTheme.of(context).placeholderColor),
                       ),
                       Text(
                         dateAvailable == null ? '未设置' : dateAvailable!.format("Y-m-d H:i:s"),
@@ -205,6 +208,7 @@ class _ShareState extends State<Share> {
                     locale: LocaleType.zh,
                   );
                 },
+                behavior: HitTestBehavior.opaque,
                 child: SizedBox(
                   width: double.infinity,
                   child: Column(
@@ -212,7 +216,7 @@ class _ShareState extends State<Share> {
                     children: [
                       Text(
                         "停止时间：",
-                        style: TextStyle(fontSize: 14, color: AppTheme.of(context)?.placeholderColor),
+                        style: TextStyle(fontSize: 14, color: AppTheme.of(context).placeholderColor),
                       ),
                       Text(
                         dateExpired == null ? '未设置' : dateExpired!.format("Y-m-d H:i:s"),
@@ -228,7 +232,7 @@ class _ShareState extends State<Share> {
                 children: [
                   Text(
                     "允许访问的次数：",
-                    style: TextStyle(fontSize: 14, color: AppTheme.of(context)?.placeholderColor),
+                    style: TextStyle(fontSize: 14, color: AppTheme.of(context).placeholderColor),
                   ),
                   TextField(
                     controller: expireTimesController,
@@ -297,9 +301,6 @@ class _ShareState extends State<Share> {
               }
             },
           ),
-          SizedBox(
-            width: double.infinity,
-          ),
           CupertinoButton(
             child: Image.asset(
               "assets/icons/save.png",
@@ -325,10 +326,8 @@ class _ShareState extends State<Share> {
             ? Center(
                 child: LoadingWidget(size: 30),
               )
-            : ListView(
-                children: [
-                  _buildLinkItem(shareLink!),
-                ],
+            : SingleChildScrollView(
+                child: SafeArea(child: _buildLinkItem(shareLink!)),
               ),
       ),
     );

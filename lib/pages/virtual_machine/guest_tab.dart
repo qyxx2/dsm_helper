@@ -69,7 +69,7 @@ class _GuestTabState extends State<GuestTab> {
     GlobalKey actionButtonKey = GlobalKey();
     return Container(
       decoration: BoxDecoration(
-        color: AppTheme.of(context)?.cardColor,
+        color: AppTheme.of(context).cardColor,
         borderRadius: BorderRadius.circular(22),
       ),
       margin: EdgeInsets.only(top: 14, left: 16, right: 16),
@@ -200,7 +200,7 @@ class _GuestTabState extends State<GuestTab> {
                                   onTap: () async {},
                                   child: Text(
                                     "删除",
-                                    style: TextStyle(color: AppTheme.of(context)?.errorColor),
+                                    style: TextStyle(color: AppTheme.of(context).errorColor),
                                   ),
                                 ),
                               ],
@@ -222,7 +222,7 @@ class _GuestTabState extends State<GuestTab> {
             ),
             Text(
               "${guest.desc}",
-              style: TextStyle(fontSize: 12, color: AppTheme.of(context)?.placeholderColor),
+              style: TextStyle(fontSize: 12, color: AppTheme.of(context).placeholderColor),
             ),
             if (guest.statusEnum == GuestStatusEnum.running) ...[
               SizedBox(
@@ -289,7 +289,7 @@ class _GuestTabState extends State<GuestTab> {
               ),
               SizedBox(height: 5),
               DefaultTextStyle(
-                style: TextStyle(color: AppTheme.of(context)?.placeholderColor, fontSize: 14),
+                style: TextStyle(color: AppTheme.of(context).placeholderColor, fontSize: 14),
                 child: Row(
                   children: [
                     Text("${guest.ip}"),
@@ -301,7 +301,7 @@ class _GuestTabState extends State<GuestTab> {
                     SizedBox(width: 5),
                     Text(
                       "${Utils.formatSize(guest.totalNetReceive ?? 0, showByte: true)}",
-                      style: TextStyle(color: AppTheme.of(context)?.primaryColor),
+                      style: TextStyle(color: AppTheme.of(context).primaryColor),
                     ),
                     SizedBox(width: 10),
                     Image.asset(
@@ -311,7 +311,7 @@ class _GuestTabState extends State<GuestTab> {
                     SizedBox(width: 5),
                     Text(
                       "${Utils.formatSize(guest.totalNetSend ?? 0, showByte: true)}",
-                      style: TextStyle(color: AppTheme.of(context)?.successColor),
+                      style: TextStyle(color: AppTheme.of(context).successColor),
                     ),
                   ],
                 ),

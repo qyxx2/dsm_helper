@@ -4,7 +4,6 @@ import 'package:dsm_helper/pages/docker/container_detail/overview_tab.dart';
 import 'package:dsm_helper/pages/docker/container_detail/process_tab.dart';
 import 'package:dsm_helper/widgets/glass/glass_app_bar.dart';
 import 'package:dsm_helper/widgets/glass/glass_scaffold.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class ContainerDetail extends StatefulWidget {

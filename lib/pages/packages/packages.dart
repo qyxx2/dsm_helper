@@ -15,7 +15,6 @@ import 'package:dsm_helper/widgets/glass/glass_scaffold.dart';
 import 'package:dsm_helper/widgets/label.dart';
 import 'package:dsm_helper/widgets/loading_widget.dart';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_vibrate/flutter_vibrate.dart';
 
@@ -242,7 +241,7 @@ class _PackagesState extends State<Packages> with TickerProviderStateMixin {
           },
           width: 60,
           padding: EdgeInsets.symmetric(vertical: 6),
-          color: AppTheme.of(context)?.warningColor,
+          color: AppTheme.of(context).warningColor,
           borderRadius: 20,
           child: Text(
             "更新",
@@ -355,7 +354,7 @@ class _PackagesState extends State<Packages> with TickerProviderStateMixin {
         },
         width: 60,
         padding: EdgeInsets.symmetric(vertical: 6),
-        color: AppTheme.of(context)?.primaryColor,
+        color: AppTheme.of(context).primaryColor,
         borderRadius: 20,
         child: Text(
           "安装",
@@ -365,76 +364,6 @@ class _PackagesState extends State<Packages> with TickerProviderStateMixin {
     }
   }
 
-  Widget _buildUpdateItem(PackageItem update) {
-    String thumbnailUrl = update.thumbnail!.last;
-    if (!thumbnailUrl.startsWith("http")) {
-      thumbnailUrl = Utils.baseUrl + thumbnailUrl;
-    }
-    return GestureDetector(
-      onTap: () {
-        context.push(PackageDetail(update), name: "package_detail").then((_) async {
-          // await getLaunchedPackages();
-          await getInstalledPackages();
-          setState(() {
-            loading = false;
-          });
-        });
-      },
-      child: Container(
-        width: (MediaQuery.of(context).size.width - 60) / 2,
-        margin: EdgeInsets.only(bottom: 20),
-        decoration: BoxDecoration(
-          color: Theme.of(context).scaffoldBackgroundColor,
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-          child: Row(
-            children: [
-              Container(
-                height: 80,
-                width: 80,
-                alignment: Alignment.center,
-                child: CupertinoExtendedImage(
-                  thumbnailUrl,
-                  width: 80,
-                  height: 80,
-                ),
-              ),
-              SizedBox(
-                width: 10,
-              ),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "${update.dname}",
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 16),
-                    ),
-                    SizedBox(
-                      height: 5,
-                    ),
-                    Text(
-                      "${update.version}",
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(color: Colors.grey),
-                    ),
-                  ],
-                ),
-              ),
-              // _buildButton(update),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
 
   Widget _buildPackageItem(PackageItem package, bool installed, {bool isBeta = false}) {
     String thumbnailUrl = "";
@@ -458,7 +387,7 @@ class _PackagesState extends State<Packages> with TickerProviderStateMixin {
       },
       child: Container(
         decoration: BoxDecoration(
-          color: AppTheme.of(context)?.cardColor,
+          color: AppTheme.of(context).cardColor,
           borderRadius: BorderRadius.circular(20),
         ),
         margin: EdgeInsets.only(top: 14),
@@ -506,7 +435,7 @@ class _PackagesState extends State<Packages> with TickerProviderStateMixin {
                       "${package.category is List && getCategoryName(package.category!).length > 0 ? getCategoryName(package.category!).join(",") : package.maintainer}",
                       maxLines: 1,
                       overflow: TextOverflow.clip,
-                      style: TextStyle(fontSize: 12, color: AppTheme.of(context)?.placeholderColor),
+                      style: TextStyle(fontSize: 12, color: AppTheme.of(context).placeholderColor),
                     ),
                 ],
               ),

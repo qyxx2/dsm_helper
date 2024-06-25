@@ -1,27 +1,27 @@
 import 'package:flutter/material.dart';
 
 class AppTheme extends ThemeExtension<AppTheme> {
-  static AppTheme? of(BuildContext context) {
-    return Theme.of(context).extension<AppTheme>();
+  static AppTheme of(BuildContext context) {
+    return Theme.of(context).extension<AppTheme>()!;
   }
 
-  final Color? primaryColor;
-  final Color? placeholderColor;
-  final Color? titleColor;
-  final Color? progressColor;
-  final Color? successColor;
-  final Color? warningColor;
-  final Color? errorColor;
-  final Color? cardColor;
+  final Color primaryColor;
+  final Color placeholderColor;
+  final Color titleColor;
+  final Color progressColor;
+  final Color successColor;
+  final Color warningColor;
+  final Color errorColor;
+  final Color cardColor;
   AppTheme({
-    this.primaryColor,
-    this.placeholderColor,
-    this.titleColor,
-    this.progressColor,
-    this.successColor,
-    this.warningColor,
-    this.errorColor,
-    this.cardColor,
+    required this.primaryColor,
+    required this.placeholderColor,
+    required this.titleColor,
+    required this.progressColor,
+    required this.successColor,
+    required this.warningColor,
+    required this.errorColor,
+    required this.cardColor,
   });
 
   @override
@@ -39,7 +39,7 @@ class AppTheme extends ThemeExtension<AppTheme> {
       titleColor: titleColor ?? this.titleColor,
       progressColor: progressColor ?? this.progressColor,
       successColor: progressColor ?? this.successColor,
-      warningColor: warningColor ?? this.warningColor,
+      warningColor: warningColor,
       errorColor: errorColor ?? this.errorColor,
       cardColor: cardColor ?? this.cardColor,
     );

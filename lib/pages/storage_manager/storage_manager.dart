@@ -1,4 +1,3 @@
-import 'package:dsm_helper/apis/api.dart';
 import 'package:dsm_helper/models/Syno/Storage/Cgi/Storage.dart';
 import 'package:dsm_helper/pages/dashboard/widgets/widget_card.dart';
 import 'package:dsm_helper/pages/storage_manager/widgets/disk_card_item_widget.dart';
@@ -6,8 +5,6 @@ import 'package:dsm_helper/pages/storage_manager/widgets/ssd_cache_item_widget.d
 import 'package:dsm_helper/pages/storage_manager/widgets/storage_pool_item_widget.dart';
 import 'package:dsm_helper/pages/storage_manager/widgets/volume_item_widget.dart';
 import 'package:dsm_helper/themes/app_theme.dart';
-import 'package:dsm_helper/utils/extensions/navigator_ext.dart';
-import 'package:dsm_helper/utils/utils.dart';
 import 'package:dsm_helper/widgets/dashed_decoration.dart';
 import 'package:dsm_helper/widgets/empty_widget.dart';
 import 'package:dsm_helper/widgets/glass/glass_app_bar.dart';
@@ -103,12 +100,12 @@ class _StorageManagerState extends State<StorageManager> with SingleTickerProvid
                                 width: 40,
                                 decoration: storage.disks!.any((disk) => disk.numId == i + 1)
                                     ? BoxDecoration(
-                                        color: AppTheme.of(context)?.primaryColor,
-                                        border: Border.all(color: AppTheme.of(context)?.primaryColor ?? Colors.blue, width: 1),
+                                        color: AppTheme.of(context).primaryColor,
+                                        border: Border.all(color: AppTheme.of(context).primaryColor, width: 1),
                                       )
                                     : DashedDecoration(
                                         color: Colors.transparent,
-                                        dashedColor: AppTheme.of(context)?.placeholderColor,
+                                        dashedColor: AppTheme.of(context).placeholderColor,
                                         gap: 2,
                                       ),
                               ),
@@ -177,7 +174,7 @@ class _StorageManagerState extends State<StorageManager> with SingleTickerProvid
                           itemBuilder: (context, i) {
                             return Container(
                               decoration: BoxDecoration(
-                                color: AppTheme.of(context)?.cardColor,
+                                color: AppTheme.of(context).cardColor,
                                 borderRadius: BorderRadius.circular(22),
                               ),
                               padding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),

@@ -1018,7 +1018,7 @@ class _PowerState extends State<Power> with SingleTickerProviderStateMixin {
                                 : Center(
                                     child: Text(
                                       "暂无开关机计划，请点击下方新增按钮添加",
-                                      style: TextStyle(color: AppTheme.of(context)?.placeholderColor),
+                                      style: TextStyle(color: AppTheme.of(context).placeholderColor),
                                     ),
                                   ),
                           ),

@@ -35,14 +35,14 @@ class _SummaryTabState extends State<SummaryTab> {
               Container(
                 margin: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                 decoration: BoxDecoration(
-                  color: AppTheme.of(context)?.cardColor,
+                  color: AppTheme.of(context).cardColor,
                   borderRadius: BorderRadius.circular(22),
                 ),
                 padding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                 child: Row(
                   children: [
                     CircleAvatar(
-                      backgroundColor: AppTheme.of(context)?.successColor,
+                      backgroundColor: AppTheme.of(context).successColor,
                       child: Image.asset(
                         "assets/icons/check.png",
                         color: Colors.white,
@@ -58,7 +58,7 @@ class _SummaryTabState extends State<SummaryTab> {
                         ),
                         Text(
                           "您的虚拟化环境运转正常",
-                          style: TextStyle(fontSize: 14, color: AppTheme.of(context)?.placeholderColor),
+                          style: TextStyle(fontSize: 14, color: AppTheme.of(context).placeholderColor),
                         ),
                       ],
                     )
@@ -72,7 +72,7 @@ class _SummaryTabState extends State<SummaryTab> {
                     Expanded(
                       child: Container(
                         decoration: BoxDecoration(
-                          color: AppTheme.of(context)?.cardColor,
+                          color: AppTheme.of(context).cardColor,
                           borderRadius: BorderRadius.circular(20),
                         ),
                         padding: EdgeInsets.all(10),
@@ -91,17 +91,17 @@ class _SummaryTabState extends State<SummaryTab> {
                             if ((clusterSummary.hostSumm?.error ?? 0) > 0)
                               Text(
                                 "${clusterSummary.hostSumm?.error}",
-                                style: TextStyle(fontSize: 40, color: AppTheme.of(context)?.errorColor),
+                                style: TextStyle(fontSize: 40, color: AppTheme.of(context).errorColor),
                               )
                             else if ((clusterSummary.hostSumm?.warning ?? 0) > 0)
                               Text(
                                 "${clusterSummary.hostSumm?.warning}",
-                                style: TextStyle(fontSize: 40, color: AppTheme.of(context)?.warningColor),
+                                style: TextStyle(fontSize: 40, color: AppTheme.of(context).warningColor),
                               )
                             else
                               Text(
                                 "${clusterSummary.hostSumm?.healthy}",
-                                style: TextStyle(fontSize: 40, color: AppTheme.of(context)?.successColor),
+                                style: TextStyle(fontSize: 40, color: AppTheme.of(context).successColor),
                               ),
                           ],
                         ),
@@ -120,7 +120,7 @@ class _SummaryTabState extends State<SummaryTab> {
                         // },
                         child: Container(
                           decoration: BoxDecoration(
-                            color: AppTheme.of(context)?.cardColor,
+                            color: AppTheme.of(context).cardColor,
                             borderRadius: BorderRadius.circular(20),
                           ),
                           padding: EdgeInsets.all(10),
@@ -139,17 +139,17 @@ class _SummaryTabState extends State<SummaryTab> {
                               if ((clusterSummary.guestSumm?.error ?? 0) > 0)
                                 Text(
                                   "${clusterSummary.guestSumm?.error}",
-                                  style: TextStyle(fontSize: 40, color: AppTheme.of(context)?.errorColor),
+                                  style: TextStyle(fontSize: 40, color: AppTheme.of(context).errorColor),
                                 )
                               else if ((clusterSummary.guestSumm?.warning ?? 0) > 0)
                                 Text(
                                   "${clusterSummary.guestSumm?.warning}",
-                                  style: TextStyle(fontSize: 40, color: AppTheme.of(context)?.warningColor),
+                                  style: TextStyle(fontSize: 40, color: AppTheme.of(context).warningColor),
                                 )
                               else
                                 Text(
                                   "${clusterSummary.guestSumm?.healthy}",
-                                  style: TextStyle(fontSize: 40, color: AppTheme.of(context)?.successColor),
+                                  style: TextStyle(fontSize: 40, color: AppTheme.of(context).successColor),
                                 ),
                             ],
                           ),
@@ -169,7 +169,7 @@ class _SummaryTabState extends State<SummaryTab> {
                         // },
                         child: Container(
                           decoration: BoxDecoration(
-                            color: AppTheme.of(context)?.cardColor,
+                            color: AppTheme.of(context).cardColor,
                             borderRadius: BorderRadius.circular(20),
                           ),
                           padding: EdgeInsets.all(10),
@@ -188,17 +188,17 @@ class _SummaryTabState extends State<SummaryTab> {
                               if ((clusterSummary.repoSumm?.error ?? 0) > 0)
                                 Text(
                                   "${clusterSummary.repoSumm?.error}",
-                                  style: TextStyle(fontSize: 40, color: AppTheme.of(context)?.errorColor),
+                                  style: TextStyle(fontSize: 40, color: AppTheme.of(context).errorColor),
                                 )
                               else if ((clusterSummary.repoSumm?.warning ?? 0) > 0)
                                 Text(
                                   "${clusterSummary.repoSumm?.warning}",
-                                  style: TextStyle(fontSize: 40, color: AppTheme.of(context)?.warningColor),
+                                  style: TextStyle(fontSize: 40, color: AppTheme.of(context).warningColor),
                                 )
                               else
                                 Text(
                                   "${clusterSummary.repoSumm?.healthy}",
-                                  style: TextStyle(fontSize: 40, color: AppTheme.of(context)?.successColor),
+                                  style: TextStyle(fontSize: 40, color: AppTheme.of(context).successColor),
                                 ),
                             ],
                           ),

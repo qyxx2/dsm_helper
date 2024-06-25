@@ -546,7 +546,7 @@ class _ExpansionContainerState extends State<ExpansionContainer> with SingleTick
               Container(
                 margin: EdgeInsets.symmetric(horizontal: 16),
                 decoration: BoxDecoration(
-                  color: AppTheme.of(context)?.cardColor,
+                  color: AppTheme.of(context).cardColor,
                   borderRadius: BorderRadius.circular(23),
                 ),
                 child: Column(

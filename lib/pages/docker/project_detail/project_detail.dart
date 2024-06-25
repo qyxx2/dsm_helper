@@ -58,7 +58,7 @@ class _ProjectDetailState extends State<ProjectDetail> with SingleTickerProvider
             ),
             Text(
               widget.project.path!,
-              style: TextStyle(fontSize: 12, color: AppTheme.of(context)?.placeholderColor),
+              style: TextStyle(fontSize: 12, color: AppTheme.of(context).placeholderColor),
             ),
           ],
         ),

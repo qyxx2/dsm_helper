@@ -10,7 +10,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluwx/fluwx.dart';
 
-import 'package:pangle_flutter/pangle_flutter.dart';
+// import 'package:pangle_flutter/pangle_flutter.dart';
 import 'package:sp_util/sp_util.dart';
 
 class Vip extends StatefulWidget {
@@ -149,22 +149,22 @@ class _VipState extends State<Vip> {
     Navigator.of(context).pop();
     var hide = showWeuiLoadingToast(context: context, message: Text("广告加载中"));
     try {
-      PangleResult result = await pangle.loadRewardedVideoAd(
-        iOS: IOSRewardedVideoConfig(slotId: "946681116"),
-        android: AndroidRewardedVideoConfig(slotId: "946681017"),
-      );
-      if (result.code == 0) {
-        if (noAdTime == null) {
-          noAdTime = DateTime.now();
-        }
-        setState(() {
-          noAdTime = noAdTime!.add(Duration(days: 3));
-        });
-        lastVideoTime = DateTime.now();
-        Utils.toast("恭喜您成功获得3天免广告特权");
-        SpUtil.putString("no_ad_time", noAdTime!.format("Y-m-d H:i:s"));
-        SpUtil.putString("last_video_time", lastVideoTime!.format("Y-m-d H:i:s"));
-      }
+      // PangleResult result = await pangle.loadRewardedVideoAd(
+      //   iOS: IOSRewardedVideoConfig(slotId: "946681116"),
+      //   android: AndroidRewardedVideoConfig(slotId: "946681017"),
+      // );
+      // if (result.code == 0) {
+      //   if (noAdTime == null) {
+      //     noAdTime = DateTime.now();
+      //   }
+      //   setState(() {
+      //     noAdTime = noAdTime!.add(Duration(days: 3));
+      //   });
+      //   lastVideoTime = DateTime.now();
+      //   Utils.toast("恭喜您成功获得3天免广告特权");
+      //   SpUtil.putString("no_ad_time", noAdTime!.format("Y-m-d H:i:s"));
+      //   SpUtil.putString("last_video_time", lastVideoTime!.format("Y-m-d H:i:s"));
+      // }
     } catch (e) {
       Utils.toast("广告播放失败");
     } finally {
@@ -531,7 +531,7 @@ class _VipState extends State<Vip> {
               },
               child: Text(
                 isLogin ? "开通记录" : "恢复购买",
-                style: TextStyle(color: AppTheme.of(context)?.titleColor),
+                style: TextStyle(color: AppTheme.of(context).titleColor),
               ),
             ),
           ),

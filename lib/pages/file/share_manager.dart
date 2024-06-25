@@ -137,7 +137,7 @@ class _ShareManagerState extends State<ShareManager> {
           SlidableAction(
             onPressed: (context) {},
             flex: 2,
-            backgroundColor: AppTheme.of(context)?.errorColor ?? Colors.red,
+            backgroundColor: AppTheme.of(context).errorColor,
             foregroundColor: Colors.white,
             icon: Icons.delete_outline_outlined,
             label: '删除',

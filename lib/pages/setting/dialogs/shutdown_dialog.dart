@@ -28,7 +28,7 @@ class ShutdownDialog {
                     onPressed: () async {
                       context.pop(reboot);
                     },
-                    color: AppTheme.of(context)?.errorColor,
+                    color: AppTheme.of(context).errorColor,
                     borderRadius: BorderRadius.circular(15),
                     padding: EdgeInsets.symmetric(vertical: 10),
                     child: Text(

@@ -73,7 +73,7 @@ class _ContainerLogTabState extends State<ContainerLogTab> {
                         DateTime month = logMonths.keys.toList()[i];
                         return Container(
                           decoration: BoxDecoration(
-                            color: AppTheme.of(context)?.cardColor,
+                            color: AppTheme.of(context).cardColor,
                             borderRadius: BorderRadius.circular(10),
                           ),
                           margin: EdgeInsets.only(top: 10),
@@ -94,7 +94,7 @@ class _ContainerLogTabState extends State<ContainerLogTab> {
                                   child: Text(
                                     date.format("m-d"),
                                     style: TextStyle(
-                                      color: date == currentDate ? AppTheme.of(context)?.primaryColor : null,
+                                      color: date == currentDate ? AppTheme.of(context).primaryColor : null,
                                       fontWeight: date == currentDate ? FontWeight.bold : null,
                                     ),
                                   ),
@@ -116,7 +116,7 @@ class _ContainerLogTabState extends State<ContainerLogTab> {
                                   itemBuilder: (context, i) {
                                     return Container(
                                       decoration: BoxDecoration(
-                                        color: AppTheme.of(context)?.cardColor,
+                                        color: AppTheme.of(context).cardColor,
                                         borderRadius: BorderRadius.circular(10),
                                       ),
                                       padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
@@ -129,14 +129,14 @@ class _ContainerLogTabState extends State<ContainerLogTab> {
                                               Spacer(),
                                               Text(
                                                 log.logs![i].stream!,
-                                                style: TextStyle(color: AppTheme.of(context)?.successColor),
+                                                style: TextStyle(color: AppTheme.of(context).successColor),
                                               ),
                                             ],
                                           ),
                                           SizedBox(height: 5),
                                           Text(
                                             "${log.logs![i].text!.replaceAll(exp, "").trim()}",
-                                            style: TextStyle(fontSize: 12, color: AppTheme.of(context)?.placeholderColor),
+                                            style: TextStyle(fontSize: 12, color: AppTheme.of(context).placeholderColor),
                                           ),
                                         ],
                                       ),

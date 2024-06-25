@@ -27,11 +27,7 @@ class BubbleTabIndicator extends Decoration {
     this.tabBarIndicatorSize = TabBarIndicatorSize.label,
     this.padding = const EdgeInsets.symmetric(vertical: 2.0, horizontal: 8.0),
     this.insets = const EdgeInsets.symmetric(horizontal: 5.0),
-  })  : assert(indicatorHeight != null),
-        assert(indicatorColor != null),
-        assert(indicatorRadius != null),
-        assert(padding != null),
-        assert(insets != null);
+  });
 
   // @override
   // Decoration lerpFrom(Decoration a, double t) {
@@ -75,8 +71,6 @@ class _BubblePainter extends BoxPainter {
   TabBarIndicatorSize get tabBarIndicatorSize => decoration.tabBarIndicatorSize;
 
   Rect _indicatorRectFor(Rect rect, TextDirection textDirection) {
-    assert(rect != null);
-    assert(textDirection != null);
 
     Rect indicator = padding.resolve(textDirection).inflateRect(rect);
 

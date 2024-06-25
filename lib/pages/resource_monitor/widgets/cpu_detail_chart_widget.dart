@@ -37,8 +37,8 @@ class CpuDetailChartWidget extends StatelessWidget {
           markerSettings: const MarkerSettings(isVisible: false),
           // color: Colors.lightBlue,
           borderWidth: 2,
-          borderColor: AppTheme.of(context)?.successColor,
-          gradient: LinearGradient(colors: [AppTheme.of(context)!.successColor!.withOpacity(0.1), AppTheme.of(context)!.successColor!.withOpacity(0.4)], begin: Alignment.bottomCenter, end: Alignment.topCenter),
+          borderColor: AppTheme.of(context).successColor,
+          gradient: LinearGradient(colors: [AppTheme.of(context).successColor.withOpacity(0.1), AppTheme.of(context).successColor.withOpacity(0.4)], begin: Alignment.bottomCenter, end: Alignment.topCenter),
         ),
         AreaSeries<Cpu, num>(
           onRendererCreated: onRendererCreated,
@@ -67,8 +67,8 @@ class CpuDetailChartWidget extends StatelessWidget {
           markerSettings: const MarkerSettings(isVisible: false),
           // color: Colors.lightBlue,
           borderWidth: 2,
-          borderColor: AppTheme.of(context)?.primaryColor,
-          gradient: LinearGradient(colors: [AppTheme.of(context)!.primaryColor!.withOpacity(0.1), AppTheme.of(context)!.primaryColor!.withOpacity(0.4)], begin: Alignment.bottomCenter, end: Alignment.topCenter),
+          borderColor: AppTheme.of(context).primaryColor,
+          gradient: LinearGradient(colors: [AppTheme.of(context).primaryColor.withOpacity(0.1), AppTheme.of(context).primaryColor.withOpacity(0.4)], begin: Alignment.bottomCenter, end: Alignment.topCenter),
         ),
       ],
     );

@@ -4,7 +4,6 @@ import 'package:dsm_helper/pages/control_panel/info/service_tab.dart';
 import 'package:dsm_helper/pages/control_panel/info/storage_tab.dart';
 import 'package:dsm_helper/widgets/glass/glass_app_bar.dart';
 import 'package:dsm_helper/widgets/glass/glass_scaffold.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class SystemInfo extends StatefulWidget {

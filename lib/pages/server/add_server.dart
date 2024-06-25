@@ -260,9 +260,9 @@ class _AddServerState extends State<AddServer> {
                           forceStrutHeight: true,
                         ),
                       ),
-                      color: ssl ? AppTheme.of(context)?.successColor : Theme.of(context).primaryColor,
+                      color: ssl ? AppTheme.of(context).successColor : Theme.of(context).primaryColor,
                       fill: ssl,
-                      borderColor: ssl ? AppTheme.of(context)?.successColor : Theme.of(context).primaryColor,
+                      borderColor: ssl ? AppTheme.of(context).successColor : Theme.of(context).primaryColor,
                       icon: Icon(
                         ssl ? Icons.lock_outline : Icons.lock_open,
                         size: 16,
@@ -285,9 +285,9 @@ class _AddServerState extends State<AddServer> {
                         ),
                       ),
                       disabled: !ssl,
-                      color: checkSsl ? AppTheme.of(context)?.successColor : Theme.of(context).primaryColor,
+                      color: checkSsl ? AppTheme.of(context).successColor : Theme.of(context).primaryColor,
                       fill: checkSsl,
-                      borderColor: checkSsl ? AppTheme.of(context)?.successColor : Theme.of(context).primaryColor,
+                      borderColor: checkSsl ? AppTheme.of(context).successColor : Theme.of(context).primaryColor,
                       icon: Icon(
                         checkSsl ? Icons.check_circle : Icons.check_circle_outline,
                         size: 16,

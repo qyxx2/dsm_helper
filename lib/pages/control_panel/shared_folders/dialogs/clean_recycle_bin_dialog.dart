@@ -49,7 +49,7 @@ class CleanRecycleBinDialog {
                         hide();
                       }
                     },
-                    color: AppTheme.of(context)?.warningColor,
+                    color: AppTheme.of(context).warningColor,
                     borderRadius: BorderRadius.circular(15),
                     padding: EdgeInsets.symmetric(vertical: 10),
                     child: Text(

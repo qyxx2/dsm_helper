@@ -4,7 +4,6 @@ import 'package:dsm_helper/utils/extensions/navigator_ext.dart';
 import 'package:dsm_helper/utils/utils.dart';
 import 'package:dsm_helper/widgets/button.dart';
 import 'package:dsm_helper/widgets/glass/glass_dialog.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_vibrate/flutter_vibrate.dart';
 
@@ -45,7 +44,7 @@ class KickConnectDialog {
                     onPressed: () async {
                       context.pop(true);
                     },
-                    color: AppTheme.of(context)?.errorColor,
+                    color: AppTheme.of(context).errorColor,
                     child: Text("终止连接"),
                   ),
                 ),

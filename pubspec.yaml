@@ -18,7 +18,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 version: 0.1.2+152
 
 environment:
-  sdk: '>=3.0.0 <4.0.0'
+  sdk: '>=3.4.3 <4.0.0'
 
 dependency_overrides:
   ffi: ^2.0.1  # open_file 3.2.1 需要重写
@@ -33,67 +33,68 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.6
 #  dio: ^4.0.6
-  dio: ^5.3.3
+  dio: ^5.4.3+1
   #  fluttertoast: ^7.1.6
-  fluttertoast: ^8.2.3
-  package_info_plus: ^4.2.0
+  fluttertoast: ^8.2.6
+  package_info_plus: ^8.0.0
   sp_util: ^2.0.3
-  permission_handler: ^11.0.1
-  extended_image: ^8.1.1  # 8.0.0 起不再支持flutter3.7
+  permission_handler: ^11.3.1
+  extended_image: ^8.2.1  # 8.0.0 起不再支持flutter3.7
   cool_ui: ^1.3.0
-  gal: ^2.0.0
+  gal: ^2.3.0
 #  android_intent: ^2.0.2 方法已过时，无法编译通过
-  android_intent_plus: ^4.0.3
-  path_provider: ^2.1.1
-  background_downloader: ^7.12.2
+  android_intent_plus: ^5.0.2
+  path_provider: ^2.1.3
+  background_downloader: ^8.5.2
+  background_downloader_sql: ^1.0.1
   percent_indicator: ^4.2.3
-  file_picker: 6.1.1
+  file_picker: ^8.0.5
   open_file: ^3.3.2
-  flutter_datetime_picker_plus: ^2.1.0
+  flutter_datetime_picker_plus: ^2.2.0
 #  flutter_datetime_picker:
 #    git: https://github.com/Realank/flutter_datetime_picker.git
   flutter_swiper_null_safety: ^1.0.2
   html: ^0.15.4
   flutter_html: 3.0.0-beta.2
-  provider: ^6.1.0
+  provider: ^6.1.2
   wave: ^0.2.2
-  modal_bottom_sheet: ^3.0.0-pre
-  photo_manager: ^2.8.0
+  modal_bottom_sheet: ^3.0.0
+  photo_manager: ^3.2.0
   flutter_vibrate: ^1.3.0
-  url_launcher: ^6.2.1 # 6.1.12 起不再支持flutter3.7
-  local_auth: ^2.1.7
+  url_launcher: ^6.3.0
+  local_auth: ^2.2.0
   gesture_password_widget: ^2.0.1
-  connectivity_plus: ^5.0.1
+  connectivity_plus: ^6.0.3
   code_editor: ^2.1.0
   flutter_highlight: ^0.7.0
 #  syncfusion_flutter_charts: ^20.3.57
-  syncfusion_flutter_charts: ^23.1.44
-  syncfusion_flutter_pdfviewer: ^23.1.44
-  syncfusion_flutter_datepicker: ^23.1.44
-  syncfusion_flutter_gauges: ^23.1.44
-  wechat_assets_picker: ^8.7.1  # 8.5.0 起不再支持flutter3.7
-  fluwx: ^4.4.0
+  syncfusion_flutter_charts: ^26.1.38
+  syncfusion_flutter_pdfviewer: ^26.1.38
+  syncfusion_flutter_datepicker: ^26.1.38
+  syncfusion_flutter_gauges: ^26.1.38
+  wechat_assets_picker: ^9.1.0
+  fluwx: ^4.5.5
 #  better_player:
 #    git: https://github.com/AnonymHK/betterplayer.git
-  device_info_plus: ^9.1.0
-  xml2json: ^6.2.1 # 6.0.0起不支持 flutter 3.7
+  device_info_plus: 9.0.2
+  xml2json: ^6.2.3
 #  wake_on_lan: ^3.0.0
   dartssh2: ^2.8.2
-  pangle_flutter: ^2.0.1  # 穿山甲广告 2.0.0起不支持 flutter 3.7
-  xterm: ^3.5.0
+#  pangle_flutter: ^2.0.1  # 穿山甲广告 2.0.0起不支持 flutter 3.7
+  xterm: ^4.0.0
   draggable_scrollbar: 0.1.0
-  loading_animation_widget: ^1.2.0+4
+  loading_animation_widget: ^1.2.1
 #  draggable_scrollbar:
 #    git: https://gitee.com/apaipai/draggable_scrollbar.git
 #  receive_sharing_intent:
 #    git: https://gitee.com/apaipai/receive_sharing_intent.git
   flutter_sharing_intent:
     git: https://gitee.com/apaipai/flutter_sharing_intent.git
-  webview_flutter: ^4.4.2
+  webview_flutter: ^4.8.0
   simple_logger: ^1.9.0+3
-  extended_text: ^11.1.0  #11.0.0 起不支持flutter 3.7
-  just_audio: ^0.9.35
-  rxdart: ^0.27.7
+  extended_text: ^13.0.2
+  just_audio: ^0.9.38
+  rxdart: 0.27.7
   flutter_floating: ^1.0.8
   kumi_popup_window: ^2.0.1
   reorderables: ^0.6.0
@@ -105,16 +106,16 @@ dependencies:
   quiver: ^3.2.1
 
   # drift 相关依赖
-  drift: ^2.13.1
-  sqlite3_flutter_libs: ^0.5.18
-  path: ^1.8.3
+  drift: ^2.18.0
+  sqlite3_flutter_libs: ^0.5.24
+  path: ^1.9.0
 
   # drift 依赖结束
 
   gbk_codec: ^0.4.0
 
   timelines: ^0.1.0
-  flutter_slidable: ^3.0.1
+  flutter_slidable: ^3.1.0
 #  flutter_filereader: ^3.0.0
 #  x5_webview: ^0.2.4
 dev_dependencies:

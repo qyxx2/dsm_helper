@@ -46,7 +46,7 @@ class _NetworkTabState extends State<NetworkTab> with AutomaticKeepAliveClientMi
                   children: [
                     Text(
                       "系统名称",
-                      style: TextStyle(color: AppTheme.of(context)?.placeholderColor, fontSize: 13),
+                      style: TextStyle(color: AppTheme.of(context).placeholderColor, fontSize: 13),
                     ),
                     Text(
                       "${systemNetwork.hostname}",
@@ -55,7 +55,7 @@ class _NetworkTabState extends State<NetworkTab> with AutomaticKeepAliveClientMi
                     Divider(indent: 0, endIndent: 0, height: 20),
                     Text(
                       "域名服务器(DNS)",
-                      style: TextStyle(color: AppTheme.of(context)?.placeholderColor, fontSize: 13),
+                      style: TextStyle(color: AppTheme.of(context).placeholderColor, fontSize: 13),
                     ),
                     Text(
                       "${systemNetwork.dns}",
@@ -64,7 +64,7 @@ class _NetworkTabState extends State<NetworkTab> with AutomaticKeepAliveClientMi
                     Divider(indent: 0, endIndent: 0, height: 20),
                     Text(
                       "默认网关(Gateway)",
-                      style: TextStyle(color: AppTheme.of(context)?.placeholderColor, fontSize: 13),
+                      style: TextStyle(color: AppTheme.of(context).placeholderColor, fontSize: 13),
                     ),
                     Text(
                       "${systemNetwork.gateway}",
@@ -73,7 +73,7 @@ class _NetworkTabState extends State<NetworkTab> with AutomaticKeepAliveClientMi
                     Divider(indent: 0, endIndent: 0, height: 20),
                     Text(
                       "工作群组",
-                      style: TextStyle(color: AppTheme.of(context)?.placeholderColor, fontSize: 13),
+                      style: TextStyle(color: AppTheme.of(context).placeholderColor, fontSize: 13),
                     ),
                     Text(
                       "${systemNetwork.workgroup}",
@@ -82,7 +82,7 @@ class _NetworkTabState extends State<NetworkTab> with AutomaticKeepAliveClientMi
                     Divider(indent: 0, endIndent: 0, height: 20),
                     Text(
                       "WINS服务器",
-                      style: TextStyle(color: AppTheme.of(context)?.placeholderColor, fontSize: 13),
+                      style: TextStyle(color: AppTheme.of(context).placeholderColor, fontSize: 13),
                     ),
                     Text(
                       "${systemNetwork.wins == null || systemNetwork.wins == '' ? '尚未设置' : systemNetwork.wins}",

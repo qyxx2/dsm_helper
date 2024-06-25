@@ -6,6 +6,8 @@ class WidgetCard extends StatelessWidget {
 
   final String? title;
 
+  final double? titleFontSize;
+
   final Widget? body;
 
   final Function()? onTap;
@@ -14,9 +16,11 @@ class WidgetCard extends StatelessWidget {
 
   final EdgeInsets? bodyPadding;
 
+  final Color? bodyColor;
+
   final BoxDecoration? boxDecoration;
 
-  const WidgetCard({this.icon, this.title, this.body, this.onTap, this.padding, this.bodyPadding, this.boxDecoration, super.key});
+  const WidgetCard({this.icon, this.title, this.titleFontSize, this.body, this.bodyColor, this.onTap, this.padding, this.bodyPadding, this.boxDecoration, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +42,7 @@ class WidgetCard extends StatelessWidget {
                     if (title != null)
                       Text(
                         title!,
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                        style: TextStyle(fontSize: titleFontSize ??  18, fontWeight: FontWeight.w600),
                       ),
                     if (icon != null) icon!,
                   ],
@@ -49,7 +53,7 @@ class WidgetCard extends StatelessWidget {
                 width: double.infinity,
                 padding: bodyPadding ?? EdgeInsets.symmetric(vertical: 14, horizontal: 16),
                 decoration: BoxDecoration(
-                  color: AppTheme.of(context)?.cardColor,
+                  color: bodyColor ?? AppTheme.of(context).cardColor,
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: body,

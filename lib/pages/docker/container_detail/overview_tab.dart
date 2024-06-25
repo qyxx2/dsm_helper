@@ -1,7 +1,6 @@
 import 'package:dsm_helper/models/Syno/Docker/DockerContainerDetail.dart';
 import 'package:dsm_helper/pages/dashboard/widgets/widget_card.dart';
 import 'package:dsm_helper/themes/app_theme.dart';
-import 'package:dsm_helper/utils/extensions/datetime_ext.dart';
 import 'package:dsm_helper/utils/utils.dart';
 import 'package:dsm_helper/widgets/loading_widget.dart';
 import 'package:flutter/material.dart';
@@ -42,7 +41,7 @@ class _OverviewTabState extends State<OverviewTab> {
                   children: [
                     Text(
                       "启动时间",
-                      style: TextStyle(color: AppTheme.of(context)?.placeholderColor, fontSize: 13),
+                      style: TextStyle(color: AppTheme.of(context).placeholderColor, fontSize: 13),
                     ),
                     Text(
                       "${DateTime.fromMillisecondsSinceEpoch((detail.details?.upTime ?? 0) * 1000).timeAgo}",
@@ -51,7 +50,7 @@ class _OverviewTabState extends State<OverviewTab> {
                     Divider(),
                     Text(
                       "快捷方式",
-                      style: TextStyle(color: AppTheme.of(context)?.placeholderColor, fontSize: 13),
+                      style: TextStyle(color: AppTheme.of(context).placeholderColor, fontSize: 13),
                     ),
                     Text(
                       "${detail.profile?.shortcut?.enableShortcut == true ? detail.profile?.shortcut?.enableStatusPage == true ? '状态页面' : '${detail.profile?.shortcut?.webPageUrl}' : '已停用'}",
@@ -60,7 +59,7 @@ class _OverviewTabState extends State<OverviewTab> {
                     Divider(),
                     Text(
                       "CPU优先顺序",
-                      style: TextStyle(color: AppTheme.of(context)?.placeholderColor, fontSize: 13),
+                      style: TextStyle(color: AppTheme.of(context).placeholderColor, fontSize: 13),
                     ),
                     Text(
                       "${detail.profile!.cpuPriority! > 50 ? '高' : detail.profile!.cpuPriority! == 50 ? '中' : '低'}",
@@ -69,7 +68,7 @@ class _OverviewTabState extends State<OverviewTab> {
                     Divider(),
                     Text(
                       "内存限制",
-                      style: TextStyle(color: AppTheme.of(context)?.placeholderColor, fontSize: 13),
+                      style: TextStyle(color: AppTheme.of(context).placeholderColor, fontSize: 13),
                     ),
                     Text(
                       "${detail.profile!.memoryLimit! > 0 ? Utils.formatSize(detail.profile!.memoryLimit!) : "自动"}",
@@ -78,7 +77,7 @@ class _OverviewTabState extends State<OverviewTab> {
                     Divider(),
                     Text(
                       "执行命令",
-                      style: TextStyle(color: AppTheme.of(context)?.placeholderColor, fontSize: 13),
+                      style: TextStyle(color: AppTheme.of(context).placeholderColor, fontSize: 13),
                     ),
                     Text(
                       "${detail.details?.exeCmd}",
@@ -92,7 +91,7 @@ class _OverviewTabState extends State<OverviewTab> {
                 body: Column(
                   children: [
                     DefaultTextStyle(
-                      style: TextStyle(color: AppTheme.of(context)?.placeholderColor, fontSize: 13),
+                      style: TextStyle(color: AppTheme.of(context).placeholderColor, fontSize: 13),
                       child: Row(
                         children: [
                           Expanded(child: Text("本地端口")),
@@ -123,7 +122,7 @@ class _OverviewTabState extends State<OverviewTab> {
                 body: Column(
                   children: [
                     DefaultTextStyle(
-                      style: TextStyle(color: AppTheme.of(context)?.placeholderColor, fontSize: 13),
+                      style: TextStyle(color: AppTheme.of(context).placeholderColor, fontSize: 13),
                       child: Row(
                         children: [
                           Expanded(child: Text("文件/文件夹")),
@@ -154,7 +153,7 @@ class _OverviewTabState extends State<OverviewTab> {
                 body: Column(
                   children: [
                     DefaultTextStyle(
-                      style: TextStyle(color: AppTheme.of(context)?.placeholderColor, fontSize: 13),
+                      style: TextStyle(color: AppTheme.of(context).placeholderColor, fontSize: 13),
                       child: Row(
                         children: [
                           Expanded(child: Text("容器名称")),
@@ -183,7 +182,7 @@ class _OverviewTabState extends State<OverviewTab> {
                 body: Column(
                   children: [
                     DefaultTextStyle(
-                      style: TextStyle(color: AppTheme.of(context)?.placeholderColor, fontSize: 13),
+                      style: TextStyle(color: AppTheme.of(context).placeholderColor, fontSize: 13),
                       child: Row(
                         children: [
                           Expanded(child: Text("网络名称")),
@@ -217,7 +216,7 @@ class _OverviewTabState extends State<OverviewTab> {
                             children: [
                               Text(
                                 "${e.key}",
-                                style: TextStyle(color: AppTheme.of(context)?.placeholderColor, fontSize: 13),
+                                style: TextStyle(color: AppTheme.of(context).placeholderColor, fontSize: 13),
                               ),
                               Text(
                                 "${e.value}",

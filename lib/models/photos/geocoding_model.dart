@@ -1,7 +1,8 @@
 import 'dart:convert';
 
+import 'package:dsm_helper/apis/dsm_api/dsm_response.dart';
 import 'package:dsm_helper/models/photos/photo_model.dart';
-import 'package:dsm_helper/utils/utils.dart';
+import 'package:dsm_helper/apis/api.dart' as api;
 
 /// additional : {"thumbnail":{"cache_key":"611178_1665630275","m":"ready","preview":"broken","sm":"ready","unit_id":611178,"xl":"ready"}}
 /// country : "中国大陆"
@@ -23,24 +24,28 @@ class GeocodingModel {
     this.name,
     this.secondLevel,
   });
+
   static Future<List<GeocodingModel>> fetch({List<String>? additional, int limit = 5000, bool isTeam = false}) async {
-    var res = await Utils.post("entry.cgi", data: {
-      // "folder_id": id,
-      "api": 'SYNO.Foto${isTeam ? 'Team' : ''}.Browse.Geocoding',
-      "method": 'list',
-      "version": 1,
-      "_sid": Utils.sid,
+    Map<String, dynamic> data = {
       "additional": jsonEncode(additional),
       "offset": 0,
       "limit": limit,
-    });
-    if (res['success']) {
-      List list = res['data']['list'];
-      List<GeocodingModel> geocodings = [];
-      list.forEach((element) {
-        geocodings.add(GeocodingModel.fromJson(element));
-      });
-      return geocodings;
+    };
+    DsmResponse res = await api.Api.dsm.entry(
+      'SYNO.Foto${isTeam ? 'Team' : ''}.Browse.Geocoding',
+      "list",
+      version: 1,
+      data: data,
+      parser: (json) {
+        List<GeocodingModel> tags = [];
+        json['list'].forEach((item) {
+          tags.add(GeocodingModel.fromJson(item));
+        });
+        return tags;
+      },
+    );
+    if (res.success!) {
+      return res.data;
     } else {
       throw Exception();
     }
@@ -56,6 +61,7 @@ class GeocodingModel {
     name = json['name'];
     secondLevel = json['second_level'];
   }
+
   PhotoAdditional? additional;
   String? country;
   num? countryId;
@@ -64,6 +70,7 @@ class GeocodingModel {
   num? itemCount;
   String? name;
   String? secondLevel;
+
   GeocodingModel copyWith({
     PhotoAdditional? additional,
     String? country,
@@ -84,6 +91,7 @@ class GeocodingModel {
         name: name ?? this.name,
         secondLevel: secondLevel ?? this.secondLevel,
       );
+
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
     if (additional != null) {

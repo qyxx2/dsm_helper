@@ -25,7 +25,7 @@ class CommonTab extends StatelessWidget {
             children: [
               Text(
                 "服务器名称",
-                style: TextStyle(color: AppTheme.of(context)?.placeholderColor, fontSize: 13),
+                style: TextStyle(color: AppTheme.of(context).placeholderColor, fontSize: 13),
               ),
               Text(
                 "${initData.session?.hostname}",
@@ -34,7 +34,7 @@ class CommonTab extends StatelessWidget {
               Divider(indent: 0, endIndent: 0, height: 20),
               Text(
                 "DSM版本",
-                style: TextStyle(color: AppTheme.of(context)?.placeholderColor, fontSize: 13),
+                style: TextStyle(color: AppTheme.of(context).placeholderColor, fontSize: 13),
               ),
               Text(
                 "${system.firmwareVer}",
@@ -50,7 +50,7 @@ class CommonTab extends StatelessWidget {
             children: [
               Text(
                 "产品序列号",
-                style: TextStyle(color: AppTheme.of(context)?.placeholderColor, fontSize: 13),
+                style: TextStyle(color: AppTheme.of(context).placeholderColor, fontSize: 13),
               ),
               Text(
                 "${system.serial ?? '-'}",
@@ -59,7 +59,7 @@ class CommonTab extends StatelessWidget {
               Divider(indent: 0, endIndent: 0, height: 20),
               Text(
                 "产品型号",
-                style: TextStyle(color: AppTheme.of(context)?.placeholderColor, fontSize: 13),
+                style: TextStyle(color: AppTheme.of(context).placeholderColor, fontSize: 13),
               ),
               Text(
                 "${system.model ?? '-'}",
@@ -68,7 +68,7 @@ class CommonTab extends StatelessWidget {
               Divider(indent: 0, endIndent: 0, height: 20),
               Text(
                 "CPU",
-                style: TextStyle(color: AppTheme.of(context)?.placeholderColor, fontSize: 13),
+                style: TextStyle(color: AppTheme.of(context).placeholderColor, fontSize: 13),
               ),
               Text(
                 "${system.cpuVendor} ${system.cpuFamily} ${system.cpuSeries}",
@@ -77,7 +77,7 @@ class CommonTab extends StatelessWidget {
               Divider(indent: 0, endIndent: 0, height: 20),
               Text(
                 "CPU核心",
-                style: TextStyle(color: AppTheme.of(context)?.placeholderColor, fontSize: 13),
+                style: TextStyle(color: AppTheme.of(context).placeholderColor, fontSize: 13),
               ),
               Text(
                 "${system.cpuCores}核 @ ${(system.cpuClockSpeed! / 1000).toStringAsFixed(2)}GHz",
@@ -86,7 +86,7 @@ class CommonTab extends StatelessWidget {
               Divider(indent: 0, endIndent: 0, height: 20),
               Text(
                 "物理内存",
-                style: TextStyle(color: AppTheme.of(context)?.placeholderColor, fontSize: 13),
+                style: TextStyle(color: AppTheme.of(context).placeholderColor, fontSize: 13),
               ),
               Text(
                 "${system.ramSize}MB",
@@ -95,7 +95,7 @@ class CommonTab extends StatelessWidget {
               Divider(indent: 0, endIndent: 0, height: 20),
               Text(
                 "DSM版本",
-                style: TextStyle(color: AppTheme.of(context)?.placeholderColor, fontSize: 13),
+                style: TextStyle(color: AppTheme.of(context).placeholderColor, fontSize: 13),
               ),
               Text(
                 "${system.firmwareVer}",
@@ -104,11 +104,11 @@ class CommonTab extends StatelessWidget {
               Divider(indent: 0, endIndent: 0, height: 20),
               Text(
                 "散热状态",
-                style: TextStyle(color: AppTheme.of(context)?.placeholderColor, fontSize: 13),
+                style: TextStyle(color: AppTheme.of(context).placeholderColor, fontSize: 13),
               ),
               Text(
                 "${system.sysTemp}℃ ${system.temperatureWarning == null ? (system.sysTemp! > 80 ? "警告" : "正常") : (system.temperatureWarning! ? "警告" : "正常")}",
-                style: TextStyle(color: system.temperatureWarning == null ? (system.sysTemp! > 80 ? AppTheme.of(context)?.errorColor : AppTheme.of(context)?.successColor) : (system.temperatureWarning! ? AppTheme.of(context)?.errorColor : AppTheme.of(context)?.successColor), fontSize: 16),
+                style: TextStyle(color: system.temperatureWarning == null ? (system.sysTemp! > 80 ? AppTheme.of(context).errorColor : AppTheme.of(context).successColor) : (system.temperatureWarning! ? AppTheme.of(context).errorColor : AppTheme.of(context).successColor), fontSize: 16),
               ),
             ],
           ),
@@ -127,7 +127,7 @@ class CommonTab extends StatelessWidget {
             children: [
               Text(
                 "服务器地址",
-                style: TextStyle(color: AppTheme.of(context)?.placeholderColor, fontSize: 13),
+                style: TextStyle(color: AppTheme.of(context).placeholderColor, fontSize: 13),
               ),
               Text(
                 "${system.ntpServer} ${system.enabledNtp! ? "" : "(暂未启用)"}",
@@ -136,7 +136,7 @@ class CommonTab extends StatelessWidget {
               Divider(indent: 0, endIndent: 0, height: 20),
               Text(
                 "时区",
-                style: TextStyle(color: AppTheme.of(context)?.placeholderColor, fontSize: 13),
+                style: TextStyle(color: AppTheme.of(context).placeholderColor, fontSize: 13),
               ),
               Text(
                 "${system.timeZoneDesc}",
@@ -145,7 +145,7 @@ class CommonTab extends StatelessWidget {
               Divider(indent: 0, endIndent: 0, height: 20),
               Text(
                 "系统时间",
-                style: TextStyle(color: AppTheme.of(context)?.placeholderColor, fontSize: 13),
+                style: TextStyle(color: AppTheme.of(context).placeholderColor, fontSize: 13),
               ),
               Text(
                 "${system.time}",
@@ -154,7 +154,7 @@ class CommonTab extends StatelessWidget {
               Divider(indent: 0, endIndent: 0, height: 20),
               Text(
                 "运行时间",
-                style: TextStyle(color: AppTheme.of(context)?.placeholderColor, fontSize: 13),
+                style: TextStyle(color: AppTheme.of(context).placeholderColor, fontSize: 13),
               ),
               Text(
                 "${Utils.parseOpTime(system.upTime!)}",

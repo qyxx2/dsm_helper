@@ -21,8 +21,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_vibrate/flutter_vibrate.dart';
 import 'package:local_auth/error_codes.dart' as auth_error;
 import 'package:local_auth/local_auth.dart';
-import 'package:local_auth_ios/local_auth_ios.dart';
 import 'package:local_auth_android/local_auth_android.dart';
+import 'package:local_auth_darwin/local_auth_darwin.dart';
 
 import 'package:provider/provider.dart';
 import 'package:sp_util/sp_util.dart';
@@ -278,7 +278,7 @@ class _HelperSettingState extends State<HelperSetting> {
                         Spacer(),
                         Text(
                           "${settingProvider.refreshDuration}s",
-                          style: TextStyle(color: AppTheme.of(context)?.placeholderColor),
+                          style: TextStyle(color: AppTheme.of(context).placeholderColor),
                         ),
                         Icon(
                           CupertinoIcons.right_chevron,
@@ -344,17 +344,17 @@ class _HelperSettingState extends State<HelperSetting> {
                             Image.asset(
                               "assets/icons/gesture.png",
                               width: 20,
-                              color: AppTheme.of(context)?.placeholderColor,
+                              color: AppTheme.of(context).placeholderColor,
                             ),
                             Image.asset(
                               "assets/icons/fingerprint.png",
                               width: 20,
-                              color: AppTheme.of(context)?.placeholderColor,
+                              color: AppTheme.of(context).placeholderColor,
                             ),
                             Image.asset(
                               "assets/icons/faceid.png",
                               width: 20,
-                              color: AppTheme.of(context)?.placeholderColor,
+                              color: AppTheme.of(context).placeholderColor,
                             ),
                             Icon(
                               CupertinoIcons.right_chevron,

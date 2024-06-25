@@ -1,7 +1,8 @@
 import 'dart:convert';
 
+import 'package:dsm_helper/apis/dsm_api/dsm_response.dart';
 import 'package:dsm_helper/models/photos/photo_model.dart';
-import 'package:dsm_helper/utils/utils.dart';
+import 'package:dsm_helper/apis/api.dart' as api;
 
 /// additional : {"sharing_info":{"enable_password":false,"expiration":0,"is_expired":false,"mtime":1666874109,"owner":{"id":1,"name":"yaoshuwei"},"passphrase":"5kpICmfPs","permission":[],"privacy_type":"public-view","sharing_link":"http://pan.apaipai.top:5000/mo/sharing/5kpICmfPs","type":"album"},"thumbnail":{"cache_key":"684382_1666619064","m":"ready","preview":"broken","sm":"ready","unit_id":684382,"xl":"ready"}}
 /// cant_migrate_condition : {}
@@ -60,23 +61,27 @@ class AlbumModel {
       // "shared": shared,
       "sort_by": '"$sortBy"',
       "sort_direction": '"$sortDirection"',
-      "api": "SYNO.Foto${isTeam ? 'Team' : ''}.Browse.Album",
-      "method": "list",
       "version": shared ? 2 : 1,
-      "_sid": Utils.sid,
     };
     if (shared) {
       data['category'] = '"shared"';
     }
-    print(data);
-    var res = await Utils.post("entry.cgi", data: data);
-    print(res);
-    if (res['success']) {
-      List<AlbumModel> albums = [];
-      res['data']['list'].forEach((e) {
-        albums.add(AlbumModel.fromJson(e));
-      });
-      return albums;
+    DsmResponse res = await api.Api.dsm.entry(
+      "SYNO.Foto${isTeam ? 'Team' : ''}.Browse.Album",
+      "list",
+      version: shared ? 2 : 1,
+      data: data,
+      parser: (json) {
+        print(json);
+        List<AlbumModel> tags = [];
+        json['list'].forEach((item) {
+          tags.add(AlbumModel.fromJson(item));
+        });
+        return tags;
+      },
+    );
+    if (res.success!) {
+      return res.data;
     } else {
       throw Exception();
     }
@@ -102,6 +107,7 @@ class AlbumModel {
     type = json['type'];
     version = json['version'];
   }
+
   PhotoAdditional? additional;
   dynamic cantMigrateCondition;
   dynamic condition;
@@ -120,6 +126,7 @@ class AlbumModel {
   bool? temporaryShared;
   String? type;
   num? version;
+
   String get shareText {
     if (additional?.sharingInfo?.privacyType == 'public-view') {
       return '公开共享';
@@ -168,6 +175,7 @@ class AlbumModel {
         type: type ?? this.type,
         version: version ?? this.version,
       );
+
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
     if (additional != null) {

@@ -1,5 +1,4 @@
 import 'package:dsm_helper/apis/api.dart';
-import 'package:dsm_helper/apis/dsm_api/dsm_response.dart';
 
 /// enable_ssh : true
 /// enable_telnet : false

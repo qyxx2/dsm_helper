@@ -159,7 +159,7 @@ class _ServiceTabState extends State<ServiceTab> {
               padding: EdgeInsets.only(top: 5),
               child: Text(
                 portInfo.map((e) => e.dstPort!.join(",")).join(","),
-                style: TextStyle(color: AppTheme.of(context)?.placeholderColor, fontSize: 14),
+                style: TextStyle(color: AppTheme.of(context).placeholderColor, fontSize: 14),
               ),
             ),
           if (!isLast)

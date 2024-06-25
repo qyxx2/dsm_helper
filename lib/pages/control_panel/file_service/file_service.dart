@@ -277,7 +277,7 @@ class _FileServiceState extends State<FileService> with SingleTickerProviderStat
                                           }));
                                         }
                                       },
-                                      color: AppTheme.of(context)?.primaryColor,
+                                      color: AppTheme.of(context).primaryColor,
                                       borderRadius: BorderRadius.circular(15),
                                       padding: EdgeInsets.symmetric(vertical: 10),
                                       child: Text("日志设置"),
@@ -293,7 +293,7 @@ class _FileServiceState extends State<FileService> with SingleTickerProviderStat
                                           return LogCenter();
                                         }));
                                       },
-                                      color: AppTheme.of(context)?.primaryColor,
+                                      color: AppTheme.of(context).primaryColor,
                                       borderRadius: BorderRadius.circular(15),
                                       padding: EdgeInsets.symmetric(vertical: 10),
                                       child: Text(
@@ -1048,7 +1048,7 @@ class _FileServiceState extends State<FileService> with SingleTickerProviderStat
             ),
       persistentFooterButtons: [
         CupertinoButton(
-          color: AppTheme.of(context)?.primaryColor,
+          color: AppTheme.of(context).primaryColor,
           borderRadius: BorderRadius.circular(15),
           padding: EdgeInsets.symmetric(vertical: 10),
           onPressed: saving
@@ -1073,7 +1073,7 @@ class _FileServiceState extends State<FileService> with SingleTickerProviderStat
               if (saving) ...[
                 LoadingWidget(
                   size: 16,
-                  color: AppTheme.of(context)?.placeholderColor,
+                  color: AppTheme.of(context).placeholderColor,
                 ),
                 SizedBox(
                   width: 20,

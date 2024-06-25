@@ -1,20 +1,7 @@
-import 'dart:async';
-import 'dart:io';
-import 'dart:isolate';
-import 'dart:ui';
-import 'package:android_intent_plus/android_intent.dart';
-import 'package:dsm_helper/pages/common/video_player.dart';
 import 'package:dsm_helper/pages/transfer/download_tab.dart';
-import 'package:dsm_helper/pages/transfer/transfer_setting.dart';
 import 'package:dsm_helper/pages/transfer/upload_tab.dart';
-import 'package:dsm_helper/themes/app_theme.dart';
 import 'package:dsm_helper/widgets/glass/glass_app_bar.dart';
 import 'package:dsm_helper/widgets/glass/glass_scaffold.dart';
-import 'package:dsm_helper/widgets/transparent_router.dart';
-import 'package:dsm_helper/pages/common/image_preview.dart';
-import 'package:dsm_helper/utils/utils.dart';
-import 'package:dsm_helper/widgets/file_icon.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 // class DownloadInfo {

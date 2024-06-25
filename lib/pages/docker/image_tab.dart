@@ -1,6 +1,5 @@
 import 'package:cool_ui/cool_ui.dart';
 import 'package:dsm_helper/apis/api.dart';
-import 'package:dsm_helper/apis/dsm_api/dsm_response.dart';
 import 'package:dsm_helper/models/Syno/Docker/DockerImage.dart';
 import 'package:dsm_helper/models/Syno/Docker/DockerImageUpgradeTask.dart';
 import 'package:dsm_helper/pages/docker/dialogs/image_upgrade_popup.dart';
@@ -11,7 +10,6 @@ import 'package:dsm_helper/widgets/empty_widget.dart';
 import 'package:dsm_helper/widgets/label.dart';
 import 'package:dsm_helper/widgets/loading_widget.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
 
 class ImageTab extends StatefulWidget {
   const ImageTab({super.key});
@@ -90,7 +88,7 @@ class _ImageTabState extends State<ImageTab> with AutomaticKeepAliveClientMixin 
     return Container(
       margin: EdgeInsets.only(top: 14),
       decoration: BoxDecoration(
-        color: AppTheme.of(context)?.cardColor,
+        color: AppTheme.of(context).cardColor,
         borderRadius: BorderRadius.circular(20),
       ),
       child: Padding(
@@ -117,7 +115,7 @@ class _ImageTabState extends State<ImageTab> with AutomaticKeepAliveClientMixin 
                           child: Image.asset(
                             "assets/icons/upgrade.png",
                             width: 24,
-                            color: AppTheme.of(context)?.primaryColor,
+                            color: AppTheme.of(context).primaryColor,
                           ),
                           minSize: 30,
                           padding: EdgeInsets.zero,
@@ -162,12 +160,12 @@ class _ImageTabState extends State<ImageTab> with AutomaticKeepAliveClientMixin 
                   Row(
                     children: [
                       if (upgrading)
-                        Padding(padding: EdgeInsets.only(right: 5), child: Label("${upgradeTask?.stateEnum != UpgradeStateEnum.unknown ? upgradeTask?.stateEnum.label : upgradeTask?.state}:${upgradeTask?.percent?.toStringAsFixed(2) ?? '-'}%", AppTheme.of(context)?.successColor ?? Colors.green))
+                        Padding(padding: EdgeInsets.only(right: 5), child: Label("${upgradeTask?.stateEnum != UpgradeStateEnum.unknown ? upgradeTask?.stateEnum.label : upgradeTask?.state}:${upgradeTask?.percent?.toStringAsFixed(2) ?? '-'}%", AppTheme.of(context).successColor))
                       else if (image.tags != null)
                         ...image.tags!.map(
-                          (tag) => Padding(padding: EdgeInsets.only(right: 5), child: Label(tag, AppTheme.of(context)?.primaryColor ?? Colors.blue)),
+                          (tag) => Padding(padding: EdgeInsets.only(right: 5), child: Label(tag, AppTheme.of(context).primaryColor)),
                         ),
-                      Label(Utils.formatSize(image.size!, fixed: 0), AppTheme.of(context)?.placeholderColor ?? Colors.grey),
+                      Label(Utils.formatSize(image.size!, fixed: 0), AppTheme.of(context).placeholderColor),
                     ],
                   ),
                   if (image.description != null && image.description != '') ...[
@@ -179,7 +177,7 @@ class _ImageTabState extends State<ImageTab> with AutomaticKeepAliveClientMixin 
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                        color: AppTheme.of(context)?.placeholderColor,
+                        color: AppTheme.of(context).placeholderColor,
                       ),
                     )
                   ],

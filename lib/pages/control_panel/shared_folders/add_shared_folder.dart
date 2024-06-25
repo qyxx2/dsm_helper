@@ -2,7 +2,6 @@ import 'dart:math';
 
 import 'package:dio/dio.dart';
 import 'package:dsm_helper/apis/api.dart';
-import 'package:dsm_helper/apis/dsm_api/dsm_exception.dart';
 import 'package:dsm_helper/models/Syno/Core/Share.dart';
 import 'package:dsm_helper/models/Syno/Core/Storage/Volume.dart';
 import 'package:dsm_helper/pages/dashboard/widgets/widget_card.dart';
@@ -304,7 +303,7 @@ class _AddSharedFoldersState extends State<AddSharedFolders> {
                                                       ),
                                                       Text(
                                                         "可用容量：${Utils.formatSize(int.parse(volume.sizeFreeByte!))}",
-                                                        style: TextStyle(color: AppTheme.of(context)?.placeholderColor, fontSize: 14),
+                                                        style: TextStyle(color: AppTheme.of(context).placeholderColor, fontSize: 14),
                                                       ),
                                                     ],
                                                   ),
@@ -341,7 +340,7 @@ class _AddSharedFoldersState extends State<AddSharedFolders> {
                                 children: [
                                   Text(
                                     "所在位置",
-                                    style: TextStyle(color: AppTheme.of(context)?.placeholderColor, fontSize: 13),
+                                    style: TextStyle(color: AppTheme.of(context).placeholderColor, fontSize: 13),
                                   ),
                                   Text(
                                     "${widget.volumes[selectedVolumeIndex].displayName}(可用容量：${Utils.formatSize(int.parse(widget.volumes[selectedVolumeIndex].sizeFreeByte!))}) - ${widget.volumes[selectedVolumeIndex].fsType}",

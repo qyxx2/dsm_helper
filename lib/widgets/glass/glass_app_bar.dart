@@ -37,9 +37,7 @@ class GlassAppBar extends StatelessWidget implements PreferredSizeWidget {
       automaticallyImplyLeading: automaticallyImplyLeading,
       backgroundColor: Colors.transparent,
       titleSpacing: titleSpacing,
-      notificationPredicate: (_) {
-        return false;
-      },
+      scrolledUnderElevation: 0,
       actions: actions,
       bottom: bottom,
       flexibleSpace: ClipRRect(

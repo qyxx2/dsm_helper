@@ -31,7 +31,7 @@ class VolumeItemWidget extends StatelessWidget {
             ),
             if (showFileSystem) ...[
               SizedBox(width: 5),
-              Label(volume.fsType!, AppTheme.of(context)?.primaryColor ?? Colors.blue),
+              Label(volume.fsType!, AppTheme.of(context).primaryColor),
             ],
           ],
         ),
@@ -48,16 +48,16 @@ class VolumeItemWidget extends StatelessWidget {
             children: [
               Text(
                 "已用 ${Utils.formatSize(volume.size!.used!)} ",
-                style: TextStyle(color: volume.size!.usedPercent > 80 ? AppTheme.of(context)?.errorColor : AppTheme.of(context)?.primaryColor),
+                style: TextStyle(color: volume.size!.usedPercent > 80 ? AppTheme.of(context).errorColor : AppTheme.of(context).primaryColor),
               ),
               Text(
                 "/ ${Utils.formatSize(volume.size!.total!)}",
-                style: TextStyle(color: AppTheme.of(context)?.placeholderColor),
+                style: TextStyle(color: AppTheme.of(context).placeholderColor),
               ),
               Spacer(),
               Text(
                 "可用：${Utils.formatSize(volume.size!.free!)}",
-                style: TextStyle(color: AppTheme.of(context)?.successColor),
+                style: TextStyle(color: AppTheme.of(context).successColor),
               ),
             ],
           ),

@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:typed_data';
 
 import 'package:dsm_helper/utils/utils.dart';
 import 'package:dsm_helper/widgets/glass/glass_app_bar.dart';
@@ -29,7 +28,7 @@ class _OtpBindState extends State<OtpBind> {
   @override
   void initState() {
     setState(() {
-      email = widget.email ?? "";
+      email = widget.email;
     });
     _emailController.value = TextEditingValue(text: email);
     super.initState();

@@ -184,7 +184,7 @@ class _SelectFolderState extends State<SelectFolder> {
                     ),
                     Text(
                       (file['isdir'] ? "" : "${Utils.formatSize(file['additional']['size'])}" + " | ") + DateTime.fromMillisecondsSinceEpoch(file['additional']['time']['crtime'] * 1000).format("Y/m/d H:i:s"),
-                      style: TextStyle(fontSize: 12, color: AppTheme.of(context)?.placeholderColor),
+                      style: TextStyle(fontSize: 12, color: AppTheme.of(context).placeholderColor),
                     ),
                   ],
                 ),

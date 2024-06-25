@@ -57,6 +57,15 @@ class DsmApi extends HttpUtil {
       DsmResponse res = DsmResponse.fromJson(response.data, parser);
       return res;
     } else {
+      if(response.data['error']['code'] == '119'){
+        // 登录失效，尝试重新登录
+        // try{
+        //   await login();
+        //   return await entry(api, method, post: post, data: data, path: path, version: version, parameters: parameters, options: options, parser: parser);
+        // }catch(e){
+        //   throw DsmException(response.data['error']['code']);
+        // }
+      }
       throw DsmException(response.data['error']['code']);
     }
   }

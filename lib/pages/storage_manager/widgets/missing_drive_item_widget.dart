@@ -23,7 +23,7 @@ class MissingDriveItemWidget extends StatelessWidget {
             SizedBox(width: 5),
             Label(
               "${drive.mediumType}",
-              AppTheme.of(context)?.primaryColor ?? Colors.blue,
+              AppTheme.of(context).primaryColor,
             ),
             SizedBox(width: 5),
             if (drive.sizeTotal != null)
@@ -41,21 +41,21 @@ class MissingDriveItemWidget extends StatelessWidget {
                 "${drive.vendor!.trim()}",
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(color: AppTheme.of(context)?.placeholderColor, fontSize: 12),
+                style: TextStyle(color: AppTheme.of(context).placeholderColor, fontSize: 12),
               ),
             if (drive.model != null && drive.model != '')
               Text(
                 "${drive.model}",
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(color: AppTheme.of(context)?.placeholderColor, fontSize: 12),
+                style: TextStyle(color: AppTheme.of(context).placeholderColor, fontSize: 12),
               ),
             if (drive.serial != null && drive.serial != '')
               Text(
                 "序列号：${drive.serial}",
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(color: AppTheme.of(context)?.placeholderColor, fontSize: 12),
+                style: TextStyle(color: AppTheme.of(context).placeholderColor, fontSize: 12),
               ),
           ],
         ),

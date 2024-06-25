@@ -88,7 +88,7 @@ class _TaskSchedulerItemState extends State<TaskSchedulerItem> {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: AppTheme.of(context)?.cardColor,
+        color: AppTheme.of(context).cardColor,
         borderRadius: BorderRadius.circular(20),
       ),
       padding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
@@ -110,7 +110,7 @@ class _TaskSchedulerItemState extends State<TaskSchedulerItem> {
                     SizedBox(width: 10),
                     Text(
                       "${widget.task.action}",
-                      style: TextStyle(fontSize: 12, color: AppTheme.of(context)?.placeholderColor),
+                      style: TextStyle(fontSize: 12, color: AppTheme.of(context).placeholderColor),
                     ),
                   ],
                 ),
@@ -119,15 +119,15 @@ class _TaskSchedulerItemState extends State<TaskSchedulerItem> {
                   children: [
                     DotWidget(
                       size: 10,
-                      color: widget.task.enable == true ? AppTheme.of(context)?.successColor : AppTheme.of(context)?.placeholderColor,
+                      color: widget.task.enable == true ? AppTheme.of(context).successColor : AppTheme.of(context).placeholderColor,
                     ),
                     SizedBox(width: 5),
                     Text(
                       "已${widget.task.enable == true ? '启用' : '禁用'}",
-                      style: TextStyle(color: widget.task.enable == true ? AppTheme.of(context)?.successColor : AppTheme.of(context)?.placeholderColor, fontSize: 12),
+                      style: TextStyle(color: widget.task.enable == true ? AppTheme.of(context).successColor : AppTheme.of(context).placeholderColor, fontSize: 12),
                     ),
                     SizedBox(width: 10),
-                    Label(widget.task.typeEnum.label, AppTheme.of(context)?.primaryColor ?? Colors.blue),
+                    Label(widget.task.typeEnum.label, AppTheme.of(context).primaryColor),
                   ],
                 ),
                 SizedBox(height: 5),
@@ -287,14 +287,14 @@ class _TaskSchedulerItemState extends State<TaskSchedulerItem> {
                                   "assets/icons/${widget.task.enable == true ? 'close_circle' : 'check'}.png",
                                   width: 20,
                                   height: 20,
-                                  color: widget.task.enable == true ? AppTheme.of(context)!.warningColor! : Colors.black,
+                                  color: widget.task.enable == true ? AppTheme.of(context).warningColor : Colors.black,
                                 ),
                                 SizedBox(
                                   width: 10,
                                 ),
                                 Text(
                                   "${widget.task.enable == true ? '禁用' : '启用'}",
-                                  style: TextStyle(color: widget.task.enable == true ? AppTheme.of(context)?.warningColor : null),
+                                  style: TextStyle(color: widget.task.enable == true ? AppTheme.of(context).warningColor : null),
                                 ),
                               ],
                             ),
@@ -327,7 +327,7 @@ class _TaskSchedulerItemState extends State<TaskSchedulerItem> {
                                 ),
                                 Text(
                                   "删除",
-                                  style: TextStyle(color: AppTheme.of(context)?.errorColor),
+                                  style: TextStyle(color: AppTheme.of(context).errorColor),
                                 ),
                               ],
                             ),

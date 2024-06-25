@@ -61,9 +61,9 @@ class StoragePoolItemWidget extends StatelessWidget {
                       TextSpan(
                         text: "${Utils.formatSize(pool.size!.total!, showByte: true)}已分配",
                       ),
-                      TextSpan(text: " | ${Utils.formatSize(pool.size!.free!, showByte: true)}可用", style: TextStyle(color: AppTheme.of(context)?.placeholderColor)),
+                      TextSpan(text: " | ${Utils.formatSize(pool.size!.free!, showByte: true)}可用", style: TextStyle(color: AppTheme.of(context).placeholderColor)),
                     ]),
-                    style: TextStyle(color: AppTheme.of(context)?.primaryColor, fontSize: 12),
+                    style: TextStyle(color: AppTheme.of(context).primaryColor, fontSize: 12),
                   ),
               ],
             ),
@@ -72,17 +72,18 @@ class StoragePoolItemWidget extends StatelessWidget {
         children: [
           WidgetCard(
             title: "信息",
+            titleFontSize: 14,
             boxDecoration: BoxDecoration(
-              color: Theme.of(context).scaffoldBackgroundColor,
               borderRadius: BorderRadius.circular(20),
             ),
-            padding: EdgeInsets.only(left: 16, right: 16, bottom: 14),
+            bodyColor: Theme.of(context).scaffoldBackgroundColor,
+            padding: EdgeInsets.zero,
             body: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   "RAID类别",
-                  style: TextStyle(color: AppTheme.of(context)?.placeholderColor, fontSize: 13),
+                  style: TextStyle(color: AppTheme.of(context).placeholderColor, fontSize: 13),
                 ),
                 Text.rich(
                   TextSpan(
@@ -96,7 +97,7 @@ class StoragePoolItemWidget extends StatelessWidget {
                       ),
                       TextSpan(
                         text: "（${pool.deviceTypeEnum.protect ? '有' : '无'}数据保护）",
-                        style: TextStyle(color: pool.deviceTypeEnum.protect ? AppTheme.of(context)?.primaryColor : AppTheme.of(context)?.errorColor),
+                        style: TextStyle(color: pool.deviceTypeEnum.protect ? AppTheme.of(context).primaryColor : AppTheme.of(context).errorColor),
                       ),
                     ],
                   ),
@@ -105,7 +106,7 @@ class StoragePoolItemWidget extends StatelessWidget {
                 Divider(indent: 0, endIndent: 0, height: 20),
                 Text(
                   "支持多个存储空间",
-                  style: TextStyle(color: AppTheme.of(context)?.placeholderColor, fontSize: 13),
+                  style: TextStyle(color: AppTheme.of(context).placeholderColor, fontSize: 13),
                 ),
                 Text(
                   "${pool.raidType == 'single' ? '否' : '是'}",
@@ -114,7 +115,7 @@ class StoragePoolItemWidget extends StatelessWidget {
                 // Divider(indent: 0, endIndent: 0, height: 20),
                 // Text(
                 //   "存储空间加密",
-                //   style: TextStyle(color: AppTheme.of(context)?.placeholderColor, fontSize: 13),
+                //   style: TextStyle(color: AppTheme.of(context).placeholderColor, fontSize: 13),
                 // ),
                 // Text(
                 //   "${pool.i == 'single' ? '否' : '是'}",
@@ -125,11 +126,12 @@ class StoragePoolItemWidget extends StatelessWidget {
           ),
           WidgetCard(
             title: "数据清理",
+            titleFontSize: 14,
             boxDecoration: BoxDecoration(
-              color: Theme.of(context).scaffoldBackgroundColor,
               borderRadius: BorderRadius.circular(20),
             ),
-            padding: EdgeInsets.only(left: 16, right: 16, bottom: 14),
+            bodyColor: Theme.of(context).scaffoldBackgroundColor,
+            padding: EdgeInsets.zero,
             body: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -141,7 +143,7 @@ class StoragePoolItemWidget extends StatelessWidget {
                         children: [
                           Text(
                             "数据清理",
-                            style: TextStyle(color: AppTheme.of(context)?.placeholderColor, fontSize: 13),
+                            style: TextStyle(color: AppTheme.of(context).placeholderColor, fontSize: 13),
                           ),
                           if (pool.isScheduled == true)
                             Text(
@@ -188,7 +190,7 @@ class StoragePoolItemWidget extends StatelessWidget {
                 Divider(indent: 0, endIndent: 0, height: 20),
                 Text(
                   "完成时间",
-                  style: TextStyle(color: AppTheme.of(context)?.placeholderColor, fontSize: 13),
+                  style: TextStyle(color: AppTheme.of(context).placeholderColor, fontSize: 13),
                 ),
                 Text(
                   "${pool.lastDoneTime != null && pool.lastDoneTime! > 0 ? DateTime.fromMillisecondsSinceEpoch(pool.lastDoneTime!.toInt() * 1000).format("Y-m-d H:i") : "从未执行"}",
@@ -200,35 +202,38 @@ class StoragePoolItemWidget extends StatelessWidget {
           if (pool.missingDrives != null && pool.missingDrives!.isNotEmpty)
             WidgetCard(
               title: "必需硬盘信息",
+              titleFontSize: 14,
               boxDecoration: BoxDecoration(
-                color: Theme.of(context).scaffoldBackgroundColor,
                 borderRadius: BorderRadius.circular(20),
               ),
-              padding: EdgeInsets.only(left: 16, right: 16, bottom: 14),
+              bodyColor: Theme.of(context).scaffoldBackgroundColor,
+              padding: EdgeInsets.zero,
               body: Column(
                 children: pool.missingDrives!.map((drive) => MissingDriveItemWidget(drive, isLast: pool.missingDrives!.last == drive)).toList(),
               ),
             ),
           WidgetCard(
             title: "硬盘信息",
+            titleFontSize: 14,
             boxDecoration: BoxDecoration(
-              color: Theme.of(context).scaffoldBackgroundColor,
               borderRadius: BorderRadius.circular(20),
             ),
-            padding: EdgeInsets.only(left: 16, right: 16, bottom: 14),
+            bodyColor: Theme.of(context).scaffoldBackgroundColor,
+            padding: EdgeInsets.zero,
             body: Column(
               children: disks.map((disk) => DiskItemWidget(disk, showStatus: true, isLast: disks.last == disk)).toList(),
             ),
           ),
           WidgetCard(
+            titleFontSize: 14,
             boxDecoration: BoxDecoration(
-              color: Theme.of(context).scaffoldBackgroundColor,
               borderRadius: BorderRadius.circular(20),
             ),
-            padding: EdgeInsets.only(left: 16, right: 16, bottom: 14),
+            bodyColor: Theme.of(context).scaffoldBackgroundColor,
+            padding: EdgeInsets.zero,
             title: "存储分配",
             body: Column(
-              children: volumes.map((volume) => VolumeItemWidget(volume, showFileSystem: true)).toList(),
+              children: volumes.map((volume) => VolumeItemWidget(volume, showFileSystem: true, isLast: volumes.last == volume)).toList(),
             ),
           ),
           SizedBox(

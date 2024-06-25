@@ -1,14 +1,12 @@
 import 'package:dsm_helper/models/Syno/Core/CurrentConnection.dart';
 import 'package:dsm_helper/models/Syno/Core/FileHandle.dart';
 import 'package:dsm_helper/pages/dashboard/dialogs/kick_connection_dialog.dart';
-import 'package:dsm_helper/providers/setting_provider.dart';
 import 'package:dsm_helper/themes/app_theme.dart';
 import 'package:dsm_helper/utils/utils.dart';
 import 'package:dsm_helper/widgets/empty_widget.dart';
 import 'package:dsm_helper/widgets/loading_widget.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 class ConnectedUserTab extends StatefulWidget {
   const ConnectedUserTab({super.key});
@@ -137,7 +135,7 @@ class _ConnectedUserTabState extends State<ConnectedUserTab> with SingleTickerPr
   Widget _buildOpenedFileItem(OpenedFiles file) {
     return Container(
       decoration: BoxDecoration(
-        color: AppTheme.of(context)?.cardColor,
+        color: AppTheme.of(context).cardColor,
         borderRadius: BorderRadius.circular(20),
       ),
       padding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
@@ -156,19 +154,19 @@ class _ConnectedUserTabState extends State<ConnectedUserTab> with SingleTickerPr
                 Text(
                   "${file.user}（${file.host}）",
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(fontSize: 12, color: AppTheme.of(context)?.placeholderColor),
+                  style: TextStyle(fontSize: 12, color: AppTheme.of(context).placeholderColor),
                 ),
                 SizedBox(height: 5),
                 Text(
                   "${file.service}",
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(fontSize: 12, color: AppTheme.of(context)?.placeholderColor),
+                  style: TextStyle(fontSize: 12, color: AppTheme.of(context).placeholderColor),
                 ),
                 SizedBox(height: 5),
                 Text(
                   "${file.path}",
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(fontSize: 12, color: AppTheme.of(context)?.placeholderColor),
+                  style: TextStyle(fontSize: 12, color: AppTheme.of(context).placeholderColor),
                 ),
               ],
             ),
@@ -213,7 +211,7 @@ class _ConnectedUserTabState extends State<ConnectedUserTab> with SingleTickerPr
     var timeLong = Utils.timeLong(currentTime.difference(loginTime).inSeconds);
     return Container(
       decoration: BoxDecoration(
-        color: AppTheme.of(context)?.cardColor,
+        color: AppTheme.of(context).cardColor,
         borderRadius: BorderRadius.circular(20),
       ),
       padding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
@@ -233,7 +231,7 @@ class _ConnectedUserTabState extends State<ConnectedUserTab> with SingleTickerPr
                       ),
                       TextSpan(
                         text: "（${user.descr}）",
-                        style: TextStyle(fontSize: 12, color: AppTheme.of(context)?.placeholderColor),
+                        style: TextStyle(fontSize: 12, color: AppTheme.of(context).placeholderColor),
                       )
                     ],
                   ),
@@ -243,7 +241,7 @@ class _ConnectedUserTabState extends State<ConnectedUserTab> with SingleTickerPr
                 Text(
                   "${user.type}（${user.from}）",
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(fontSize: 12, color: AppTheme.of(context)?.placeholderColor),
+                  style: TextStyle(fontSize: 12, color: AppTheme.of(context).placeholderColor),
                 ),
                 SizedBox(height: 5),
                 Text.rich(
@@ -251,11 +249,11 @@ class _ConnectedUserTabState extends State<ConnectedUserTab> with SingleTickerPr
                     children: [
                       TextSpan(
                         text: "${timeLong.hours.toString().padLeft(2, "0")}:${timeLong.minutes.toString().padLeft(2, "0")}:${timeLong.seconds.toString().padLeft(2, "0")}",
-                        style: TextStyle(fontSize: 14, color: AppTheme.of(context)?.primaryColor),
+                        style: TextStyle(fontSize: 14, color: AppTheme.of(context).primaryColor),
                       ),
                       TextSpan(
                         text: "（${user.time}）",
-                        style: TextStyle(fontSize: 12, color: AppTheme.of(context)?.placeholderColor),
+                        style: TextStyle(fontSize: 12, color: AppTheme.of(context).placeholderColor),
                       )
                     ],
                   ),

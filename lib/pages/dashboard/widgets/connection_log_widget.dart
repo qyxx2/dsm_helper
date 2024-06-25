@@ -105,14 +105,14 @@ class _ConnectionLogWidgetState extends State<ConnectionLogWidget> with Automati
                   Text(
                     "${user.type}",
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(fontSize: 14, color: AppTheme.of(context)?.placeholderColor),
+                    style: TextStyle(fontSize: 14, color: AppTheme.of(context).placeholderColor),
                   ),
                   SizedBox(
                     width: 10,
                   ),
                   Text(
                     "${timeLong.hours.toString().padLeft(2, "0")}:${timeLong.minutes.toString().padLeft(2, "0")}:${timeLong.seconds.toString().padLeft(2, "0")}",
-                    style: TextStyle(fontSize: 14, color: AppTheme.of(context)?.primaryColor),
+                    style: TextStyle(fontSize: 14, color: AppTheme.of(context).primaryColor),
                     overflow: TextOverflow.ellipsis,
                     textAlign: TextAlign.right,
                   )

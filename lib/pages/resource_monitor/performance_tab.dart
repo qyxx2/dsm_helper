@@ -24,7 +24,6 @@ import 'package:dsm_helper/widgets/loading_widget.dart';
 import 'package:flutter/material.dart';
 
 import 'package:provider/provider.dart';
-import 'package:syncfusion_flutter_charts/charts.dart';
 
 class PerformanceTab extends StatefulWidget {
   PerformanceTab({this.tabIndex = 0});
@@ -160,9 +159,9 @@ class _PerformanceTabState extends State<PerformanceTab> with TickerProviderStat
                               style: TextStyle(
                                   color: utilizations.last.cpu?.totalLoad != null
                                       ? utilizations.last.cpu!.totalLoad > 80
-                                          ? AppTheme.of(context)?.errorColor
-                                          : AppTheme.of(context)?.successColor
-                                      : AppTheme.of(context)?.placeholderColor),
+                                          ? AppTheme.of(context).errorColor
+                                          : AppTheme.of(context).successColor
+                                      : AppTheme.of(context).placeholderColor),
                             ),
                             body: CpuChartWidget(utilizations.map((e) => e.cpu ?? Cpu()).toList()),
                           ),
@@ -174,9 +173,9 @@ class _PerformanceTabState extends State<PerformanceTab> with TickerProviderStat
                                 style: TextStyle(
                                     color: utilizations.last.gpu?.gpuUtilization != null
                                         ? utilizations.last.gpu!.gpuUtilization! > 80
-                                            ? AppTheme.of(context)?.errorColor
-                                            : AppTheme.of(context)?.successColor
-                                        : AppTheme.of(context)?.placeholderColor),
+                                            ? AppTheme.of(context).errorColor
+                                            : AppTheme.of(context).successColor
+                                        : AppTheme.of(context).placeholderColor),
                               ),
                               body: GpuChartWidget(utilizations.map((e) => e.gpu ?? Gpu()).toList()),
                             ),
@@ -187,9 +186,9 @@ class _PerformanceTabState extends State<PerformanceTab> with TickerProviderStat
                               style: TextStyle(
                                   color: utilizations.last.memory?.realUsage != null
                                       ? utilizations.last.memory!.realUsage! > 80
-                                          ? AppTheme.of(context)?.errorColor
-                                          : AppTheme.of(context)?.successColor
-                                      : AppTheme.of(context)?.placeholderColor),
+                                          ? AppTheme.of(context).errorColor
+                                          : AppTheme.of(context).successColor
+                                      : AppTheme.of(context).placeholderColor),
                             ),
                             body: MemoryChartWidget(utilizations.map((e) => e.memory ?? Memory()).toList()),
                           ),
@@ -201,9 +200,9 @@ class _PerformanceTabState extends State<PerformanceTab> with TickerProviderStat
                                 style: TextStyle(
                                     color: utilizations.last.gpu?.gpuMemoryUtilization != null
                                         ? utilizations.last.gpu!.gpuMemoryUtilization! > 80
-                                            ? AppTheme.of(context)?.errorColor
-                                            : AppTheme.of(context)?.successColor
-                                        : AppTheme.of(context)?.placeholderColor),
+                                            ? AppTheme.of(context).errorColor
+                                            : AppTheme.of(context).successColor
+                                        : AppTheme.of(context).placeholderColor),
                               ),
                               body: GpuMemoryChartWidget(utilizations.map((e) => e.gpu ?? Gpu()).toList()),
                             ),
@@ -218,7 +217,7 @@ class _PerformanceTabState extends State<PerformanceTab> with TickerProviderStat
                                 ),
                                 Text(
                                   utilizations.last.network == null ? '-' : Utils.formatSize(utilizations.last.network!.first.tx!, showByte: true) + "/S",
-                                  style: TextStyle(color: AppTheme.of(context)?.primaryColor),
+                                  style: TextStyle(color: AppTheme.of(context).primaryColor),
                                 ),
                                 SizedBox(width: 20),
                                 Image.asset(
@@ -228,7 +227,7 @@ class _PerformanceTabState extends State<PerformanceTab> with TickerProviderStat
                                 ),
                                 Text(
                                   utilizations.last.network == null ? '-' : Utils.formatSize(utilizations.last.network!.first.rx!, showByte: true) + "/S",
-                                  style: TextStyle(color: AppTheme.of(context)?.successColor),
+                                  style: TextStyle(color: AppTheme.of(context).successColor),
                                 ),
                               ],
                             ),
@@ -318,9 +317,9 @@ class _PerformanceTabState extends State<PerformanceTab> with TickerProviderStat
                               style: TextStyle(
                                   color: utilizations.last.cpu?.totalLoad != null
                                       ? utilizations.last.cpu!.totalLoad > 80
-                                          ? AppTheme.of(context)?.errorColor
-                                          : AppTheme.of(context)?.successColor
-                                      : AppTheme.of(context)?.placeholderColor),
+                                          ? AppTheme.of(context).errorColor
+                                          : AppTheme.of(context).successColor
+                                      : AppTheme.of(context).placeholderColor),
                             ),
                             body: Row(
                               children: [
@@ -332,7 +331,7 @@ class _PerformanceTabState extends State<PerformanceTab> with TickerProviderStat
                                         "用户",
                                         style: TextStyle(
                                           fontSize: 12,
-                                          color: AppTheme.of(context)?.placeholderColor,
+                                          color: AppTheme.of(context).placeholderColor,
                                         ),
                                       ),
                                       SizedBox(height: 10),
@@ -342,7 +341,7 @@ class _PerformanceTabState extends State<PerformanceTab> with TickerProviderStat
                                         style: TextStyle(
                                           fontSize: 22,
                                           fontWeight: FontWeight.bold,
-                                          color: AppTheme.of(context)?.successColor,
+                                          color: AppTheme.of(context).successColor,
                                         ),
                                       ),
                                     ],
@@ -356,7 +355,7 @@ class _PerformanceTabState extends State<PerformanceTab> with TickerProviderStat
                                         "系统",
                                         style: TextStyle(
                                           fontSize: 12,
-                                          color: AppTheme.of(context)?.placeholderColor,
+                                          color: AppTheme.of(context).placeholderColor,
                                         ),
                                       ),
                                       SizedBox(height: 10),
@@ -380,7 +379,7 @@ class _PerformanceTabState extends State<PerformanceTab> with TickerProviderStat
                                         "I/O等待",
                                         style: TextStyle(
                                           fontSize: 12,
-                                          color: AppTheme.of(context)?.placeholderColor,
+                                          color: AppTheme.of(context).placeholderColor,
                                         ),
                                       ),
                                       SizedBox(height: 10),
@@ -390,7 +389,7 @@ class _PerformanceTabState extends State<PerformanceTab> with TickerProviderStat
                                         style: TextStyle(
                                           fontSize: 22,
                                           fontWeight: FontWeight.bold,
-                                          color: AppTheme.of(context)?.primaryColor,
+                                          color: AppTheme.of(context).primaryColor,
                                         ),
                                       ),
                                     ],
@@ -406,9 +405,9 @@ class _PerformanceTabState extends State<PerformanceTab> with TickerProviderStat
                               style: TextStyle(
                                   color: utilizations.last.cpu?.totalLoad != null
                                       ? utilizations.last.cpu!.totalLoad > 80
-                                          ? AppTheme.of(context)?.errorColor
-                                          : AppTheme.of(context)?.successColor
-                                      : AppTheme.of(context)?.placeholderColor),
+                                          ? AppTheme.of(context).errorColor
+                                          : AppTheme.of(context).successColor
+                                      : AppTheme.of(context).placeholderColor),
                             ),
                             body: Row(
                               children: [
@@ -420,7 +419,7 @@ class _PerformanceTabState extends State<PerformanceTab> with TickerProviderStat
                                         "1分钟",
                                         style: TextStyle(
                                           fontSize: 12,
-                                          color: AppTheme.of(context)?.placeholderColor,
+                                          color: AppTheme.of(context).placeholderColor,
                                         ),
                                       ),
                                       SizedBox(height: 10),
@@ -443,7 +442,7 @@ class _PerformanceTabState extends State<PerformanceTab> with TickerProviderStat
                                         "5分钟",
                                         style: TextStyle(
                                           fontSize: 12,
-                                          color: AppTheme.of(context)?.placeholderColor,
+                                          color: AppTheme.of(context).placeholderColor,
                                         ),
                                       ),
                                       SizedBox(height: 10),
@@ -466,7 +465,7 @@ class _PerformanceTabState extends State<PerformanceTab> with TickerProviderStat
                                         "15分钟",
                                         style: TextStyle(
                                           fontSize: 12,
-                                          color: AppTheme.of(context)?.placeholderColor,
+                                          color: AppTheme.of(context).placeholderColor,
                                         ),
                                       ),
                                       SizedBox(height: 10),
@@ -503,9 +502,9 @@ class _PerformanceTabState extends State<PerformanceTab> with TickerProviderStat
                               style: TextStyle(
                                   color: utilizations.last.cpu?.totalLoad != null
                                       ? utilizations.last.cpu!.totalLoad > 80
-                                          ? AppTheme.of(context)?.errorColor
-                                          : AppTheme.of(context)?.successColor
-                                      : AppTheme.of(context)?.placeholderColor),
+                                          ? AppTheme.of(context).errorColor
+                                          : AppTheme.of(context).successColor
+                                      : AppTheme.of(context).placeholderColor),
                             ),
                             body: Column(
                               children: [
@@ -519,7 +518,7 @@ class _PerformanceTabState extends State<PerformanceTab> with TickerProviderStat
                                             "已保留",
                                             style: TextStyle(
                                               fontSize: 12,
-                                              color: AppTheme.of(context)?.placeholderColor,
+                                              color: AppTheme.of(context).placeholderColor,
                                             ),
                                           ),
                                           SizedBox(height: 10),
@@ -529,7 +528,7 @@ class _PerformanceTabState extends State<PerformanceTab> with TickerProviderStat
                                             style: TextStyle(
                                               fontSize: 22,
                                               fontWeight: FontWeight.bold,
-                                              color: AppTheme.of(context)?.placeholderColor,
+                                              color: AppTheme.of(context).placeholderColor,
                                             ),
                                           ),
                                         ],
@@ -543,7 +542,7 @@ class _PerformanceTabState extends State<PerformanceTab> with TickerProviderStat
                                             "已用",
                                             style: TextStyle(
                                               fontSize: 12,
-                                              color: AppTheme.of(context)?.placeholderColor,
+                                              color: AppTheme.of(context).placeholderColor,
                                             ),
                                           ),
                                           SizedBox(height: 10),
@@ -553,7 +552,7 @@ class _PerformanceTabState extends State<PerformanceTab> with TickerProviderStat
                                             style: TextStyle(
                                               fontSize: 22,
                                               fontWeight: FontWeight.bold,
-                                              color: AppTheme.of(context)?.warningColor,
+                                              color: AppTheme.of(context).warningColor,
                                             ),
                                           ),
                                         ],
@@ -567,7 +566,7 @@ class _PerformanceTabState extends State<PerformanceTab> with TickerProviderStat
                                             "缓冲",
                                             style: TextStyle(
                                               fontSize: 12,
-                                              color: AppTheme.of(context)?.placeholderColor,
+                                              color: AppTheme.of(context).placeholderColor,
                                             ),
                                           ),
                                           SizedBox(height: 10),
@@ -596,7 +595,7 @@ class _PerformanceTabState extends State<PerformanceTab> with TickerProviderStat
                                             "缓存",
                                             style: TextStyle(
                                               fontSize: 12,
-                                              color: AppTheme.of(context)?.placeholderColor,
+                                              color: AppTheme.of(context).placeholderColor,
                                             ),
                                           ),
                                           SizedBox(height: 10),
@@ -620,7 +619,7 @@ class _PerformanceTabState extends State<PerformanceTab> with TickerProviderStat
                                             "可用",
                                             style: TextStyle(
                                               fontSize: 12,
-                                              color: AppTheme.of(context)?.placeholderColor,
+                                              color: AppTheme.of(context).placeholderColor,
                                             ),
                                           ),
                                           SizedBox(height: 10),
@@ -630,7 +629,7 @@ class _PerformanceTabState extends State<PerformanceTab> with TickerProviderStat
                                             style: TextStyle(
                                               fontSize: 22,
                                               fontWeight: FontWeight.bold,
-                                              color: AppTheme.of(context)?.successColor,
+                                              color: AppTheme.of(context).successColor,
                                             ),
                                           ),
                                         ],
@@ -644,7 +643,7 @@ class _PerformanceTabState extends State<PerformanceTab> with TickerProviderStat
                                             "总计",
                                             style: TextStyle(
                                               fontSize: 12,
-                                              color: AppTheme.of(context)?.placeholderColor,
+                                              color: AppTheme.of(context).placeholderColor,
                                             ),
                                           ),
                                           SizedBox(height: 10),
@@ -654,7 +653,7 @@ class _PerformanceTabState extends State<PerformanceTab> with TickerProviderStat
                                             style: TextStyle(
                                               fontSize: 22,
                                               fontWeight: FontWeight.bold,
-                                              color: AppTheme.of(context)?.primaryColor,
+                                              color: AppTheme.of(context).primaryColor,
                                             ),
                                           ),
                                         ],
@@ -683,7 +682,7 @@ class _PerformanceTabState extends State<PerformanceTab> with TickerProviderStat
                                 ),
                                 Text(
                                   utilizations.last.network == null ? '-' : Utils.formatSize(utilizations.last.network![i + 1].tx!, showByte: true) + "/S",
-                                  style: TextStyle(color: AppTheme.of(context)?.primaryColor),
+                                  style: TextStyle(color: AppTheme.of(context).primaryColor),
                                 ),
                                 SizedBox(width: 20),
                                 Image.asset(
@@ -693,7 +692,7 @@ class _PerformanceTabState extends State<PerformanceTab> with TickerProviderStat
                                 ),
                                 Text(
                                   utilizations.last.network == null ? '-' : Utils.formatSize(utilizations.last.network![i + 1].rx!, showByte: true) + "/S",
-                                  style: TextStyle(color: AppTheme.of(context)?.successColor),
+                                  style: TextStyle(color: AppTheme.of(context).successColor),
                                 ),
                               ],
                             ),
@@ -870,7 +869,7 @@ class _PerformanceTabState extends State<PerformanceTab> with TickerProviderStat
                                   style: TextStyle(color: Colors.purpleAccent),
                                 ),
                                 SizedBox(width: 10),
-                                Label("总", AppTheme.of(context)!.primaryColor!, fill: true),
+                                Label("总", AppTheme.of(context).primaryColor, fill: true),
                                 SizedBox(width: 5),
                                 Text(
                                   "${utilizations.last.totalNfs?.totalOPS ?? '-'}/S",
@@ -901,7 +900,7 @@ class _PerformanceTabState extends State<PerformanceTab> with TickerProviderStat
                                   style: TextStyle(color: Colors.purpleAccent),
                                 ),
                                 SizedBox(width: 10),
-                                Label("总", AppTheme.of(context)!.primaryColor!, fill: true),
+                                Label("总", AppTheme.of(context).primaryColor, fill: true),
                                 SizedBox(width: 5),
                                 Text(
                                   "${utilizations.last.totalNfs?.totalMaxLatency ?? '-'}us",

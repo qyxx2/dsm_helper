@@ -18,7 +18,7 @@ class EmptyWidget extends StatelessWidget {
           ),
           Text(
             text ?? "暂无数据",
-            style: TextStyle(color: AppTheme.of(context)?.placeholderColor),
+            style: TextStyle(color: AppTheme.of(context).placeholderColor),
           ),
         ],
       ),

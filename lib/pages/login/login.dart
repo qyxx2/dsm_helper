@@ -128,7 +128,7 @@ class _LoginState extends State<Login> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.of(context)?.cardColor,
+      backgroundColor: AppTheme.of(context).cardColor,
       body: AnnotatedRegion(
         value: SystemUiOverlayStyle.light,
         child: Stack(
@@ -337,9 +337,9 @@ class _LoginState extends State<Login> {
                               forceStrutHeight: true,
                             ),
                           ),
-                          color: isDefault ? AppTheme.of(context)?.successColor : AppTheme.of(context)?.placeholderColor,
+                          color: isDefault ? AppTheme.of(context).successColor : AppTheme.of(context).placeholderColor,
                           fill: isDefault,
-                          borderColor: isDefault ? AppTheme.of(context)?.successColor : AppTheme.of(context)?.placeholderColor,
+                          borderColor: isDefault ? AppTheme.of(context).successColor : AppTheme.of(context).placeholderColor,
                           icon: Icon(
                             Icons.check,
                             size: 16,

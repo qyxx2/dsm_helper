@@ -1,9 +1,7 @@
 import 'package:dsm_helper/apis/api.dart';
 import 'package:dsm_helper/models/Syno/Core/NormalUser.dart';
 import 'package:dsm_helper/pages/dashboard/widgets/widget_card.dart';
-import 'package:dsm_helper/pages/user/otp_bind.dart';
 import 'package:dsm_helper/themes/app_theme.dart';
-import 'package:dsm_helper/utils/extensions/navigator_ext.dart';
 import 'package:dsm_helper/utils/utils.dart';
 import 'package:dsm_helper/widgets/glass/glass_app_bar.dart';
 import 'package:dsm_helper/widgets/glass/glass_scaffold.dart';
@@ -171,7 +169,7 @@ class _UserSettingState extends State<UserSetting> {
                       onPressed: () {},
                       // margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                       padding: EdgeInsets.all(16),
-                      color: AppTheme.of(context)?.cardColor,
+                      color: AppTheme.of(context).cardColor,
                       borderRadius: BorderRadius.circular(10),
 
                       child: Row(
@@ -184,7 +182,7 @@ class _UserSettingState extends State<UserSetting> {
                           ),
                           Icon(
                             CupertinoIcons.right_chevron,
-                            color: AppTheme.of(context)?.placeholderColor,
+                            color: AppTheme.of(context).placeholderColor,
                             size: 16,
                           ),
                         ],
