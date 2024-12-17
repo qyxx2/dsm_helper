@@ -79,23 +79,35 @@ void main() async {
     Util.isWechatInstalled = await isWeChatInstalled;
     String userToken = await Util.getStorage("user_token");
     String noAdTimeStr = await Util.getStorage("no_ad_time");
+    String vipExpireTimeStr = await Util.getStorage("vip_expire_time");
+    String isForeverVip = await Util.getStorage("is_forever_vip");
     if (noAdTimeStr.isNotBlank) {
       noAdTime = DateTime.parse(noAdTimeStr);
     }
-    if (userToken.isNotBlank) {
-      var res = await Util.post("${Util.appUrl}/vip/info", data: {"token": userToken});
-      if (res['code'] == 1) {
-        isForever = Util.vipForever = res['data']['is_forever'] == 1;
-        if (res['data']['vip_expire_time'] != null) {
-          DateTime vipExpireTime = DateTime.parse(res['data']['vip_expire_time']);
-          Util.vipExpireTime = vipExpireTime;
-          if (noAdTime == null) {
-            if (vipExpireTime.isAfter(DateTime.now())) {
-              noAdTime = vipExpireTime;
-            }
-          } else {
-            if (vipExpireTime.isAfter(noAdTime)) {
-              noAdTime = vipExpireTime;
+
+    // 如果缓存中无会员过期时间或会员已过期，则重新检测是否开通会员
+    if(isForeverVip == '1'){
+      Util.vipForever = isForever = true;
+    }else if(vipExpireTimeStr.isBlank && DateTime.parse(vipExpireTimeStr).isAfter(DateTime.now())){
+      Util.vipExpireTime = noAdTime = DateTime.parse(vipExpireTimeStr);
+    }else{
+      if (userToken.isNotBlank && Util.appUrl.isNotBlank) {
+        var res = await Util.post("${Util.appUrl}/vip/info", data: {"token": userToken});
+        if (res['code'] == 1) {
+          isForever = Util.vipForever = res['data']['is_forever'] == 1;
+          Util.setStorage("is_forever_vip", res['data']['is_forever'].toString());
+          if (res['data']['vip_expire_time'] != null) {
+            DateTime vipExpireTime = DateTime.parse(res['data']['vip_expire_time']);
+            Util.setStorage("vip_expire_time", res['data']['vip_expire_time']);
+            Util.vipExpireTime = vipExpireTime;
+            if (noAdTime == null) {
+              if (vipExpireTime.isAfter(DateTime.now())) {
+                noAdTime = vipExpireTime;
+              }
+            } else {
+              if (vipExpireTime.isAfter(noAdTime)) {
+                noAdTime = vipExpireTime;
+              }
             }
           }
         }

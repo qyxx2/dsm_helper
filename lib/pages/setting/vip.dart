@@ -101,10 +101,12 @@ class _VipState extends State<Vip> {
         isLogin = true;
         if (res['data']['is_forever'] == 1) {
           isForever = Util.vipForever = true;
+          Util.setStorage("is_forever_vip", '1');
         }
         // isForever = Util.vipForever = true;
         if (res['data']['vip_expire_time'] != null) {
           Util.vipExpireTime = vipExpireTime = DateTime.parse(res['data']['vip_expire_time']);
+          Util.setStorage("vip_expire_time", res['data']['vip_expire_time']);
           if (noAdTime == null) {
             if (vipExpireTime.isAfter(DateTime.now())) {
               noAdTime = vipExpireTime;
