@@ -14,13 +14,13 @@ import 'package:extended_image/extended_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
+import 'package:flutter_vibrate/flutter_vibrate.dart';
 import 'package:gallery_saver/gallery_saver.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:vibrate/vibrate.dart';
 
 export 'package:dsm_helper/extensions/datetime.dart';
 export 'package:dsm_helper/extensions/int.dart';

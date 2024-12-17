@@ -88,7 +88,7 @@ void main() async {
     // 如果缓存中无会员过期时间或会员已过期，则重新检测是否开通会员
     if(isForeverVip == '1'){
       Util.vipForever = isForever = true;
-    }else if(vipExpireTimeStr.isBlank && DateTime.parse(vipExpireTimeStr).isAfter(DateTime.now())){
+    }else if(vipExpireTimeStr.isNotBlank && DateTime.parse(vipExpireTimeStr).isAfter(DateTime.now())){
       Util.vipExpireTime = noAdTime = DateTime.parse(vipExpireTimeStr);
     }else{
       if (userToken.isNotBlank && Util.appUrl.isNotBlank) {
