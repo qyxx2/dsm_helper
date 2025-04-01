@@ -230,6 +230,7 @@ class ApplicationList extends StatelessWidget {
             ),
           );
           break;
+        case "SYNO.SDS.LogCenter.BuiltIn":
         case "SYNO.SDS.LogCenter.Instance":
           apps.add(
             GestureDetector(

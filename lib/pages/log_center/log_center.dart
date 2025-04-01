@@ -1,4 +1,5 @@
 import 'package:dsm_helper/util/function.dart';
+import 'package:dsm_helper/util/neu_picker.dart';
 import 'package:dsm_helper/widgets/bubble_tab_indicator.dart';
 import 'package:dsm_helper/widgets/label.dart';
 import 'package:dsm_helper/widgets/neu_back_button.dart';
@@ -13,16 +14,20 @@ class LogCenter extends StatefulWidget {
 
 class _LogCenterState extends State<LogCenter> with SingleTickerProviderStateMixin {
   TabController _tabController;
+  List<String> logTypes = ['system,netbackup', 'connection', 'ftp,filestation,webdav,cifs,afp,tftp', 'disk'];
+  List<String> logNames = ["常规", "连接", "文件传输", "硬盘"];
   List lastLogs = [];
   List logs = [];
   List histories = [];
   bool loadingRecent = true;
   bool loadingLogs = true;
   bool loadingHistory = true;
+  int logTypeIndex = 0;
   int errorCount = 0;
   int warnCount = 0;
   int infoCount = 0;
   int totalCount = 0;
+
   @override
   void initState() {
     _tabController = TabController(length: 7, vsync: this);
@@ -51,7 +56,10 @@ class _LogCenterState extends State<LogCenter> with SingleTickerProviderStateMix
   }
 
   getLogs() async {
-    var res = await Api.log(0, 1000);
+    setState(() {
+      loadingLogs = true;
+    });
+    var res = await Api.log(0, 1000, logType: logTypes[logTypeIndex]);
     if (res['success']) {
       setState(() {
         loadingLogs = false;
@@ -308,9 +316,7 @@ class _LogCenterState extends State<LogCenter> with SingleTickerProviderStateMix
                       )
                     : Column(
                         children: [
-                          SizedBox(
-                            height: 20,
-                          ),
+                          SizedBox(height: 20),
                           NeuCard(
                             width: double.infinity,
                             margin: EdgeInsets.symmetric(horizontal: 20),
@@ -365,51 +371,79 @@ class _LogCenterState extends State<LogCenter> with SingleTickerProviderStateMix
                           NeuCard(
                             width: double.infinity,
                             margin: EdgeInsets.symmetric(horizontal: 20),
-                            padding: EdgeInsets.all(20),
+                            padding: EdgeInsets.zero,
                             curveType: CurveType.flat,
                             decoration: NeumorphicDecoration(
                               color: Theme.of(context).scaffoldBackgroundColor,
                               borderRadius: BorderRadius.circular(20),
                             ),
                             bevel: 10,
-                            child: Row(
-                              children: [
-                                Icon(
-                                  Icons.info,
-                                  color: Colors.lightBlueAccent,
-                                  size: 20,
-                                ),
-                                SizedBox(
-                                  width: 5,
-                                ),
-                                Text("$infoCount"),
-                                SizedBox(
-                                  width: 10,
-                                ),
-                                Icon(
-                                  Icons.warning,
-                                  color: Colors.orange,
-                                  size: 20,
-                                ),
-                                SizedBox(
-                                  width: 5,
-                                ),
-                                Text("$warnCount"),
-                                SizedBox(
-                                  width: 10,
-                                ),
-                                Icon(
-                                  Icons.cancel,
-                                  color: Colors.red,
-                                  size: 20,
-                                ),
-                                SizedBox(
-                                  width: 5,
-                                ),
-                                Text("$errorCount"),
-                                Spacer(),
-                                Text("共$totalCount项"),
-                              ],
+                            child: Padding(
+                              padding: EdgeInsets.all(20),
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.info,
+                                    color: Colors.lightBlueAccent,
+                                    size: 20,
+                                  ),
+                                  SizedBox(width: 4),
+                                  Text("$infoCount"),
+                                  SizedBox(width: 10),
+                                  Icon(
+                                    Icons.warning,
+                                    color: Colors.orange,
+                                    size: 20,
+                                  ),
+                                  SizedBox(width: 4),
+                                  Text("$warnCount"),
+                                  SizedBox(
+                                    width: 10,
+                                  ),
+                                  Icon(
+                                    Icons.cancel,
+                                    color: Colors.red,
+                                    size: 20,
+                                  ),
+                                  SizedBox(width: 4),
+                                  Text("$errorCount"),
+                                  Spacer(),
+                                  GestureDetector(
+                                    onTap: () {
+                                      FocusScope.of(context).unfocus();
+                                      showCupertinoModalPopup(
+                                        context: context,
+                                        builder: (context) {
+                                          return NeuPicker(
+                                            logNames,
+                                            value: logTypeIndex,
+                                            onConfirm: (v) {
+                                              setState(() {
+                                                logTypeIndex = v;
+                                              });
+                                              getLogs();
+                                            },
+                                          );
+                                        },
+                                      );
+                                    },
+                                    child: NeuCard(
+                                      decoration: NeumorphicDecoration(
+                                        color: Theme.of(context).scaffoldBackgroundColor,
+                                        borderRadius: BorderRadius.circular(20),
+                                      ),
+                                      padding: EdgeInsets.all(10),
+                                      curveType: CurveType.flat,
+                                      child: Row(
+                                        children: [
+                                          Text("${logNames[logTypeIndex]}"),
+                                          Icon(Icons.arrow_drop_down),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                           SizedBox(
