@@ -1371,6 +1371,8 @@ class Api {
       "api": 'SYNO.Core.SyslogClient.Log',
       "start": start,
       "limit": limit,
+      "target": "LOCAL",
+      "logtype": logType,
       "method": "list",
       "version": 1,
       "_sid": Util.sid,

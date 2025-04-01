@@ -19,12 +19,12 @@ class Label extends StatelessWidget {
       decoration: BoxDecoration(
         border: Border.all(color: color),
         color: fill ? color : Colors.transparent,
-        borderRadius: BorderRadius.circular(5),
+        borderRadius: BorderRadius.circular(3),
       ),
-      padding: EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+      padding: EdgeInsets.symmetric(horizontal: 3, vertical: 1),
       child: Text(
         name,
-        style: TextStyle(color: fill ? Colors.white : color, fontSize: fontSize ?? 12),
+        style: TextStyle(color: fill ? Colors.white : color, fontSize: fontSize ?? 8),
       ),
     );
   }

@@ -103,7 +103,7 @@ class _LogCenterState extends State<LogCenter> with SingleTickerProviderStateMix
                 ),
                 Text(
                   log['fac'],
-                  style: TextStyle(fontSize: 16),
+                  style: TextStyle(fontSize: 14),
                 ),
                 SizedBox(
                   width: 10,
@@ -112,7 +112,7 @@ class _LogCenterState extends State<LogCenter> with SingleTickerProviderStateMix
                   child: Text(
                     "${log['ldate']}${log['ltime']}",
                     textAlign: TextAlign.right,
-                    style: TextStyle(color: Colors.grey),
+                    style: TextStyle(color: Colors.grey, fontSize: 12),
                   ),
                 ),
               ],
@@ -148,7 +148,7 @@ class _LogCenterState extends State<LogCenter> with SingleTickerProviderStateMix
                 ),
                 Text(
                   log['user'],
-                  style: TextStyle(fontSize: 16),
+                  style: TextStyle(fontSize: 14),
                 ),
                 SizedBox(
                   width: 10,
@@ -157,7 +157,7 @@ class _LogCenterState extends State<LogCenter> with SingleTickerProviderStateMix
                   child: Text(
                     "${log['time']}",
                     textAlign: TextAlign.right,
-                    style: TextStyle(color: Colors.grey),
+                    style: TextStyle(color: Colors.grey, fontSize: 12),
                   ),
                 ),
               ],
@@ -187,31 +187,43 @@ class _LogCenterState extends State<LogCenter> with SingleTickerProviderStateMix
           children: [
             Row(
               children: [
-                Label(
-                    log['level'] == "info"
-                        ? "信息"
-                        : log['level'] == "warn"
-                            ? "警告"
-                            : log['level'] == "error"
-                                ? "错误"
-                                : log['level'],
-                    log['level'] == "info"
-                        ? Colors.green
-                        : log['level'] == "warn"
-                            ? Colors.orange
-                            : log['level'] == "error"
-                                ? Colors.red
-                                : Colors.red),
-                SizedBox(
-                  width: 5,
-                ),
-                Label(log['logtype'], Colors.lightBlueAccent),
+                if (logTypeIndex == 2) ...[
+                  Label(log['logtype'], Colors.lightBlueAccent),
+                  SizedBox(width: 5),
+                  Label(
+                      log['cmd'] == 'download'
+                          ? '下载'
+                          : log['cmd'] == 'upload'
+                              ? '上传'
+                              : log['cmd'],
+                      Colors.lightBlueAccent),
+                ] else
+                  Label(
+                      log['level'] == "info"
+                          ? "信息"
+                          : log['level'] == "warn"
+                              ? "警告"
+                              : log['level'] == "error"
+                                  ? "错误"
+                                  : log['level'],
+                      log['level'] == "info"
+                          ? Colors.green
+                          : log['level'] == "warn"
+                              ? Colors.orange
+                              : log['level'] == "error"
+                                  ? Colors.red
+                                  : Colors.red),
+                SizedBox(width: 5),
+                if (logTypeIndex == 0)
+                  Label(log['logtype'] ?? '', Colors.lightBlueAccent)
+                else if (logTypeIndex == 3)
+                  Label(log['slot'] ?? '', Colors.lightBlueAccent),
                 SizedBox(
                   width: 5,
                 ),
                 Text(
-                  log['who'],
-                  style: TextStyle(fontSize: 16),
+                  log['who'] ?? '',
+                  style: TextStyle(fontSize: 14),
                 ),
                 SizedBox(
                   width: 10,
@@ -220,7 +232,7 @@ class _LogCenterState extends State<LogCenter> with SingleTickerProviderStateMix
                   child: Text(
                     "${log['time']}",
                     textAlign: TextAlign.right,
-                    style: TextStyle(color: Colors.grey),
+                    style: TextStyle(color: Colors.grey, fontSize: 12),
                   ),
                 ),
               ],
@@ -228,7 +240,7 @@ class _LogCenterState extends State<LogCenter> with SingleTickerProviderStateMix
             SizedBox(
               height: 10,
             ),
-            Text("${log['descr'].trim()}"),
+            Text("${(log['descr'] ?? log['msg'])?.trim()}"),
           ],
         ),
       ),
@@ -382,31 +394,33 @@ class _LogCenterState extends State<LogCenter> with SingleTickerProviderStateMix
                               padding: EdgeInsets.all(20),
                               child: Row(
                                 children: [
-                                  Icon(
-                                    Icons.info,
-                                    color: Colors.lightBlueAccent,
-                                    size: 20,
-                                  ),
-                                  SizedBox(width: 4),
-                                  Text("$infoCount"),
-                                  SizedBox(width: 10),
-                                  Icon(
-                                    Icons.warning,
-                                    color: Colors.orange,
-                                    size: 20,
-                                  ),
-                                  SizedBox(width: 4),
-                                  Text("$warnCount"),
-                                  SizedBox(
-                                    width: 10,
-                                  ),
-                                  Icon(
-                                    Icons.cancel,
-                                    color: Colors.red,
-                                    size: 20,
-                                  ),
-                                  SizedBox(width: 4),
-                                  Text("$errorCount"),
+                                  if(logTypeIndex != 2) ...[
+                                    Icon(
+                                      Icons.info,
+                                      color: Colors.lightBlueAccent,
+                                      size: 20,
+                                    ),
+                                    SizedBox(width: 4),
+                                    Text("$infoCount"),
+                                    SizedBox(width: 10),
+                                    Icon(
+                                      Icons.warning,
+                                      color: Colors.orange,
+                                      size: 20,
+                                    ),
+                                    SizedBox(width: 4),
+                                    Text("$warnCount"),
+                                    SizedBox(
+                                      width: 10,
+                                    ),
+                                    Icon(
+                                      Icons.cancel,
+                                      color: Colors.red,
+                                      size: 20,
+                                    ),
+                                    SizedBox(width: 4),
+                                    Text("$errorCount"),
+                                  ],
                                   Spacer(),
                                   GestureDetector(
                                     onTap: () {
