@@ -284,7 +284,7 @@ class _DockerState extends State<Docker> with SingleTickerProviderStateMixin {
                             ),
                             if (container['status'] == "running")
                               Text(
-                                DateTime.fromMillisecondsSinceEpoch(container['up_time'] * 1000).timeAgo,
+                                "${container['up_time']!=null ? DateTime.fromMillisecondsSinceEpoch(container['up_time'] * 1000).timeAgo : container['up_status']}",
                                 style: TextStyle(fontSize: 12, color: Colors.grey),
                               ),
                           ],
