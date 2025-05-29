@@ -42,6 +42,11 @@
 安卓：https://gitee.com/apaipai/dsm_helper/releases  
 iOS：AppStore搜索：派派助手
 
+# 开发环境
+Flutter 3.7.12
+
+JDK 11
+
 # 软件截图
 ![控制台](https://images.gitee.com/uploads/images/2021/0118/220116_c3311502_925081.jpeg "1.jpg")
 ![控制台-暗色模式](https://images.gitee.com/uploads/images/2021/0118/220130_18536999_925081.jpeg "2.jpg")
