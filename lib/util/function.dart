@@ -99,7 +99,8 @@ class Util {
   }
 
   static String systemVersion(String version) {
-    version = version.replaceAll("DSM ", "");
+    int index = version.indexOf("DSM");
+    version = version.substring(index + 4);
     Util.version = int.parse(version.split(".").first);
     return version;
   }
