@@ -1,0 +1,88 @@
+name: Modern UI Android CI
+
+on:
+  push:
+    branches:
+      - modern-ui
+      - 'feature/**'
+  pull_request:
+    branches:
+      - modern-ui
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  android:
+    name: Test and build development APK
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Flutter 3.22.3
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.22.3'
+          channel: stable
+          cache: true
+
+      - name: Show tool versions
+        run: |
+          flutter --version
+          java -version
+
+      - name: Create ephemeral development signing key
+        shell: bash
+        run: |
+          keytool -genkeypair             -v             -keystore android/ci-debug.keystore             -storepass android             -alias ci-debug             -keypass android             -keyalg RSA             -keysize 2048             -validity 10000             -dname "CN=DSM Helper Modern UI CI, OU=Development, O=Local, L=Local, S=Local, C=US"
+
+          cat > android/key.properties <<'EOF'
+          storePassword=android
+          keyPassword=android
+          keyAlias=ci-debug
+          storeFile=../ci-debug.keystore
+          EOF
+
+      - name: Resolve dependencies
+        run: flutter pub get
+
+      - name: Run existing automated tests
+        run: flutter test
+
+      - name: Analyze new UI code
+        shell: bash
+        run: |
+          targets=()
+          if [ -d lib/new_ui ]; then
+            targets+=("lib/new_ui")
+          fi
+          if [ -d test/new_ui ]; then
+            targets+=("test/new_ui")
+          fi
+
+          if [ "${#targets[@]}" -eq 0 ]; then
+            echo "No new UI sources yet; targeted analysis is not applicable in Task 0."
+          else
+            flutter analyze "${targets[@]}"
+          fi
+
+      - name: Build beta debug APK
+        run: flutter build apk --debug --flavor beta
+
+      - name: Upload development APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: dsm-helper-modern-ui-android-debug
+          path: build/app/outputs/flutter-apk/app-beta-debug.apk
+          if-no-files-found: error
+          retention-days: 14
