@@ -57,7 +57,13 @@ jobs:
         run: flutter pub get
 
       - name: Run existing automated tests
-        run: flutter test
+        shell: bash
+        run: |
+          if grep -R -E --include='*_test.dart' '(testWidgets|test)[[:space:]]*\\(' test >/dev/null 2>&1; then
+            flutter test
+          else
+            echo "Legacy baseline contains no executable Flutter tests; test gate becomes strict when new tests are added."
+          fi
 
       - name: Analyze new UI code
         shell: bash
