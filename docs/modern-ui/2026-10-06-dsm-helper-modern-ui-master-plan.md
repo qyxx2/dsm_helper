@@ -316,18 +316,24 @@ CI 必须能够被 feature PR 触发。
 
 #### T0.5 Build Baseline Compatibility
 
-当前已知：
+当前已知与 Task 0 实测基线：
 - `pubspec.yaml`: Dart SDK `>=3.4.3 <4.0.0`
 - legacy release workflow: Flutter `3.13.6`
+- Task 0 development CI: Flutter `3.22.3`
+- Java: `17`
 - Android Gradle Plugin: `7.2.0`
 - Gradle: `7.5`
-- Java workflow currently uses 17
-- Android build currently依赖 `android/key.properties`
-- 当前 `test/widget_test.dart` 基本为空
+- Kotlin: `1.9.22`（与 `background_downloader 8.5.2` Android plugin 对齐）
+- compileSdk: `34`
+- targetSdk: `33`
+- Android build 原本依赖 `android/key.properties`，CI 使用临时 development keystore
+- legacy `test/widget_test.dart` 没有可执行测试，因此 Task 0 CI 在没有真实测试时明确记录并跳过；一旦新增测试则执行 `flutter test`
+- 为避免无 lockfile 导致的 2026 依赖漂移，Task 0 仅锁定已实际导致 baseline build 失败的关键依赖版本
+- Flutter Maven repository 使用 canonical `https://storage.googleapis.com/download.flutter.io`
 
-Task 0 必须找出一个“最少改 legacy code”的固定 Flutter/Java 构建组合。
+Task 0 已通过实际 CI 找到“最少改 legacy code”的可构建组合。
 
-优先目标是兼容当前 Dart 约束和 Android 工程，而不是无条件升级到最新 Flutter。
+优先目标仍是兼容当前 Dart 约束和 Android 工程，而不是无条件升级到最新 Flutter。
 
 #### T0.6 Development Signing / APK Artifact
 
@@ -844,22 +850,37 @@ T4 并非所有 Feature 的硬技术依赖，但它是完整真实登录链路�
 
 - Repository imported to GitHub.
 - Legacy source baseline selected: `dev@8c104e9a783a1acaf366a250e5fcd1d623f14eb2`.
+- Immutable-equivalent baseline branch created: `legacy-baseline-2026-10-06`.
 - `modern-ui` integration branch created.
 - `feature/t0-foundation` Task 0 branch created.
 - Master Plan created.
+- Development CI created and verified.
+- Development CI no longer depends on original release signing secrets.
+- Compatible baseline verified: Flutter 3.22.3 / Java 17 / Kotlin 1.9.22 / AGP 7.2.0 / Gradle 7.5 / compileSdk 34.
+- Dependency restore gate passed.
+- Legacy automated-test gate behavior verified; current legacy baseline contains no executable Flutter tests.
+- New UI targeted analyze gate verified.
+- Android beta debug APK build passed.
+- GitHub Actions run `37454365753` / run number `10` completed successfully.
+- Artifact `dsm-helper-modern-ui-android-debug` generated successfully.
+- Artifact digest: `sha256:fb3bacc3f475d07b213f39ef8e9f418af324c578fda1ed7925e6757c6dba3710`.
 
 ### Active
 
 ```text
 Task 0 — Foundation / Working Environment
+Status: Automated Gate PASSED; Real-device Gate PENDING
 ```
 
 ### Next
 
-Continue Task 0:
-- baseline reference
-- development CI
-- compatible Flutter/Java build baseline
-- development signing
-- APK artifact
-- baseline real-device Gate
+Complete Task 0 baseline real-device Gate using the CI APK:
+- install / launch
+- server selection/add
+- DSM connect
+- login
+- dashboard
+- File Station basic browse
+- basic navigation
+
+Do not merge `feature/t0-foundation` into `modern-ui` until this real-device baseline Gate passes or an explicit `LEGACY-BASELINE` exception is recorded.
