@@ -12,7 +12,7 @@ import 'package:dsm_helper/pages/setting/dialogs/shutdown_dialog.dart';
 import 'package:dsm_helper/pages/setting/dialogs/ssh_dialog.dart';
 import 'package:dsm_helper/pages/setting/vip.dart';
 import 'package:dsm_helper/providers/dark_mode.dart';
-import 'package:dsm_helper/pages/setting/feedback.dart';
+import 'package:dsm_helper/pages/setting/feedback.dart' as feedback_page;
 import 'package:dsm_helper/pages/setting/helper_setting.dart';
 import 'package:dsm_helper/pages/terminal/select_server.dart';
 import 'package:dsm_helper/pages/user/setting.dart';
@@ -565,7 +565,7 @@ class _SettingState extends State<Setting> {
                     if (Utils.notReviewAccount) {
                       FeedbackDialog.show(context: context);
                     } else {
-                      context.push(Feedback(), name: "feedback");
+                      context.push(feedback_page.Feedback(), name: "feedback");
                     }
                   },
                 ),
