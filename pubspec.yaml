@@ -21,7 +21,7 @@ environment:
   sdk: '>=3.4.3 <4.0.0'
 
 dependency_overrides:
-  ffi: 2.2.0  # locked for reproducible Task 0 baseline
+  ffi: 2.0.1  # locked for reproducible Task 0 baseline
   http: ^1.0.0
 dependencies:
   flutter:
@@ -72,7 +72,7 @@ dependencies:
   syncfusion_flutter_pdfviewer: ^26.1.38
   syncfusion_flutter_datepicker: ^26.1.38
   syncfusion_flutter_gauges: ^26.1.38
-  wechat_assets_picker: ^9.1.0
+  wechat_assets_picker: 9.1.0
   fluwx: ^4.5.5
 #  better_player:
 #    git: https://github.com/AnonymHK/betterplayer.git
@@ -92,7 +92,7 @@ dependencies:
     git: https://gitee.com/apaipai/flutter_sharing_intent.git
   webview_flutter: ^4.8.0
   simple_logger: ^1.9.0+3
-  extended_text: ^13.0.2
+  extended_text: 13.0.2
   just_audio: ^0.9.38
   rxdart: 0.27.7
   flutter_floating: ^1.0.8
