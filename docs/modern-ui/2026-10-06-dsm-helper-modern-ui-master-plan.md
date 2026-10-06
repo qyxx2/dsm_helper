@@ -865,22 +865,34 @@ T4 并非所有 Feature 的硬技术依赖，但它是完整真实登录链路�
 - Artifact `dsm-helper-modern-ui-android-debug` generated successfully.
 - Artifact digest: `sha256:fb3bacc3f475d07b213f39ef8e9f418af324c578fda1ed7925e6757c6dba3710`.
 
+### Completed
+
+Task 0 — Foundation / Working Environment is complete.
+
+Real-device baseline Gate results:
+- APK installs and launches successfully.
+- DSM connection succeeds against a real Synology NAS.
+- Login succeeds.
+- Dashboard loads and displays data.
+- File Station can browse directories and files.
+- Main navigation works.
+- Legacy dark theme has visible graphical / rendering defects. These are recorded as `LEGACY-BASELINE-VISUAL-01` and are non-blocking for Task 0 because the project will replace the legacy visual layer with the new Material 3 UI rather than repair the old theme.
+
+Task 0 acceptance record:
+```text
+docs/modern-ui/acceptance/2026-10-06-task-0-foundation-acceptance.md
+```
+
 ### Active
 
 ```text
-Task 0 — Foundation / Working Environment
-Status: Automated Gate PASSED; Real-device Gate PENDING
+No implementation Task is active after Task 0 merge.
 ```
 
 ### Next
 
-Complete Task 0 baseline real-device Gate using the CI APK:
-- install / launch
-- server selection/add
-- DSM connect
-- login
-- dashboard
-- File Station basic browse
-- basic navigation
+```text
+Task 1 — Project Specification + Legacy Interface / Protocol Freeze
+```
 
-Do not merge `feature/t0-foundation` into `modern-ui` until this real-device baseline Gate passes or an explicit `LEGACY-BASELINE` exception is recorded.
+Task 1 must not begin implementation work before the Task 0 branch is merged into `modern-ui`.
