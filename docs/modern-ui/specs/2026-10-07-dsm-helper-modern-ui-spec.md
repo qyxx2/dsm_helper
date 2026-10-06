@@ -160,9 +160,11 @@ Normal tab switching preserves an independent navigation stack for each primary 
 
 ### 8.1 Cold start
 
-When the existing launcher-selection setting is disabled and a usable saved login/session can be restored:
+When the existing launcher-selection setting is disabled and saved account/session state exists:
 
-Cold start → restore current account/session → 概览 root.
+Cold start → restore the saved account/session context → 概览 root.
+
+A temporary inability to contact DSM during cold start must not, by itself, be treated as authentication invalidation. Where local state is sufficient to enter the shell safely, the app should enter the main shell in offline/stale state rather than falling back to Login merely because the session could not be revalidated over the network.
 
 The app does not restore an old deep page such as a File Station directory, container detail, settings page, task subview, or legacy detail screen after a cold start.
 
@@ -211,6 +213,8 @@ When horizontal space is constrained, the priority is:
 5. page-specific auxiliary action.
 
 The NAS name is weak context and may be truncated or omitted when space or large system font scaling requires it. It must not make the page title unreadable.
+
+The NAS name in primary-page App Bars is context only. Device/account switching belongs in “我的” / server-account management and must not be introduced implicitly by making the App Bar NAS label a second global switcher.
 
 ### 9.2 Action budget
 
@@ -505,7 +509,7 @@ Progress is displayed only when real underlying information exists.
 
 A row may expose one genuinely high-frequency direct action. Secondary operations use context actions.
 
-Normal running work is not treated as an error badge. Failure or user-attention states may use abnormal semantics.
+Normal running work is not treated as an error badge. A restrained neutral count/progress indicator may be used when it helps the user understand active work. Failure or other user-attention states may use abnormal semantics.
 
 ## 15. My / Settings
 
@@ -774,6 +778,8 @@ Changing theme affects presentation only. It must not reset business state, navi
 DSM Helper defines its own default Material 3 ColorScheme.
 
 Android Material You / Dynamic Color may be an optional color source.
+
+Theme brightness (System / Light / Dark) and color source (DSM Helper scheme / optional Dynamic Color) are independent settings. Changing one must not silently change the other.
 
 Dynamic color must not redefine semantic error, warning, success, or similar state meaning.
 
