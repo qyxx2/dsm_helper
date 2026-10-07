@@ -1,9 +1,9 @@
-import 'dart:async';
 import 'dart:io';
 
 import 'package:cool_ui/cool_ui.dart';
 import 'package:dsm_helper/new_ui/app/modern_ui_root.dart';
 import 'package:dsm_helper/new_ui/app/modern_ui_shell_entry.dart';
+import 'package:dsm_helper/new_ui/startup/app_service_endpoint_resolver.dart';
 import 'package:dsm_helper/new_ui/theme/new_ui_theme.dart';
 import 'package:dsm_helper/pages/control_panel/control_panel.dart';
 import 'package:dsm_helper/pages/docker/docker.dart';
@@ -46,22 +46,6 @@ void main() async {
     return true;
   };
 
-  Future<String> getBestDomain(List<String> domains) async {
-    final completer = Completer<String>();
-    for (String domain in domains) {
-      try {
-        Utils.get(domain).then((res) {
-          if (res != null && res['code'] == 1) {
-            if (!completer.isCompleted) {
-              completer.complete("http://${res['data']}");
-            }
-          }
-        });
-      } catch (e) {}
-    }
-    return completer.future;
-  }
-
   WidgetsFlutterBinding.ensureInitialized();
   await SpUtil.getInstance();
   bool agreement = SpUtil.getBool("agreement", defValue: false)!;
@@ -87,7 +71,22 @@ void main() async {
     bool isForever = false;
     DateTime? noAdTime;
     try{
-      Utils.appUrl = await getBestDomain(['http://dsm.apaipai.top/index/check', 'http://dsm.flutter.fit/index/check']);
+      final resolvedAppUrl = await AppServiceEndpointResolver.resolve(
+        const [
+          'http://dsm.apaipai.top/index/check',
+          'http://dsm.flutter.fit/index/check',
+        ],
+        probe: (endpoint) async {
+          final res = await Utils.get(endpoint);
+          if (res != null && res['code'] == 1) {
+            return "http://${res['data']}";
+          }
+          return null;
+        },
+      );
+      if (resolvedAppUrl != null) {
+        Utils.appUrl = resolvedAppUrl;
+      }
       String userToken = SpUtil.getString("user_token", defValue: '')!;
       String noAdTimeStr = SpUtil.getString("no_ad_time", defValue: '')!;
       if (noAdTimeStr.isNotBlank) {
