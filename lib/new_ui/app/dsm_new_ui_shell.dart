@@ -7,6 +7,7 @@ import 'package:dsm_helper/new_ui/intents/external_intent_router.dart';
 import 'package:dsm_helper/new_ui/intents/flutter_sharing_intent_source.dart';
 import 'package:dsm_helper/new_ui/legacy/legacy_page_host.dart';
 import 'package:dsm_helper/new_ui/notifications/legacy_notification_entry.dart';
+import 'package:dsm_helper/new_ui/session/dsm_provider_scope.dart';
 import 'package:dsm_helper/new_ui/system/new_ui_system_bars.dart';
 import 'package:dsm_helper/new_ui/theme/new_ui_theme.dart';
 import 'package:dsm_helper/pages/applications/applications.dart';
@@ -17,12 +18,12 @@ import 'package:dsm_helper/pages/file/upload.dart';
 import 'package:dsm_helper/pages/setting/setting.dart';
 import 'package:dsm_helper/pages/transfer/transfer.dart';
 import 'package:dsm_helper/providers/background_task_provider.dart';
+import 'package:dsm_helper/providers/dark_mode.dart';
 import 'package:dsm_helper/providers/external_device_provider.dart';
 import 'package:dsm_helper/providers/init_data_provider.dart';
 import 'package:dsm_helper/providers/storage_provider.dart';
 import 'package:dsm_helper/providers/system_info_provider.dart';
 import 'package:dsm_helper/providers/utilization_provider.dart';
-import 'package:dsm_helper/providers/dark_mode.dart';
 import 'package:dsm_helper/utils/overlay_util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -83,6 +84,7 @@ class _DsmNewUiShellState extends State<DsmNewUiShell> {
 
   Future<void> _handleIntent(
     BuildContext context,
+    DsmProviderScope providerScope,
     ExternalIntentDecision decision,
   ) async {
     try {
@@ -100,7 +102,9 @@ class _DsmNewUiShellState extends State<DsmNewUiShell> {
           await Navigator.of(context, rootNavigator: true).push<void>(
             MaterialPageRoute<void>(
               builder: (_) => LegacyPageHost(
-                builder: (_) => AddDownloadTask(torrentPath: path),
+                builder: (_) => providerScope.wrap(
+                  AddDownloadTask(torrentPath: path),
+                ),
               ),
             ),
           );
@@ -108,9 +112,11 @@ class _DsmNewUiShellState extends State<DsmNewUiShell> {
           await Navigator.of(context, rootNavigator: true).push<void>(
             MaterialPageRoute<void>(
               builder: (_) => LegacyPageHost(
-                builder: (_) => Upload(
-                  '',
-                  selectedFilesPath: decision.paths,
+                builder: (_) => providerScope.wrap(
+                  Upload(
+                    '',
+                    selectedFilesPath: decision.paths,
+                  ),
                 ),
               ),
             ),
@@ -129,8 +135,8 @@ class _DsmNewUiShellState extends State<DsmNewUiShell> {
   @override
   Widget build(BuildContext context) {
     final darkMode = context.watch<DarkModeProvider>().darkMode;
-
     final theme = _themeFor(context, darkMode);
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       unawaited(NewUiSystemBars.apply(theme.brightness));
     });
@@ -140,59 +146,67 @@ class _DsmNewUiShellState extends State<DsmNewUiShell> {
       child: Theme(
         data: theme,
         child: MultiProvider(
-        providers: [
-          ChangeNotifierProvider(create: (_) => SystemInfoProvider()),
-          ChangeNotifierProvider(create: (_) => InitDataProvider()),
-          ChangeNotifierProvider(create: (_) => UtilizationProvider()),
-          ChangeNotifierProvider(create: (_) => StorageProvider()),
-          ChangeNotifierProvider(create: (_) => ExternalDeviceProvider()),
-          ChangeNotifierProvider(create: (_) => BackgroundTaskProvider()),
-        ],
-        child: Builder(
-          builder: (shellContext) {
-            return ExternalIntentListener(
-              source: _intentSource,
-              onDecision: (decision) {
-                unawaited(_handleIntent(shellContext, decision));
-              },
-              child: NewUiAppShell(
-                notificationBuilder: (_) => const LegacyNotificationEntry(),
-                destinations: [
-                  NewUiAppDestination(
-                    label: '概览',
-                    icon: Icons.dashboard_outlined,
-                    selectedIcon: Icons.dashboard,
-                    legacyBuilder: (_) => Dashboard(),
+          providers: [
+            ChangeNotifierProvider(create: (_) => SystemInfoProvider()),
+            ChangeNotifierProvider(create: (_) => InitDataProvider()),
+            ChangeNotifierProvider(create: (_) => UtilizationProvider()),
+            ChangeNotifierProvider(create: (_) => StorageProvider()),
+            ChangeNotifierProvider(create: (_) => ExternalDeviceProvider()),
+            ChangeNotifierProvider(create: (_) => BackgroundTaskProvider()),
+          ],
+          child: Builder(
+            builder: (shellContext) {
+              final providerScope = DsmProviderScope.capture(shellContext);
+
+              return ExternalIntentListener(
+                source: _intentSource,
+                onDecision: (decision) {
+                  unawaited(
+                    _handleIntent(shellContext, providerScope, decision),
+                  );
+                },
+                child: NewUiAppShell(
+                  notificationBuilder: (_) => providerScope.wrap(
+                    const LegacyNotificationEntry(),
                   ),
-                  NewUiAppDestination(
-                    label: '文件',
-                    icon: Icons.folder_outlined,
-                    selectedIcon: Icons.folder,
-                    legacyBuilder: (_) => FilePage(key: _filePageKey),
-                    onLegacyBack: _handleFileBack,
-                  ),
-                  NewUiAppDestination(
-                    label: '应用',
-                    icon: Icons.apps_outlined,
-                    selectedIcon: Icons.apps,
-                    legacyBuilder: (_) => Applications(),
-                  ),
-                  NewUiAppDestination(
-                    label: '任务',
-                    icon: Icons.swap_vert_outlined,
-                    selectedIcon: Icons.swap_vert,
-                    legacyBuilder: (_) => Transfer(),
-                  ),
-                  NewUiAppDestination(
-                    label: '我的',
-                    icon: Icons.person_outline,
-                    selectedIcon: Icons.person,
-                    legacyBuilder: (_) => Setting(),
-                  ),
-                ],
-              ),
-            );
-          },
+                  destinations: [
+                    NewUiAppDestination(
+                      label: '概览',
+                      icon: Icons.dashboard_outlined,
+                      selectedIcon: Icons.dashboard,
+                      legacyBuilder: (_) => providerScope.wrap(Dashboard()),
+                    ),
+                    NewUiAppDestination(
+                      label: '文件',
+                      icon: Icons.folder_outlined,
+                      selectedIcon: Icons.folder,
+                      legacyBuilder: (_) => providerScope.wrap(
+                        FilePage(key: _filePageKey),
+                      ),
+                      onLegacyBack: _handleFileBack,
+                    ),
+                    NewUiAppDestination(
+                      label: '应用',
+                      icon: Icons.apps_outlined,
+                      selectedIcon: Icons.apps,
+                      legacyBuilder: (_) => providerScope.wrap(Applications()),
+                    ),
+                    NewUiAppDestination(
+                      label: '任务',
+                      icon: Icons.swap_vert_outlined,
+                      selectedIcon: Icons.swap_vert,
+                      legacyBuilder: (_) => providerScope.wrap(Transfer()),
+                    ),
+                    NewUiAppDestination(
+                      label: '我的',
+                      icon: Icons.person_outline,
+                      selectedIcon: Icons.person,
+                      legacyBuilder: (_) => providerScope.wrap(Setting()),
+                    ),
+                  ],
+                ),
+              );
+            },
           ),
         ),
       ),
