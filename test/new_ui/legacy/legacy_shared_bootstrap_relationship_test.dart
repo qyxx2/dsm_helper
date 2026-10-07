@@ -107,7 +107,7 @@ void main() {
 
       await _openApplications(tester);
       expect(find.text('控制中心'), findsOneWidget);
-      await tester.pageBack();
+      await tester.binding.handlePopRoute();
       await tester.pumpAndSettle();
 
       await _pumpShell(tester, loader: loaderB, contextId: 'B');
