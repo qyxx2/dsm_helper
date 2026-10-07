@@ -96,7 +96,7 @@ class _LoginState extends State<Login> {
             ),
           );
       Api.dsm = DsmApi(baseUrl: widget.server.url, deviceId: authModel.deviceId!, sid: authModel.sid!);
-      context.push(const ModernUiShellEntry(), replace: true);
+      context.push(const ModernUiShellEntry(), replace: true, rootNavigator: true);
     } on DsmException catch (e) {
       if (e.code == 400) {
         setState(() {
