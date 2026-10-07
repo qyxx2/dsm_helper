@@ -9,17 +9,20 @@ class NewUiAppDestination {
     required this.icon,
     required this.selectedIcon,
     required this.legacyBuilder,
+    this.onLegacyBack,
   });
 
   factory NewUiAppDestination.test({
     required String label,
     required WidgetBuilder legacyBuilder,
+    bool Function()? onLegacyBack,
   }) {
     return NewUiAppDestination(
       label: label,
       icon: Icons.circle_outlined,
       selectedIcon: Icons.circle,
       legacyBuilder: legacyBuilder,
+      onLegacyBack: onLegacyBack,
     );
   }
 
@@ -27,6 +30,7 @@ class NewUiAppDestination {
   final IconData icon;
   final IconData selectedIcon;
   final WidgetBuilder legacyBuilder;
+  final bool Function()? onLegacyBack;
 }
 
 class NewUiAppShell extends StatelessWidget {
@@ -39,10 +43,17 @@ class NewUiAppShell extends StatelessWidget {
   final WidgetBuilder notificationBuilder;
   final List<NewUiAppDestination> destinations;
 
-  void _pushLegacy(BuildContext context, WidgetBuilder builder) {
+  void _pushLegacy(
+    BuildContext context,
+    WidgetBuilder builder, {
+    bool Function()? onBack,
+  }) {
     Navigator.of(context).push(
       MaterialPageRoute<void>(
-        builder: (_) => LegacyPageHost(builder: builder),
+        builder: (_) => LegacyPageHost(
+          builder: builder,
+          onBack: onBack,
+        ),
       ),
     );
   }
@@ -62,7 +73,11 @@ class NewUiAppShell extends StatelessWidget {
                 _pushLegacy(tabContext, notificationBuilder);
               },
               onOpenLegacyFeature: () {
-                _pushLegacy(tabContext, destination.legacyBuilder);
+                _pushLegacy(
+                tabContext,
+                destination.legacyBuilder,
+                onBack: destination.onLegacyBack,
+              );
               },
             );
           },

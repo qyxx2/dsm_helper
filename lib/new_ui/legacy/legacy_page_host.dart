@@ -6,9 +6,11 @@ class LegacyPageHost extends StatefulWidget {
   const LegacyPageHost({
     super.key,
     required this.builder,
+    this.onBack,
   });
 
   final WidgetBuilder builder;
+  final bool Function()? onBack;
 
   @override
   State<LegacyPageHost> createState() => _LegacyPageHostState();
@@ -25,6 +27,10 @@ class _LegacyPageHostState extends State<LegacyPageHost> {
     final navigator = _navigatorKey.currentState;
     if (navigator != null && navigator.canPop()) {
       navigator.pop();
+      return;
+    }
+
+    if (widget.onBack?.call() == true) {
       return;
     }
 
