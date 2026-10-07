@@ -33,13 +33,15 @@ class LegacySharedBootstrap {
 }
 
 class LegacySharedBootstrapBoundary extends StatefulWidget {
-  const LegacySharedBootstrapBoundary({
+  LegacySharedBootstrapBoundary({
     super.key,
     required this.child,
+    required this.bootstrap,
     this.enabled = true,
   });
 
   final Widget child;
+  final LegacySharedBootstrap bootstrap;
   final bool enabled;
 
   @override
@@ -64,7 +66,7 @@ class _LegacySharedBootstrapBoundaryState
   Future<void> _prepare() async {
     try {
       final provider = context.read<InitDataProvider>();
-      await LegacySharedBootstrap().ensureLoaded(provider);
+      await widget.bootstrap.ensureLoaded(provider);
     } catch (_) {
       // Preserve the existing shell/offline fallback semantics if this
       // compatibility bootstrap cannot be completed.
