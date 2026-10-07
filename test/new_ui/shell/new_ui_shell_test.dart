@@ -91,3 +91,38 @@ void main() {
     }
   });
 }
+
+
+testWidgets('context switch reset returns every tab to root and selects overview', (tester) async {
+  final key = GlobalKey<NewUiShellState>();
+  await tester.pumpWidget(
+    MaterialApp(
+      theme: NewUiTheme.light(),
+      home: NewUiShell(
+        key: key,
+        destinations: [
+          NewUiShellDestination.test(label: '概览', root: (_) => _root('overview')),
+          NewUiShellDestination.test(label: '文件', root: (_) => _root('files')),
+          NewUiShellDestination.test(label: '应用', root: (_) => _root('apps')),
+          NewUiShellDestination.test(label: '任务', root: (_) => _root('tasks')),
+          NewUiShellDestination.test(label: '我的', root: (_) => _root('me')),
+        ],
+      ),
+    ),
+  );
+
+  await tester.tap(find.byKey(const Key('push-overview')));
+  await tester.pumpAndSettle();
+  await tester.tap(find.text('文件'));
+  await tester.pumpAndSettle();
+  await tester.tap(find.byKey(const Key('push-files')));
+  await tester.pumpAndSettle();
+
+  await key.currentState!.resetForContextSwitch();
+  await tester.pumpAndSettle();
+
+  expect(find.text('root-overview'), findsOneWidget);
+  await tester.tap(find.text('文件'));
+  await tester.pumpAndSettle();
+  expect(find.text('root-files'), findsOneWidget);
+});
