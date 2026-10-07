@@ -36,6 +36,7 @@ class _InitDataLoader {
 Future<void> _pumpShell(
   WidgetTester tester, {
   required _InitDataLoader loader,
+  required String contextId,
   ActiveContextStatus status = ActiveContextStatus.authenticated,
 }) async {
   await tester.pumpWidget(
@@ -44,6 +45,7 @@ Future<void> _pumpShell(
       child: MaterialApp(
         home: DsmNewUiShell(
           initialContextStatus: status,
+          contextId: contextId,
           legacyBootstrap: LegacySharedBootstrap(
             loadInitData: loader.call,
           ),
@@ -76,7 +78,7 @@ void main() {
       );
       Utils.version = 6;
 
-      await _pumpShell(tester, loader: loader);
+      await _pumpShell(tester, loader: loader, contextId: 'server/account');
 
       expect(loader.requests, 1);
       expect(Utils.version, 7);
@@ -100,13 +102,13 @@ void main() {
         application: 'SYNO.SDS.PkgManApp.Instance',
       );
 
-      await _pumpShell(tester, loader: loaderA);
+      await _pumpShell(tester, loader: loaderA, contextId: 'A');
       expect(Utils.version, 7);
 
       await _openApplications(tester);
       expect(find.text('控制中心'), findsOneWidget);
 
-      await _pumpShell(tester, loader: loaderB);
+      await _pumpShell(tester, loader: loaderB, contextId: 'B');
       expect(Utils.version, 6);
 
       await _openApplications(tester);
@@ -128,6 +130,7 @@ void main() {
       await _pumpShell(
         tester,
         loader: loader,
+        contextId: 'offline-context',
         status: ActiveContextStatus.offline,
       );
 
