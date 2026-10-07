@@ -4,16 +4,14 @@ import 'package:dsm_helper/new_ui/shell/primary_destination.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-Widget _tabRoot(PrimaryDestination destination) {
+Widget _tabRoot(PrimaryDestination destination, BuildContext context) {
   return Scaffold(
     appBar: AppBar(title: Text('root-${destination.name}')),
     body: Center(
       child: FilledButton(
         key: ValueKey('push-${destination.name}'),
         onPressed: () {
-          Navigator.of(
-            NewUiShell.navigatorContextFor(destination)!,
-          ).push(
+          Navigator.of(context).push(
             MaterialPageRoute<void>(
               builder: (_) => Scaffold(
                 appBar: AppBar(title: Text('detail-${destination.name}')),
@@ -35,7 +33,7 @@ void main() {
         home: NewUiShell(
           rootBuilders: {
             for (final destination in PrimaryDestination.values)
-              destination: (_) => _tabRoot(destination),
+              destination: (context) => _tabRoot(destination, context),
           },
         ),
       ),
@@ -67,7 +65,7 @@ void main() {
         home: NewUiShell(
           rootBuilders: {
             for (final destination in PrimaryDestination.values)
-              destination: (_) => _tabRoot(destination),
+              destination: (context) => _tabRoot(destination, context),
           },
         ),
       ),
@@ -103,7 +101,7 @@ void main() {
             home: NewUiShell(
               rootBuilders: {
                 for (final destination in PrimaryDestination.values)
-                  destination: (_) => _tabRoot(destination),
+                  destination: (context) => _tabRoot(destination, context),
               },
             ),
           );
