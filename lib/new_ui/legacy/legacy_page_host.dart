@@ -28,7 +28,7 @@ class _LegacyPageHostState extends State<LegacyPageHost> {
       return;
     }
 
-    Navigator.of(context).maybePop();
+    Navigator.of(context).pop();
   }
 
   @override
