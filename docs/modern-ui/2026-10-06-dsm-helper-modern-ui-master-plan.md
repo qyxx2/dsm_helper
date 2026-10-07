@@ -907,6 +907,31 @@ Task 1 Exit Gate:
 - No unresolved Contract Gap blocks Task 2 or Task 3.
 - No production code was changed by Task 1 completion work.
 
+### Completed
+
+Task 2 — Visual Design Specification is complete.
+
+Task 2 acceptance record:
+```text
+docs/modern-ui/acceptance/2026-10-07-task-2-visual-design-acceptance.md
+```
+
+Task 2 authoritative output:
+```text
+docs/modern-ui/specs/2026-10-07-dsm-helper-modern-ui-visual-design.md
+```
+
+Task 2 Exit Gate:
+- single authoritative Visual Design Specification completed;
+- default Light/Dark Material 3 ColorScheme frozen with `#00A6FF` brand emphasis and low-saturation grey-blue daily surfaces;
+- typography, spacing, radius, density and surface hierarchy frozen;
+- NavigationBar, Top App Bar and core component baselines frozen;
+- loading/empty/error/offline/stale/reconnecting and chart/metric visual language frozen;
+- Android edge-to-edge, real system inset, IME, font-scaling and portrait-phone scope frozen;
+- Material 3 / legacy fallback visual isolation frozen;
+- no unresolved Design Gap blocks Task 3;
+- no production code was changed by Task 2.
+
 ### Active
 
 ```text
@@ -916,7 +941,7 @@ No implementation Task is active.
 ### Next
 
 ```text
-Task 2 — Visual Design Specification
+Task 3 — New UI Foundation / Shell
 ```
 
-Task 2 is unblocked by the completed Task 1 Exit Gate but has not started.
+Task 3 is unblocked by the completed Task 2 Exit Gate but has not started.
