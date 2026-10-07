@@ -41,6 +41,7 @@ void main() {
     expect(find.text('nested-route'), findsOneWidget);
 
     tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
     await tester.pumpAndSettle();
     expect(find.byKey(const Key('unlock')), findsOneWidget);
 
@@ -50,6 +51,7 @@ void main() {
 
     enabled = false;
     tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
     await tester.pumpAndSettle();
     expect(find.byKey(const Key('unlock')), findsNothing);
     expect(find.text('nested-route'), findsOneWidget);
