@@ -1,3 +1,4 @@
+import 'package:dsm_helper/new_ui/legacy/legacy_route_registry.dart';
 import 'package:dsm_helper/themes/dark.dart' as legacy_dark;
 import 'package:dsm_helper/themes/light.dart' as legacy_light;
 import 'package:flutter/material.dart';
@@ -52,9 +53,21 @@ class _LegacyPageHostState extends State<LegacyPageHost> {
         child: Navigator(
           key: _navigatorKey,
           onGenerateRoute: (settings) {
+            if (settings.name == Navigator.defaultRouteName) {
+              return MaterialPageRoute<void>(
+                settings: settings,
+                builder: widget.builder,
+              );
+            }
+
+            final routeBuilder = legacyNamedRoutes[settings.name];
+            if (routeBuilder == null) {
+              return null;
+            }
+
             return MaterialPageRoute<void>(
               settings: settings,
-              builder: widget.builder,
+              builder: routeBuilder,
             );
           },
         ),
