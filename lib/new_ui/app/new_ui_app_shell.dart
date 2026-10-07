@@ -48,7 +48,7 @@ class NewUiAppShell extends StatelessWidget {
     WidgetBuilder builder, {
     bool Function()? onBack,
   }) {
-    Navigator.of(context).push(
+    Navigator.of(context, rootNavigator: true).push(
       MaterialPageRoute<void>(
         builder: (_) => LegacyPageHost(
           builder: builder,
@@ -74,10 +74,10 @@ class NewUiAppShell extends StatelessWidget {
               },
               onOpenLegacyFeature: () {
                 _pushLegacy(
-                tabContext,
-                destination.legacyBuilder,
-                onBack: destination.onLegacyBack,
-              );
+                  tabContext,
+                  destination.legacyBuilder,
+                  onBack: destination.onLegacyBack,
+                );
               },
             );
           },
