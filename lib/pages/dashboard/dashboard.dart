@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:dsm_helper/apis/api.dart';
 import 'package:dsm_helper/models/Syno/Core/CurrentConnection.dart';
+import 'package:dsm_helper/new_ui/legacy/legacy_shared_bootstrap.dart';
 import 'package:dsm_helper/models/Syno/Core/Desktop/InitData.dart';
 import 'package:dsm_helper/models/Syno/Core/ExternalDevice/Storage/Device.dart';
 import 'package:dsm_helper/models/Syno/Core/Notify.dart';
@@ -79,10 +80,9 @@ class DashboardState extends State<Dashboard> {
   }
 
   getInitData() async {
-    InitDataModel initData = await InitDataModel.get();
     InitDataProvider initDataProvider = context.read<InitDataProvider>();
-    initDataProvider.setInitData(initData);
-    Utils.version = int.parse(initData.session!.majorversion!);
+    await LegacySharedBootstrap().ensureLoaded(initDataProvider);
+    if (!mounted) return;
     setState(() {});
     getData();
   }
