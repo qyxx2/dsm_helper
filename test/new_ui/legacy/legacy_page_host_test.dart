@@ -62,4 +62,68 @@ void main() {
       const Color(0xFF2A82E4),
     );
   });
+
+  testWidgets('host lets nested legacy navigation consume Back before route exit',
+      (tester) async {
+    final nestedKey = GlobalKey<NavigatorState>();
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Builder(
+          builder: (context) => FilledButton(
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                  builder: (_) => LegacyPageHost(
+                    onBackAttempt: () async {
+                      final navigator = nestedKey.currentState;
+                      if (navigator != null && navigator.canPop()) {
+                        navigator.pop();
+                        return true;
+                      }
+                      return false;
+                    },
+                    child: Navigator(
+                      key: nestedKey,
+                      onGenerateRoute: (_) => MaterialPageRoute<void>(
+                        builder: (context) => Scaffold(
+                          body: FilledButton(
+                            onPressed: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute<void>(
+                                  builder: (_) =>
+                                      const Scaffold(body: Text('legacy-child')),
+                                ),
+                              );
+                            },
+                            child: const Text('legacy-root'),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            },
+            child: const Text('open-host'),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('open-host'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('legacy-root'));
+    await tester.pumpAndSettle();
+    expect(find.text('legacy-child'), findsOneWidget);
+
+    await tester.binding.handlePopRoute();
+    await tester.pumpAndSettle();
+    expect(find.text('legacy-root'), findsOneWidget);
+    expect(find.text('open-host'), findsNothing);
+
+    await tester.binding.handlePopRoute();
+    await tester.pumpAndSettle();
+    expect(find.text('open-host'), findsOneWidget);
+  });
 }
