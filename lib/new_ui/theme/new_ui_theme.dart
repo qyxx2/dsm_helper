@@ -95,17 +95,17 @@ class NewUiTheme {
         backgroundColor: scheme.surfaceContainer,
         indicatorColor: scheme.secondaryContainer,
         labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
-        labelTextStyle: MaterialStateProperty.resolveWith((states) {
+        labelTextStyle: WidgetStateProperty.resolveWith((states) {
           return textTheme.labelMedium?.copyWith(
-            color: states.contains(MaterialState.selected)
+            color: states.contains(WidgetState.selected)
                 ? scheme.onSecondaryContainer
                 : scheme.onSurfaceVariant,
           );
         }),
-        iconTheme: MaterialStateProperty.resolveWith((states) {
+        iconTheme: WidgetStateProperty.resolveWith((states) {
           return IconThemeData(
             size: 24,
-            color: states.contains(MaterialState.selected)
+            color: states.contains(WidgetState.selected)
                 ? scheme.onSecondaryContainer
                 : scheme.onSurfaceVariant,
           );
