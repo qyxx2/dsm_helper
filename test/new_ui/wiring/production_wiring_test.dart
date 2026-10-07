@@ -68,4 +68,15 @@ void main() {
     expect(root, contains('shellBuilder: (_, result)'));
     expect(root, contains('initialContextStatus: result.status'));
   });
+  test('startup uses bounded optional app-service endpoint resolution', () {
+    final main = _read('lib/main.dart');
+
+    expect(main, contains('AppServiceEndpointResolver.resolve('));
+  });
+
+  test('DSM context bind synchronizes the legacy File Station session bridge', () {
+    final adapter = _read('lib/new_ui/session/dsm_active_context_adapter.dart');
+
+    expect(adapter, contains('LegacySessionBridge.bind(request)'));
+  });
 }
