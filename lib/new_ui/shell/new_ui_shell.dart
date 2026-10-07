@@ -201,7 +201,7 @@ class _NewUiShellState extends State<NewUiShell>
 
     return Theme(
       data: newUiTheme,
-      child: PopScope<Object?>(
+      child: PopScope(
         canPop: false,
         onPopInvoked: (didPop) {
           if (!didPop) {
