@@ -29,10 +29,10 @@ class NewUiPrimaryPage extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
               ),
             ),
-            if (connectionStatusText case final status?) ...[
+            if (connectionStatusText != null) ...[
               const SizedBox(width: 8),
               Text(
-                status,
+                connectionStatusText!,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: Theme.of(context).textTheme.labelMedium?.copyWith(
