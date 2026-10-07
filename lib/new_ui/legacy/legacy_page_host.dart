@@ -19,7 +19,14 @@ class LegacyPageHost extends StatelessWidget {
 
     return Theme(
       data: theme,
-      child: Builder(builder: builder),
+      child: Navigator(
+        onGenerateRoute: (settings) {
+          return MaterialPageRoute<void>(
+            settings: settings,
+            builder: builder,
+          );
+        },
+      ),
     );
   }
 }

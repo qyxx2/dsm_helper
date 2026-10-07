@@ -25,6 +25,7 @@ class LaunchAuthGate extends StatefulWidget {
 class _LaunchAuthGateState extends State<LaunchAuthGate>
     with WidgetsBindingObserver {
   bool _gateVisible = false;
+  bool _wasBackgrounded = false;
 
   @override
   void initState() {
@@ -45,10 +46,18 @@ class _LaunchAuthGateState extends State<LaunchAuthGate>
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.paused) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        unawaited(_showGateIfRequired());
-      });
+    switch (state) {
+      case AppLifecycleState.hidden:
+      case AppLifecycleState.paused:
+        _wasBackgrounded = true;
+      case AppLifecycleState.resumed:
+        if (_wasBackgrounded) {
+          _wasBackgrounded = false;
+          unawaited(_showGateIfRequired());
+        }
+      case AppLifecycleState.inactive:
+      case AppLifecycleState.detached:
+        break;
     }
   }
 
