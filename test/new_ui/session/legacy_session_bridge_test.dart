@@ -30,4 +30,13 @@ void main() {
     expect(Utils.baseUrl, 'https://nas.local:5001');
     expect(Utils.sid, 'sid-42');
   });
+  test('authenticated legacy handoff can bind values without rebuilding a startup request', () {
+    LegacySessionBridge.bindValues(
+      baseUrl: 'https://nas2.local:5001',
+      sid: 'sid-direct',
+    );
+
+    expect(Utils.baseUrl, 'https://nas2.local:5001');
+    expect(Utils.sid, 'sid-direct');
+  });
 }

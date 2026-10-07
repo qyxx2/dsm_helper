@@ -79,4 +79,14 @@ void main() {
 
     expect(adapter, contains('LegacySessionBridge.bind(request)'));
   });
+  test('legacy login and account selection synchronize File Station session before shell handoff', () {
+    final login = _read('lib/pages/login/login.dart');
+    final selector = _read('lib/pages/server/select_server.dart');
+
+    expect(login, contains('LegacySessionBridge.bindValues('));
+    expect(
+      RegExp(r'LegacySessionBridge\.bindValues\(').allMatches(selector).length,
+      greaterThanOrEqualTo(2),
+    );
+  });
 }
