@@ -8,6 +8,7 @@ import 'package:dsm_helper/models/Syno/Api/auth.dart';
 import 'package:dsm_helper/models/Syno/SDS/Session/SessionData.dart';
 import 'package:dsm_helper/pages/login/dialogs/otp_code_dialog.dart';
 import 'package:dsm_helper/new_ui/app/modern_ui_shell_entry.dart';
+import 'package:dsm_helper/new_ui/session/legacy_session_bridge.dart';
 import 'package:dsm_helper/pages/server/select_server.dart';
 import 'package:dsm_helper/themes/app_theme.dart';
 import 'package:dsm_helper/utils/db_utils.dart';
@@ -96,6 +97,10 @@ class _LoginState extends State<Login> {
             ),
           );
       Api.dsm = DsmApi(baseUrl: widget.server.url, deviceId: authModel.deviceId!, sid: authModel.sid!);
+      LegacySessionBridge.bindValues(
+        baseUrl: widget.server.url,
+        sid: authModel.sid,
+      );
       context.push(const ModernUiShellEntry(), replace: true, rootNavigator: true);
     } on DsmException catch (e) {
       if (e.code == 400) {
