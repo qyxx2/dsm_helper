@@ -170,6 +170,16 @@ User real-device validation 负责：
 
 > CI 证明代码成立；实机验证证明产品成立。
 
+### Documentation-only CI trigger policy — CI-DOCS-01
+
+为避免规划、规格、验收等纯文档提交重复执行完整 Flutter test / analyze / Android APK build：
+
+- `Modern UI Android CI` 对仅修改 `docs/**` 或 Markdown（`**/*.md`）的 push / pull request 默认不触发。
+- 如果同一提交同时包含 production code、test、Android build/config、dependency 或 workflow 等非文档变更，则 CI 正常触发。
+- `workflow_dispatch` 保留，可在纯文档提交后按需手动执行完整 CI。
+- 不使用 commit message 的 `[skip ci]` 作为常规机制；CI 跳过由仓库路径规则统一控制。
+- 本规则只减少无意义的文档构建，不降低任何代码、测试、构建配置或用户 APK Gate 的验证要求。
+
 ### Android APK install/update identity — APK-IDENTITY-01
 
 从 2026-10-07 Task 3 实机验收后起，所有提供给用户真机安装的后续 Modern UI APK 必须保持稳定的 Android 安装/升级身份，目标是允许直接覆盖安装上一版，而不是每次卸载重装。

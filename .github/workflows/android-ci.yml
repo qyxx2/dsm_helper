@@ -5,9 +5,15 @@ on:
     branches:
       - modern-ui
       - 'feature/**'
+    paths-ignore:
+      - 'docs/**'
+      - '**/*.md'
   pull_request:
     branches:
       - modern-ui
+    paths-ignore:
+      - 'docs/**'
+      - '**/*.md'
   workflow_dispatch:
 
 permissions:
