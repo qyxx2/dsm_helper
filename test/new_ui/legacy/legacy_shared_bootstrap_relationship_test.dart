@@ -84,6 +84,7 @@ Future<void> _openApplications(WidgetTester tester) async {
 
 void main() {
   setUpAll(() async {
+    HttpOverrides.global = null;
     SharedPreferences.setMockInitialValues({});
     await SpUtil.getInstance();
   });
