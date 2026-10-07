@@ -46,7 +46,9 @@ class _LaunchAuthGateState extends State<LaunchAuthGate>
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.paused) {
-      unawaited(_showGateIfRequired());
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        unawaited(_showGateIfRequired());
+      });
     }
   }
 
