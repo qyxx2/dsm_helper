@@ -603,7 +603,24 @@ The user also established the governing implementation preference:
 
 > Keep Task 4 as simple as possible, preserve the original design and reuse existing logic/interfaces unless the legacy design contains an unavoidable or required bug fix.
 
-## 19. Planning Gate
+## 19. Task 4 Feature Contract Matrix
+
+These rows refine the frozen global contracts only where Task 4 owns feature-specific semantics.
+
+| ID | Refines | Operation / trigger | Authority | Expected state delta | Must remain unchanged | Failure / rollback | Executable proof |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `T4-SRV-01` | `G-API-01`, `G-PERSIST-01` | Add/edit ordinary HTTP/HTTPS endpoint | `DsmApi`, `ApiModel.info`, `Servers` | Validated endpoint is saved; edit updates that Server | Accounts and unrelated Servers | Validation failure saves nothing | endpoint-form/controller tests |
+| `T4-SRV-02` | `G-PERSIST-01` | Server exists with zero Accounts | `Servers` | Server remains manageable as no-account item | No synthetic Account is created | Missing/failed login leaves Server accessible | selector/store relationship test |
+| `T4-ACC-01` | `G-PERSIST-01` | Render/select saved login context | joined `Server + Account` | One card maps to one exact context | Other account/server contexts | Missing joined row is not guessed | selector identity test |
+| `T4-ACC-02` | `G-PERSIST-02` | Set/clear default Account | `Accounts.isDefault` | Set clears all others atomically; clear permits zero defaults | Account credentials/session | Transaction failure leaves previous flags intact | real DB transaction test |
+| `T4-AUTH-01` | `G-AUTH-01` | New login / OTP / email verification | `Auth.login` | Final success creates or updates exactly one Account | No Account before final success | 400 stays credentials; 403/404/414 stay staged verification as defined | login flow tests incl. `optCode` capture |
+| `T4-AUTH-02` | `G-AUTH-01`, `G-SESS-01` | Saved session invalidated with DSM 119 | session probe + persisted Account + `Auth.login` | Reauth updates the same Account session; optional Stage 2 | Server, account identity, default flag | Connectivity failure is not reauth; credential failure exposes Stage 1 | saved-account reauth relationship test |
+| `T4-AUTH-03` | `G-AUTH-02` | Explicit logout | `Auth.logout`, optional `Auth.forget`, Account persistence | Local SID/session cleared; returns to selector | Server, Account, username/password, default flag | Remote/network logout failure does not block local exit | logout controller/store test |
+| `T4-SESS-01` | `G-SESS-01`, `G-NAV-03` | Login/switch succeeds | Task 3 active-context coordinator | Correct context is activated before shell; old capability state cleared | No parallel session authority | activation failure does not open authenticated shell | shell-handoff relationship test |
+| `T4-TLS-01` | `G-DSM-01` | Bind/probe Server with `checkSsl` | `Server.checkSsl` → `DsmApi` | Selected Server certificate policy reaches its DSM transport | Other Server policies | TLS failure remains connectivity/transport failure | adapter capture test + real self-signed DSM Gate |
+| `T4-DEL-01` | `G-PERSIST-01` | Delete Server | Drift `Servers` / `Accounts.serverId` | Target Server and only its Accounts are removed | Other Servers/Accounts | Transaction failure must not perform partial cascade | real DB cascade test |
+
+## 20. Planning Gate
 
 Implementation has **not** started.
 
