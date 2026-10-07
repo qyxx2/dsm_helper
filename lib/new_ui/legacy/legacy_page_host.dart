@@ -41,7 +41,7 @@ class _LegacyPageHostState extends State<LegacyPageHost> {
       return themedChild;
     }
 
-    return PopScope<Object?>(
+    return PopScope(
       canPop: _allowRoutePop,
       onPopInvoked: (didPop) {
         if (!didPop && !_handlingBack) {
