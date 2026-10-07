@@ -56,6 +56,7 @@ class _ModernUiRootState extends State<ModernUiRoot> {
         selectAccountBuilder: (_) => const SelectServer(),
         shellBuilder: (_, result) => DsmNewUiShell(
           initialContextStatus: result.status,
+          contextId: result.contextId,
         ),
       ),
     );
