@@ -6,6 +6,7 @@ import 'package:dsm_helper/new_ui/intents/external_intent_listener.dart';
 import 'package:dsm_helper/new_ui/intents/external_intent_router.dart';
 import 'package:dsm_helper/new_ui/intents/flutter_sharing_intent_source.dart';
 import 'package:dsm_helper/new_ui/legacy/legacy_page_host.dart';
+import 'package:dsm_helper/new_ui/legacy/legacy_shared_bootstrap.dart';
 import 'package:dsm_helper/new_ui/notifications/legacy_notification_entry.dart';
 import 'package:dsm_helper/new_ui/session/active_context_coordinator.dart';
 import 'package:dsm_helper/new_ui/session/dsm_provider_scope.dart';
@@ -173,57 +174,61 @@ class _DsmNewUiShellState extends State<DsmNewUiShell> {
             ChangeNotifierProvider(create: (_) => ExternalDeviceProvider()),
             ChangeNotifierProvider(create: (_) => BackgroundTaskProvider()),
           ],
-          child: Builder(
-            builder: (shellContext) {
-              final providerScope = DsmProviderScope.capture(shellContext);
+          child: LegacySharedBootstrapBoundary(
+            enabled: widget.initialContextStatus ==
+                ActiveContextStatus.authenticated,
+            child: Builder(
+              builder: (shellContext) {
+                final providerScope = DsmProviderScope.capture(shellContext);
 
-              return ExternalIntentListener(
-                source: _intentSource,
-                onDecision: (decision) {
-                  unawaited(
-                    _handleIntent(shellContext, providerScope, decision),
-                  );
-                },
-                child: NewUiAppShell(
-                  legacyHostWrapper: providerScope.wrap,
-                  connectionStatusText: _connectionStatusText,
-                  notificationBuilder: (_) => const LegacyNotificationEntry(),
-                  destinations: [
-                    NewUiAppDestination(
-                      label: '概览',
-                      icon: Icons.dashboard_outlined,
-                      selectedIcon: Icons.dashboard,
-                      legacyBuilder: (_) => Dashboard(),
-                    ),
-                    NewUiAppDestination(
-                      label: '文件',
-                      icon: Icons.folder_outlined,
-                      selectedIcon: Icons.folder,
-                      legacyBuilder: (_) => FilePage(key: _filePageKey),
-                      onLegacyBack: _handleFileBack,
-                    ),
-                    NewUiAppDestination(
-                      label: '应用',
-                      icon: Icons.apps_outlined,
-                      selectedIcon: Icons.apps,
-                      legacyBuilder: (_) => Applications(),
-                    ),
-                    NewUiAppDestination(
-                      label: '任务',
-                      icon: Icons.swap_vert_outlined,
-                      selectedIcon: Icons.swap_vert,
-                      legacyBuilder: (_) => Transfer(),
-                    ),
-                    NewUiAppDestination(
-                      label: '我的',
-                      icon: Icons.person_outline,
-                      selectedIcon: Icons.person,
-                      legacyBuilder: (_) => Setting(),
-                    ),
-                  ],
-                ),
-              );
-            },
+                return ExternalIntentListener(
+                  source: _intentSource,
+                  onDecision: (decision) {
+                    unawaited(
+                      _handleIntent(shellContext, providerScope, decision),
+                    );
+                  },
+                  child: NewUiAppShell(
+                    legacyHostWrapper: providerScope.wrap,
+                    connectionStatusText: _connectionStatusText,
+                    notificationBuilder: (_) => const LegacyNotificationEntry(),
+                    destinations: [
+                      NewUiAppDestination(
+                        label: '概览',
+                        icon: Icons.dashboard_outlined,
+                        selectedIcon: Icons.dashboard,
+                        legacyBuilder: (_) => Dashboard(),
+                      ),
+                      NewUiAppDestination(
+                        label: '文件',
+                        icon: Icons.folder_outlined,
+                        selectedIcon: Icons.folder,
+                        legacyBuilder: (_) => FilePage(key: _filePageKey),
+                        onLegacyBack: _handleFileBack,
+                      ),
+                      NewUiAppDestination(
+                        label: '应用',
+                        icon: Icons.apps_outlined,
+                        selectedIcon: Icons.apps,
+                        legacyBuilder: (_) => Applications(),
+                      ),
+                      NewUiAppDestination(
+                        label: '任务',
+                        icon: Icons.swap_vert_outlined,
+                        selectedIcon: Icons.swap_vert,
+                        legacyBuilder: (_) => Transfer(),
+                      ),
+                      NewUiAppDestination(
+                        label: '我的',
+                        icon: Icons.person_outline,
+                        selectedIcon: Icons.person,
+                        legacyBuilder: (_) => Setting(),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
           ),
         ),
       ),
