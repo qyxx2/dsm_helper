@@ -7,6 +7,7 @@ import 'package:dsm_helper/new_ui/intents/external_intent_router.dart';
 import 'package:dsm_helper/new_ui/intents/flutter_sharing_intent_source.dart';
 import 'package:dsm_helper/new_ui/legacy/legacy_page_host.dart';
 import 'package:dsm_helper/new_ui/notifications/legacy_notification_entry.dart';
+import 'package:dsm_helper/new_ui/system/new_ui_system_bars.dart';
 import 'package:dsm_helper/new_ui/theme/new_ui_theme.dart';
 import 'package:dsm_helper/pages/applications/applications.dart';
 import 'package:dsm_helper/pages/dashboard/dashboard.dart';
@@ -24,6 +25,7 @@ import 'package:dsm_helper/providers/utilization_provider.dart';
 import 'package:dsm_helper/providers/dark_mode.dart';
 import 'package:dsm_helper/utils/overlay_util.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_sharing_intent/flutter_sharing_intent.dart';
 import 'package:provider/provider.dart';
 import 'package:sp_util/sp_util.dart';
@@ -128,9 +130,13 @@ class _DsmNewUiShellState extends State<DsmNewUiShell> {
   Widget build(BuildContext context) {
     final darkMode = context.watch<DarkModeProvider>().darkMode;
 
-    return Theme(
-      data: _themeFor(context, darkMode),
-      child: MultiProvider(
+    final theme = _themeFor(context, darkMode);
+
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: NewUiSystemBars.forBrightness(theme.brightness),
+      child: Theme(
+        data: theme,
+        child: MultiProvider(
         providers: [
           ChangeNotifierProvider(create: (_) => SystemInfoProvider()),
           ChangeNotifierProvider(create: (_) => InitDataProvider()),
@@ -184,6 +190,7 @@ class _DsmNewUiShellState extends State<DsmNewUiShell> {
               ),
             );
           },
+          ),
         ),
       ),
     );
