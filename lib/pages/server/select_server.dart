@@ -567,7 +567,7 @@ class _SelectServerState extends State<SelectServer> {
       ));
       Api.dsm = DsmApi(baseUrl: server.url, deviceId: account.deviceId, sid: authModel.sid);
       hide();
-      context.push(const ModernUiShellEntry(), replace: true);
+      context.push(const ModernUiShellEntry(), replace: true, rootNavigator: true);
     } on DsmException catch (e) {
       hide();
       if (e.code == 400) {
@@ -601,7 +601,7 @@ class _SelectServerState extends State<SelectServer> {
         try {
           await NormalUser.get();
           hide();
-          context.push(const ModernUiShellEntry(), replace: true);
+          context.push(const ModernUiShellEntry(), replace: true, rootNavigator: true);
         } on DsmException catch (e) {
           hide();
           if (e.code == 119) {
