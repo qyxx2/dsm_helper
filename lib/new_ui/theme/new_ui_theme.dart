@@ -166,15 +166,15 @@ abstract final class NewUiTheme {
         backgroundColor: scheme.surfaceContainer,
         indicatorColor: scheme.primaryContainer,
         labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
-        labelTextStyle: MaterialStatePropertyAll(
+        labelTextStyle: WidgetStatePropertyAll(
           TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.w500,
             color: scheme.onSurface,
           ),
         ),
-        iconTheme: MaterialStateProperty.resolveWith((states) {
-          final selected = states.contains(MaterialState.selected);
+        iconTheme: WidgetStateProperty.resolveWith((states) {
+          final selected = states.contains(WidgetState.selected);
           return IconThemeData(
             size: 24,
             color:
