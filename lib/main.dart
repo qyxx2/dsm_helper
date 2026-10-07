@@ -2,16 +2,16 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:cool_ui/cool_ui.dart';
+import 'package:dsm_helper/new_ui/app/modern_ui_root.dart';
+import 'package:dsm_helper/new_ui/app/modern_ui_shell_entry.dart';
 import 'package:dsm_helper/pages/control_panel/control_panel.dart';
 import 'package:dsm_helper/pages/docker/docker.dart';
 import 'package:dsm_helper/pages/download_station/download_station.dart';
-import 'package:dsm_helper/pages/home.dart';
 import 'package:dsm_helper/pages/moments/moments.dart';
 import 'package:dsm_helper/pages/packages/packages.dart';
 import 'package:dsm_helper/pages/photos/photos.dart';
 import 'package:dsm_helper/pages/resource_monitor/resource_monitor.dart';
 import 'package:dsm_helper/pages/security_scan/security_scan.dart';
-import 'package:dsm_helper/pages/splash/splash.dart';
 import 'package:dsm_helper/pages/storage_manager/storage_manager.dart';
 import 'package:dsm_helper/pages/virtual_machine/virtual_machine.dart';
 import 'package:dsm_helper/providers/audio_player_provider.dart';
@@ -218,7 +218,7 @@ class _DsmHelperState extends State<DsmHelper> {
               supportedLocales: [
                 const Locale('zh', 'CN'),
               ],
-              home: Splash(),
+              home: ModernUiRoot(initialAuthRequired: widget.authPage),
               theme: lightTheme,
               darkTheme: darkTheme,
               themeMode: ThemeMode.system,
@@ -230,7 +230,7 @@ class _DsmHelperState extends State<DsmHelper> {
               //         ? Accounts()
               //         : Login(),
               routes: {
-                "/home": (BuildContext context) => Home(),
+                "/home": (BuildContext context) => const ModernUiShellEntry(),
                 "/control_panel": (BuildContext context) => ControlPanel(),
                 "/package_center": (BuildContext context) => Packages(),
                 "/resource_monitor": (BuildContext context) => ResourceMonitor(),

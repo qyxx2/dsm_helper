@@ -8,7 +8,7 @@ import 'package:dsm_helper/database/tables.dart';
 import 'package:dsm_helper/models/Syno/Api/auth.dart';
 import 'package:dsm_helper/models/Syno/Core/NormalUser.dart';
 import 'package:dsm_helper/models/api_model.dart';
-import 'package:dsm_helper/pages/home.dart';
+import 'package:dsm_helper/new_ui/app/modern_ui_shell_entry.dart';
 import 'package:dsm_helper/pages/login/dialogs/otp_code_dialog.dart';
 import 'package:dsm_helper/pages/login/login.dart';
 import 'package:dsm_helper/pages/server/add_server.dart';
@@ -567,7 +567,7 @@ class _SelectServerState extends State<SelectServer> {
       ));
       Api.dsm = DsmApi(baseUrl: server.url, deviceId: account.deviceId, sid: authModel.sid);
       hide();
-      context.push(Home(), replace: true);
+      context.push(const ModernUiShellEntry(), replace: true);
     } on DsmException catch (e) {
       hide();
       if (e.code == 400) {
@@ -601,7 +601,7 @@ class _SelectServerState extends State<SelectServer> {
         try {
           await NormalUser.get();
           hide();
-          context.push(Home(), replace: true);
+          context.push(const ModernUiShellEntry(), replace: true);
         } on DsmException catch (e) {
           hide();
           if (e.code == 119) {
