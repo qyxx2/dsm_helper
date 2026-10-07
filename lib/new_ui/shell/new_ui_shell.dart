@@ -55,8 +55,7 @@ class NewUiShellState extends State<NewUiShell> {
     if (navigator == null || !navigator.canPop()) {
       return false;
     }
-    navigator.pop();
-    return true;
+    return navigator.maybePop();
   }
 
   Future<void> resetForContextSwitch() async {
@@ -82,7 +81,7 @@ class NewUiShellState extends State<NewUiShell> {
 
     switch (action) {
       case ShellBackAction.popCurrentTab:
-        navigator?.pop();
+        await navigator?.maybePop();
       case ShellBackAction.exitSystem:
         unawaited(SystemNavigator.pop());
     }
