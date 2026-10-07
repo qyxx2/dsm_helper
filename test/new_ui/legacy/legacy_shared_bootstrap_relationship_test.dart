@@ -9,6 +9,7 @@ import 'package:dsm_helper/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sp_util/sp_util.dart';
 
 class _InitDataServer {
@@ -83,6 +84,7 @@ Future<void> _openApplications(WidgetTester tester) async {
 
 void main() {
   setUpAll(() async {
+    SharedPreferences.setMockInitialValues({});
     await SpUtil.getInstance();
   });
 
