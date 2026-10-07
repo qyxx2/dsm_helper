@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:dsm_helper/apis/api.dart';
+import 'package:dsm_helper/apis/api.dart' as legacy_api;
 import 'package:dsm_helper/apis/dsm_api/dsm_api.dart';
 import 'package:dsm_helper/new_ui/app/dsm_new_ui_shell.dart';
 import 'package:dsm_helper/providers/dark_mode.dart';
@@ -57,7 +57,7 @@ Future<void> _pumpShell(
   WidgetTester tester, {
   required String baseUrl,
 }) async {
-  Api.dsm = DsmApi(
+  legacy_api.Api.dsm = DsmApi(
     baseUrl: baseUrl,
     deviceId: 'device',
     sid: 'sid',
