@@ -155,9 +155,6 @@ void main() async {
   Utils.vibrateWarning = SpUtil.getBool("vibrate_warning", defValue: true)!;
 
   Utils.checkSsl = SpUtil.getBool("check_ssl", defValue: true)!;
-  if (Platform.isAndroid) {
-    await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-  }
   runApp(
     MultiProvider(
       providers: [
