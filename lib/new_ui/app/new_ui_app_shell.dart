@@ -3,6 +3,8 @@ import 'package:dsm_helper/new_ui/shell/new_ui_primary_page.dart';
 import 'package:dsm_helper/new_ui/shell/new_ui_shell.dart';
 import 'package:flutter/material.dart';
 
+typedef NewUiLegacyHostWrapper = Widget Function(Widget child);
+
 class NewUiAppDestination {
   const NewUiAppDestination({
     required this.label,
@@ -38,10 +40,12 @@ class NewUiAppShell extends StatelessWidget {
     super.key,
     required this.notificationBuilder,
     required this.destinations,
+    this.legacyHostWrapper,
   }) : assert(destinations.length == 5);
 
   final WidgetBuilder notificationBuilder;
   final List<NewUiAppDestination> destinations;
+  final NewUiLegacyHostWrapper? legacyHostWrapper;
 
   void _pushLegacy(
     BuildContext context,
@@ -50,10 +54,13 @@ class NewUiAppShell extends StatelessWidget {
   }) {
     Navigator.of(context, rootNavigator: true).push(
       MaterialPageRoute<void>(
-        builder: (_) => LegacyPageHost(
-          builder: builder,
-          onBack: onBack,
-        ),
+        builder: (_) {
+          final host = LegacyPageHost(
+            builder: builder,
+            onBack: onBack,
+          );
+          return legacyHostWrapper?.call(host) ?? host;
+        },
       ),
     );
   }
