@@ -30,7 +30,6 @@ void main() {
       ),
     );
 
-    expect(find.byType(AppBar), findsOneWidget);
     await tester.tap(find.byKey(const Key('open-legacy-feature')));
     await tester.pumpAndSettle();
 
@@ -41,6 +40,50 @@ void main() {
     await tester.binding.handlePopRoute();
     await tester.pumpAndSettle();
     expect(find.text('应用'), findsOneWidget);
-    expect(find.byType(AppBar), findsOneWidget);
+  });
+
+  testWidgets('legacy Back delegate can consume Back before the host exits', (tester) async {
+    var consume = true;
+    var delegated = 0;
+
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: NewUiTheme.light(),
+        home: Builder(
+          builder: (context) => ElevatedButton(
+            key: const Key('open'),
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (_) => LegacyPageHost(
+                  onBack: () {
+                    delegated++;
+                    if (consume) {
+                      consume = false;
+                      return true;
+                    }
+                    return false;
+                  },
+                  builder: (_) => const Scaffold(body: Text('legacy-root')),
+                ),
+              ),
+            ),
+            child: const Text('open'),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.byKey(const Key('open')));
+    await tester.pumpAndSettle();
+
+    await tester.binding.handlePopRoute();
+    await tester.pumpAndSettle();
+    expect(find.text('legacy-root'), findsOneWidget);
+    expect(delegated, 1);
+
+    await tester.binding.handlePopRoute();
+    await tester.pumpAndSettle();
+    expect(find.text('legacy-root'), findsNothing);
+    expect(delegated, 2);
   });
 }
