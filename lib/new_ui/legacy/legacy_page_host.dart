@@ -13,12 +13,12 @@ class LegacyPageHost extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final brightness = Theme.of(context).brightness;
-    final legacyTheme = brightness == Brightness.dark
+    final theme = brightness == Brightness.dark
         ? legacy_dark.darkTheme
         : legacy_light.lightTheme;
 
     return Theme(
-      data: legacyTheme,
+      data: theme,
       child: Builder(builder: builder),
     );
   }

@@ -46,19 +46,21 @@ class StartupResolver {
     }
 
     final defaults = accounts
-        .where((account) =>
-            account.isDefault && knownServerIds.contains(account.serverId))
+        .where(
+          (account) =>
+              account.isDefault && knownServerIds.contains(account.serverId),
+        )
         .toList(growable: false);
 
     if (defaults.length != 1) {
       return const StartupResolution(target: StartupTarget.selectAccount);
     }
 
-    final selected = defaults.single;
+    final account = defaults.single;
     return StartupResolution(
       target: StartupTarget.shell,
-      accountId: selected.accountId,
-      serverId: selected.serverId,
+      accountId: account.accountId,
+      serverId: account.serverId,
     );
   }
 }

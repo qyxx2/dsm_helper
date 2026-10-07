@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 class NewUiThemeMode {
   const NewUiThemeMode._();
@@ -17,22 +16,105 @@ class NewUiThemeMode {
   }
 }
 
+@immutable
+class NewUiSemanticColors extends ThemeExtension<NewUiSemanticColors> {
+  const NewUiSemanticColors({
+    required this.success,
+    required this.successContainer,
+    required this.onSuccessContainer,
+    required this.warning,
+    required this.warningContainer,
+    required this.onWarningContainer,
+  });
+
+  final Color success;
+  final Color successContainer;
+  final Color onSuccessContainer;
+  final Color warning;
+  final Color warningContainer;
+  final Color onWarningContainer;
+
+  static const light = NewUiSemanticColors(
+    success: Color(0xFF247A4B),
+    successContainer: Color(0xFFD1F6DE),
+    onSuccessContainer: Color(0xFF0C3B22),
+    warning: Color(0xFF8A5A00),
+    warningContainer: Color(0xFFFFE0A3),
+    onWarningContainer: Color(0xFF3D2A00),
+  );
+
+  static const dark = NewUiSemanticColors(
+    success: Color(0xFF65D99A),
+    successContainer: Color(0xFF154F31),
+    onSuccessContainer: Color(0xFFB8F1CF),
+    warning: Color(0xFFF2C15C),
+    warningContainer: Color(0xFF624300),
+    onWarningContainer: Color(0xFFFFE0A3),
+  );
+
+  @override
+  NewUiSemanticColors copyWith({
+    Color? success,
+    Color? successContainer,
+    Color? onSuccessContainer,
+    Color? warning,
+    Color? warningContainer,
+    Color? onWarningContainer,
+  }) {
+    return NewUiSemanticColors(
+      success: success ?? this.success,
+      successContainer: successContainer ?? this.successContainer,
+      onSuccessContainer: onSuccessContainer ?? this.onSuccessContainer,
+      warning: warning ?? this.warning,
+      warningContainer: warningContainer ?? this.warningContainer,
+      onWarningContainer: onWarningContainer ?? this.onWarningContainer,
+    );
+  }
+
+  @override
+  NewUiSemanticColors lerp(
+    covariant ThemeExtension<NewUiSemanticColors>? other,
+    double t,
+  ) {
+    if (other is! NewUiSemanticColors) {
+      return this;
+    }
+    return NewUiSemanticColors(
+      success: Color.lerp(success, other.success, t)!,
+      successContainer: Color.lerp(successContainer, other.successContainer, t)!,
+      onSuccessContainer: Color.lerp(onSuccessContainer, other.onSuccessContainer, t)!,
+      warning: Color.lerp(warning, other.warning, t)!,
+      warningContainer: Color.lerp(warningContainer, other.warningContainer, t)!,
+      onWarningContainer: Color.lerp(onWarningContainer, other.onWarningContainer, t)!,
+    );
+  }
+}
+
 class NewUiTheme {
   const NewUiTheme._();
 
-  static ThemeData light() => _build(_lightScheme);
-  static ThemeData dark() => _build(_darkScheme);
+  static ThemeData light() => _build(
+        _lightScheme,
+        NewUiSemanticColors.light,
+      );
 
-  static ThemeData _build(ColorScheme scheme) {
-    final base = ThemeData(
-      useMaterial3: true,
-      brightness: scheme.brightness,
-      colorScheme: scheme,
-      scaffoldBackgroundColor: scheme.surface,
-      visualDensity: VisualDensity.standard,
-    );
+  static ThemeData dark() => _build(
+        _darkScheme,
+        NewUiSemanticColors.dark,
+      );
 
-    final textTheme = base.textTheme.copyWith(
+  static ThemeData fromColorScheme(ColorScheme scheme) {
+    final semantics = scheme.brightness == Brightness.dark
+        ? NewUiSemanticColors.dark
+        : NewUiSemanticColors.light;
+    return _build(scheme, semantics);
+  }
+
+  static ThemeData _build(
+    ColorScheme scheme,
+    NewUiSemanticColors semanticColors,
+  ) {
+    final textTheme = TextTheme(
       headlineSmall: TextStyle(
         fontSize: 22,
         fontWeight: FontWeight.w600,
@@ -53,6 +135,11 @@ class NewUiTheme {
         fontWeight: FontWeight.w500,
         color: scheme.onSurface,
       ),
+      bodyLarge: TextStyle(
+        fontSize: 14,
+        fontWeight: FontWeight.w400,
+        color: scheme.onSurface,
+      ),
       bodyMedium: TextStyle(
         fontSize: 14,
         fontWeight: FontWeight.w400,
@@ -66,7 +153,7 @@ class NewUiTheme {
       labelMedium: TextStyle(
         fontSize: 12,
         fontWeight: FontWeight.w500,
-        color: scheme.onSurface,
+        color: scheme.onSurfaceVariant,
       ),
       labelSmall: TextStyle(
         fontSize: 11,
@@ -75,10 +162,13 @@ class NewUiTheme {
       ),
     );
 
-    return base.copyWith(
+    return ThemeData(
+      useMaterial3: true,
+      brightness: scheme.brightness,
+      colorScheme: scheme,
+      scaffoldBackgroundColor: scheme.surface,
       textTheme: textTheme,
       appBarTheme: AppBarTheme(
-        toolbarHeight: 56,
         centerTitle: false,
         elevation: 0,
         scrolledUnderElevation: 1,
@@ -86,27 +176,29 @@ class NewUiTheme {
         foregroundColor: scheme.onSurface,
         surfaceTintColor: scheme.surfaceTint,
         titleTextStyle: textTheme.titleLarge,
-        systemOverlayStyle: scheme.brightness == Brightness.dark
-            ? SystemUiOverlayStyle.light
-            : SystemUiOverlayStyle.dark,
       ),
       navigationBarTheme: NavigationBarThemeData(
         height: 72,
+        elevation: 0,
         backgroundColor: scheme.surfaceContainer,
-        indicatorColor: scheme.secondaryContainer,
+        indicatorColor: scheme.primaryContainer,
         labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
-        labelTextStyle: WidgetStateProperty.resolveWith((states) {
-          return textTheme.labelMedium?.copyWith(
-            color: states.contains(WidgetState.selected)
-                ? scheme.onSecondaryContainer
-                : scheme.onSurfaceVariant,
-          );
-        }),
         iconTheme: WidgetStateProperty.resolveWith((states) {
           return IconThemeData(
             size: 24,
             color: states.contains(WidgetState.selected)
-                ? scheme.onSecondaryContainer
+                ? scheme.onPrimaryContainer
+                : scheme.onSurfaceVariant,
+          );
+        }),
+        labelTextStyle: WidgetStateProperty.resolveWith((states) {
+          return TextStyle(
+            fontSize: 12,
+            fontWeight: states.contains(WidgetState.selected)
+                ? FontWeight.w500
+                : FontWeight.w400,
+            color: states.contains(WidgetState.selected)
+                ? scheme.onSurface
                 : scheme.onSurfaceVariant,
           );
         }),
@@ -118,11 +210,10 @@ class NewUiTheme {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(14),
         ),
-        margin: EdgeInsets.zero,
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: scheme.surfaceContainerHighest,
+        fillColor: scheme.surfaceContainerLow,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
           borderSide: BorderSide.none,
@@ -133,7 +224,7 @@ class NewUiTheme {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide(color: scheme.primary),
+          borderSide: BorderSide(color: scheme.primary, width: 1.5),
         ),
       ),
       filledButtonTheme: FilledButtonThemeData(
@@ -153,33 +244,30 @@ class NewUiTheme {
         ),
       ),
       textButtonTheme: TextButtonThemeData(
-        style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
-      ),
-      dialogTheme: DialogTheme(
-        elevation: 3,
-        backgroundColor: scheme.surfaceContainerHigh,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
-      ),
-      bottomSheetTheme: BottomSheetThemeData(
-        elevation: 3,
-        backgroundColor: scheme.surfaceContainerHigh,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        style: TextButton.styleFrom(
+          minimumSize: const Size(48, 48),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
         ),
       ),
       snackBarTheme: const SnackBarThemeData(
         behavior: SnackBarBehavior.floating,
       ),
-      dividerTheme: DividerThemeData(
-        color: scheme.outlineVariant,
-        thickness: 1,
+      dialogTheme: DialogTheme(
+        elevation: 3,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
       ),
+      bottomSheetTheme: const BottomSheetThemeData(
+        showDragHandle: true,
+      ),
+      extensions: <ThemeExtension<dynamic>>[semanticColors],
     );
   }
 
-  static const ColorScheme _lightScheme = ColorScheme(
+  static const _lightScheme = ColorScheme(
     brightness: Brightness.light,
     primary: Color(0xFF00A6FF),
     onPrimary: Color(0xFF001E2B),
@@ -199,23 +287,22 @@ class NewUiTheme {
     onErrorContainer: Color(0xFF410E0B),
     surface: Color(0xFFF6F9FB),
     onSurface: Color(0xFF172126),
-    onSurfaceVariant: Color(0xFF44515A),
-    outline: Color(0xFF73818A),
-    outlineVariant: Color(0xFFC3CED5),
-    shadow: Color(0xFF000000),
-    scrim: Color(0xFF000000),
-    inverseSurface: Color(0xFF2C3134),
-    onInverseSurface: Color(0xFFF0F3F5),
-    inversePrimary: Color(0xFF6CC5FF),
-    surfaceTint: Color(0xFF00A6FF),
     surfaceContainerLowest: Color(0xFFFFFFFF),
     surfaceContainerLow: Color(0xFFF0F5F8),
     surfaceContainer: Color(0xFFEAF1F5),
     surfaceContainerHigh: Color(0xFFE4ECF1),
     surfaceContainerHighest: Color(0xFFDDE6EC),
+    onSurfaceVariant: Color(0xFF44515A),
+    outline: Color(0xFF73818A),
+    outlineVariant: Color(0xFFC3CED5),
+    inverseSurface: Color(0xFF2C3134),
+    onInverseSurface: Color(0xFFF0F3F5),
+    inversePrimary: Color(0xFF6CC5FF),
+    scrim: Color(0xFF000000),
+    surfaceTint: Color(0xFF00A6FF),
   );
 
-  static const ColorScheme _darkScheme = ColorScheme(
+  static const _darkScheme = ColorScheme(
     brightness: Brightness.dark,
     primary: Color(0xFF00A6FF),
     onPrimary: Color(0xFF001E2B),
@@ -235,19 +322,18 @@ class NewUiTheme {
     onErrorContainer: Color(0xFFF9DEDC),
     surface: Color(0xFF0F1418),
     onSurface: Color(0xFFE5EBEF),
-    onSurfaceVariant: Color(0xFFBCC8CF),
-    outline: Color(0xFF89979F),
-    outlineVariant: Color(0xFF3D4A52),
-    shadow: Color(0xFF000000),
-    scrim: Color(0xFF000000),
-    inverseSurface: Color(0xFFE5EBEF),
-    onInverseSurface: Color(0xFF263036),
-    inversePrimary: Color(0xFF006A9F),
-    surfaceTint: Color(0xFF00A6FF),
     surfaceContainerLowest: Color(0xFF0A0F12),
     surfaceContainerLow: Color(0xFF151B20),
     surfaceContainer: Color(0xFF1A2228),
     surfaceContainerHigh: Color(0xFF202A31),
     surfaceContainerHighest: Color(0xFF28343C),
+    onSurfaceVariant: Color(0xFFBCC8CF),
+    outline: Color(0xFF89979F),
+    outlineVariant: Color(0xFF3D4A52),
+    inverseSurface: Color(0xFFE5EBEF),
+    onInverseSurface: Color(0xFF263036),
+    inversePrimary: Color(0xFF006A9F),
+    scrim: Color(0xFF000000),
+    surfaceTint: Color(0xFF00A6FF),
   );
 }

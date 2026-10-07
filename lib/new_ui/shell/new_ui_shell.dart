@@ -1,7 +1,8 @@
+import 'dart:async';
+
+import 'package:dsm_helper/new_ui/shell/shell_back_policy.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
-import 'shell_back_policy.dart';
 
 class NewUiShellDestination {
   const NewUiShellDestination({
@@ -42,14 +43,15 @@ class NewUiShell extends StatefulWidget {
 }
 
 class NewUiShellState extends State<NewUiShell> {
-  int _currentIndex = 0;
   late final List<GlobalKey<NavigatorState>> _navigatorKeys =
       List.generate(widget.destinations.length, (_) => GlobalKey<NavigatorState>());
 
-  int get currentIndex => _currentIndex;
+  int _selectedIndex = 0;
+
+  int get selectedIndex => _selectedIndex;
 
   Future<bool> popCurrentTab() async {
-    final navigator = _navigatorKeys[_currentIndex].currentState;
+    final navigator = _navigatorKeys[_selectedIndex].currentState;
     if (navigator == null || !navigator.canPop()) {
       return false;
     }
@@ -63,74 +65,69 @@ class NewUiShellState extends State<NewUiShell> {
     }
     if (mounted) {
       setState(() {
-        _currentIndex = 0;
+        _selectedIndex = 0;
       });
     }
   }
 
-  Future<void> _handleBack() async {
-    final navigator = _navigatorKeys[_currentIndex].currentState;
+  Future<void> _handleBack(bool didPop) async {
+    if (didPop) {
+      return;
+    }
+
+    final navigator = _navigatorKeys[_selectedIndex].currentState;
     final action = ShellBackPolicy.resolve(
       currentTabCanPop: navigator?.canPop() ?? false,
     );
 
-    if (action == ShellBackAction.popCurrentTab) {
-      navigator?.pop();
-      return;
+    switch (action) {
+      case ShellBackAction.popCurrentTab:
+        navigator?.pop();
+      case ShellBackAction.exitSystem:
+        unawaited(SystemNavigator.pop());
     }
-
-    await SystemNavigator.pop();
-  }
-
-  Route<dynamic>? _routeFor(int index, RouteSettings settings) {
-    if (settings.name != Navigator.defaultRouteName) {
-      return null;
-    }
-    return MaterialPageRoute<void>(
-      settings: settings,
-      builder: widget.destinations[index].root,
-    );
   }
 
   @override
   Widget build(BuildContext context) {
     return PopScope(
       canPop: false,
-      onPopInvoked: (didPop) {
-        if (!didPop) {
-          _handleBack();
-        }
-      },
+      onPopInvoked: _handleBack,
       child: Scaffold(
         body: IndexedStack(
-          index: _currentIndex,
+          index: _selectedIndex,
           children: List.generate(widget.destinations.length, (index) {
+            final destination = widget.destinations[index];
             return Navigator(
               key: _navigatorKeys[index],
-              onGenerateRoute: (settings) => _routeFor(index, settings),
+              onGenerateRoute: (settings) {
+                return MaterialPageRoute<void>(
+                  settings: settings,
+                  builder: destination.root,
+                );
+              },
             );
           }),
         ),
         bottomNavigationBar: NavigationBar(
-          selectedIndex: _currentIndex,
+          selectedIndex: _selectedIndex,
           onDestinationSelected: (index) {
-            if (index == _currentIndex) {
-              _navigatorKeys[index]
-                  .currentState
-                  ?.popUntil((route) => route.isFirst);
+            if (index == _selectedIndex) {
               return;
             }
             setState(() {
-              _currentIndex = index;
+              _selectedIndex = index;
             });
           },
-          destinations: widget.destinations.map((destination) {
-            return NavigationDestination(
-              icon: Icon(destination.icon),
-              selectedIcon: Icon(destination.selectedIcon),
-              label: destination.label,
-            );
-          }).toList(growable: false),
+          destinations: widget.destinations
+              .map(
+                (destination) => NavigationDestination(
+                  icon: Icon(destination.icon),
+                  selectedIcon: Icon(destination.selectedIcon),
+                  label: destination.label,
+                ),
+              )
+              .toList(growable: false),
         ),
       ),
     );

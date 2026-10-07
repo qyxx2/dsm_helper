@@ -18,12 +18,14 @@ class ExternalIntentRouter {
   const ExternalIntentRouter._();
 
   static ExternalIntentDecision classify(List<String> paths) {
-    final normalized = paths.where((path) => path.isNotEmpty).toList(growable: false);
+    final normalized = paths
+        .where((path) => path.trim().isNotEmpty)
+        .toList(growable: false);
 
     if (normalized.isEmpty) {
       return const ExternalIntentDecision(
         kind: ExternalIntentKind.none,
-        paths: [],
+        paths: <String>[],
       );
     }
 
@@ -43,13 +45,14 @@ class ExternalIntentRouter {
 }
 
 class ExternalIntentDeduplicator {
-  final Set<String> _handled = <String>{};
+  final Set<String> _handledPayloads = <String>{};
 
   bool shouldHandle(List<String> paths) {
-    if (paths.isEmpty) {
+    final key = paths.join('\u0000');
+    if (key.isEmpty || _handledPayloads.contains(key)) {
       return false;
     }
-    final key = paths.join('\u0000');
-    return _handled.add(key);
+    _handledPayloads.add(key);
+    return true;
   }
 }

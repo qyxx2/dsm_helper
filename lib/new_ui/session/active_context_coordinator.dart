@@ -1,13 +1,10 @@
-import 'package:dsm_helper/apis/api.dart';
-import 'package:dsm_helper/apis/dsm_api/dsm_api.dart';
-import 'package:dsm_helper/models/Syno/Core/NormalUser.dart';
-import 'package:dsm_helper/models/api_model.dart';
+import 'package:dsm_helper/apis/dsm_api/dsm_exception.dart';
 
 enum ActiveContextStatus {
   authenticated,
   offline,
   reauthNeeded,
-  error,
+  failed,
 }
 
 class ActiveContextRequest {
@@ -28,45 +25,30 @@ class ActiveContextResult {
   const ActiveContextResult({
     required this.contextId,
     required this.status,
+    this.error,
   });
 
   final String contextId;
   final ActiveContextStatus status;
+  final Object? error;
 }
 
+typedef ActiveContextClear = void Function();
+typedef ActiveContextBind = void Function(ActiveContextRequest request);
+typedef ActiveContextAsyncAction = Future<void> Function();
+
 class ActiveContextCoordinator {
-  ActiveContextCoordinator({
+  const ActiveContextCoordinator({
     required this.clearCapabilities,
     required this.bindTransport,
     required this.discoverCapabilities,
     required this.probeSession,
   });
 
-  factory ActiveContextCoordinator.legacy() {
-    return ActiveContextCoordinator(
-      clearCapabilities: () {
-        ApiModel.apiInfo = <String, ApiModel>{};
-      },
-      bindTransport: (request) {
-        Api.dsm = DsmApi(
-          baseUrl: request.baseUrl,
-          deviceId: request.deviceId,
-          sid: request.sid,
-        );
-      },
-      discoverCapabilities: () async {
-        ApiModel.apiInfo = await ApiModel.info();
-      },
-      probeSession: () async {
-        await NormalUser.get();
-      },
-    );
-  }
-
-  final void Function() clearCapabilities;
-  final void Function(ActiveContextRequest request) bindTransport;
-  final Future<void> Function() discoverCapabilities;
-  final Future<void> Function() probeSession;
+  final ActiveContextClear clearCapabilities;
+  final ActiveContextBind bindTransport;
+  final ActiveContextAsyncAction discoverCapabilities;
+  final ActiveContextAsyncAction probeSession;
 
   Future<ActiveContextResult> activate(ActiveContextRequest request) async {
     clearCapabilities();
@@ -80,16 +62,23 @@ class ActiveContextCoordinator {
         status: ActiveContextStatus.authenticated,
       );
     } on DsmException catch (error) {
+      if (error.code == 119) {
+        return ActiveContextResult(
+          contextId: request.contextId,
+          status: ActiveContextStatus.reauthNeeded,
+          error: error,
+        );
+      }
       return ActiveContextResult(
         contextId: request.contextId,
-        status: error.code == 119
-            ? ActiveContextStatus.reauthNeeded
-            : ActiveContextStatus.error,
+        status: ActiveContextStatus.failed,
+        error: error,
       );
-    } catch (_) {
+    } catch (error) {
       return ActiveContextResult(
         contextId: request.contextId,
         status: ActiveContextStatus.offline,
+        error: error,
       );
     }
   }

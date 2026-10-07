@@ -6,7 +6,9 @@ enum ShellBackAction {
 class ShellBackPolicy {
   const ShellBackPolicy._();
 
-  static ShellBackAction resolve({required bool currentTabCanPop}) {
+  static ShellBackAction resolve({
+    required bool currentTabCanPop,
+  }) {
     return currentTabCanPop
         ? ShellBackAction.popCurrentTab
         : ShellBackAction.exitSystem;
