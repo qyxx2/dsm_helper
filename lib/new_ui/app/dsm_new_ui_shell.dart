@@ -37,9 +37,13 @@ class DsmNewUiShell extends StatefulWidget {
   const DsmNewUiShell({
     super.key,
     this.initialContextStatus = ActiveContextStatus.authenticated,
+    this.contextId,
+    this.legacyBootstrap,
   });
 
   final ActiveContextStatus initialContextStatus;
+  final String? contextId;
+  final LegacySharedBootstrap? legacyBootstrap;
 
   @override
   State<DsmNewUiShell> createState() => _DsmNewUiShellState();
@@ -165,7 +169,9 @@ class _DsmNewUiShellState extends State<DsmNewUiShell> {
       value: NewUiSystemBars.forBrightness(theme.brightness),
       child: Theme(
         data: theme,
-        child: MultiProvider(
+        child: KeyedSubtree(
+          key: ValueKey(widget.contextId ?? 'legacy-current-context'),
+          child: MultiProvider(
           providers: [
             ChangeNotifierProvider(create: (_) => SystemInfoProvider()),
             ChangeNotifierProvider(create: (_) => InitDataProvider()),
@@ -175,6 +181,7 @@ class _DsmNewUiShellState extends State<DsmNewUiShell> {
             ChangeNotifierProvider(create: (_) => BackgroundTaskProvider()),
           ],
           child: LegacySharedBootstrapBoundary(
+            bootstrap: widget.legacyBootstrap ?? LegacySharedBootstrap(),
             enabled: widget.initialContextStatus ==
                 ActiveContextStatus.authenticated,
             child: Builder(
@@ -229,6 +236,7 @@ class _DsmNewUiShellState extends State<DsmNewUiShell> {
                 );
               },
             ),
+          ),
           ),
         ),
       ),
