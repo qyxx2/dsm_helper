@@ -883,16 +883,40 @@ Task 0 acceptance record:
 docs/modern-ui/acceptance/2026-10-06-task-0-foundation-acceptance.md
 ```
 
+### Completed
+
+Task 1 — Project Specification + Legacy Interface / Protocol Freeze is complete.
+
+Task 1 acceptance record:
+```text
+docs/modern-ui/acceptance/2026-10-07-task-1-spec-contracts-acceptance.md
+```
+
+Task 1 authoritative outputs:
+```text
+docs/modern-ui/specs/2026-10-07-dsm-helper-modern-ui-spec.md
+docs/modern-ui/contracts/2026-10-07-global-interface-protocol-inventory.md
+docs/modern-ui/contracts/2026-10-07-global-contract-matrix.md
+```
+
+Task 1 Exit Gate:
+- Project Specification approved.
+- Global interface/protocol inventory complete.
+- Global Contract Matrix complete.
+- UI/legacy theme and fallback isolation boundary frozen.
+- No unresolved Contract Gap blocks Task 2 or Task 3.
+- No production code was changed by Task 1 completion work.
+
 ### Active
 
 ```text
-No implementation Task is active after Task 0 merge.
+No implementation Task is active.
 ```
 
 ### Next
 
 ```text
-Task 1 — Project Specification + Legacy Interface / Protocol Freeze
+Task 2 — Visual Design Specification
 ```
 
-Task 1 must not begin implementation work before the Task 0 branch is merged into `modern-ui`.
+Task 2 is unblocked by the completed Task 1 Exit Gate but has not started.
