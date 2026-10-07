@@ -90,10 +90,8 @@ void main() {
       expect(find.text(label), findsOneWidget);
     }
   });
-}
 
-
-testWidgets('context switch reset returns every tab to root and selects overview', (tester) async {
+  testWidgets('context switch reset returns every tab to root and selects overview', (tester) async {
   final key = GlobalKey<NewUiShellState>();
   await tester.pumpWidget(
     MaterialApp(
@@ -125,4 +123,5 @@ testWidgets('context switch reset returns every tab to root and selects overview
   await tester.tap(find.text('文件'));
   await tester.pumpAndSettle();
   expect(find.text('root-files'), findsOneWidget);
-});
+  });
+}
