@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:cool_ui/cool_ui.dart';
 import 'package:dsm_helper/new_ui/app/modern_ui_root.dart';
 import 'package:dsm_helper/new_ui/app/modern_ui_shell_entry.dart';
+import 'package:dsm_helper/new_ui/theme/new_ui_theme.dart';
 import 'package:dsm_helper/pages/control_panel/control_panel.dart';
 import 'package:dsm_helper/pages/docker/docker.dart';
 import 'package:dsm_helper/pages/download_station/download_station.dart';
@@ -154,6 +155,9 @@ void main() async {
   Utils.vibrateWarning = SpUtil.getBool("vibrate_warning", defValue: true)!;
 
   Utils.checkSsl = SpUtil.getBool("check_ssl", defValue: true)!;
+  if (Platform.isAndroid) {
+    await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+  }
   runApp(
     MultiProvider(
       providers: [
@@ -221,7 +225,7 @@ class _DsmHelperState extends State<DsmHelper> {
               home: ModernUiRoot(initialAuthRequired: widget.authPage),
               theme: lightTheme,
               darkTheme: darkTheme,
-              themeMode: ThemeMode.system,
+              themeMode: NewUiThemeMode.fromLegacyValue(darkModeProvider.darkMode),
               // home: widget.authPage
               //     ? AuthPage(
               //         launchAccountPage: widget.launchAccountPage,
