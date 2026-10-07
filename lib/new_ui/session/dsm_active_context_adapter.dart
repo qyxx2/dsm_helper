@@ -3,6 +3,7 @@ import 'package:dsm_helper/apis/dsm_api/dsm_api.dart';
 import 'package:dsm_helper/models/Syno/Core/NormalUser.dart';
 import 'package:dsm_helper/models/api_model.dart';
 import 'package:dsm_helper/new_ui/session/active_context_coordinator.dart';
+import 'package:dsm_helper/new_ui/session/legacy_session_bridge.dart';
 
 class DsmActiveContextAdapter {
   DsmActiveContextAdapter()
@@ -11,6 +12,7 @@ class DsmActiveContextAdapter {
             ApiModel.apiInfo = <String, ApiModel>{};
           },
           bindTransport: (request) {
+            LegacySessionBridge.bind(request);
             Api.dsm = DsmApi(
               baseUrl: request.baseUrl,
               deviceId: request.deviceId,
