@@ -131,6 +131,9 @@ class _DsmNewUiShellState extends State<DsmNewUiShell> {
     final darkMode = context.watch<DarkModeProvider>().darkMode;
 
     final theme = _themeFor(context, darkMode);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      unawaited(NewUiSystemBars.apply(theme.brightness));
+    });
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: NewUiSystemBars.forBrightness(theme.brightness),
