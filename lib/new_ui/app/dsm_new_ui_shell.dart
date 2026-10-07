@@ -7,6 +7,7 @@ import 'package:dsm_helper/new_ui/intents/external_intent_router.dart';
 import 'package:dsm_helper/new_ui/intents/flutter_sharing_intent_source.dart';
 import 'package:dsm_helper/new_ui/legacy/legacy_page_host.dart';
 import 'package:dsm_helper/new_ui/notifications/legacy_notification_entry.dart';
+import 'package:dsm_helper/new_ui/session/active_context_coordinator.dart';
 import 'package:dsm_helper/new_ui/session/dsm_provider_scope.dart';
 import 'package:dsm_helper/new_ui/system/new_ui_system_bars.dart';
 import 'package:dsm_helper/new_ui/theme/new_ui_theme.dart';
@@ -32,7 +33,12 @@ import 'package:provider/provider.dart';
 import 'package:sp_util/sp_util.dart';
 
 class DsmNewUiShell extends StatefulWidget {
-  const DsmNewUiShell({super.key});
+  const DsmNewUiShell({
+    super.key,
+    this.initialContextStatus = ActiveContextStatus.authenticated,
+  });
+
+  final ActiveContextStatus initialContextStatus;
 
   @override
   State<DsmNewUiShell> createState() => _DsmNewUiShellState();
@@ -70,6 +76,19 @@ class _DsmNewUiShellState extends State<DsmNewUiShell> {
         return MediaQuery.of(context).platformBrightness == Brightness.dark
             ? NewUiTheme.dark()
             : NewUiTheme.light();
+    }
+  }
+
+  String? get _connectionStatusText {
+    switch (widget.initialContextStatus) {
+      case ActiveContextStatus.authenticated:
+        return null;
+      case ActiveContextStatus.offline:
+        return '离线';
+      case ActiveContextStatus.reauthNeeded:
+        return '需要重新登录';
+      case ActiveContextStatus.failed:
+        return '连接异常';
     }
   }
 
@@ -167,6 +186,7 @@ class _DsmNewUiShellState extends State<DsmNewUiShell> {
                 },
                 child: NewUiAppShell(
                   legacyHostWrapper: providerScope.wrap,
+                  connectionStatusText: _connectionStatusText,
                   notificationBuilder: (_) => const LegacyNotificationEntry(),
                   destinations: [
                     NewUiAppDestination(

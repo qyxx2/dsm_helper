@@ -41,11 +41,13 @@ class NewUiAppShell extends StatelessWidget {
     required this.notificationBuilder,
     required this.destinations,
     this.legacyHostWrapper,
+    this.connectionStatusText,
   }) : assert(destinations.length == 5);
 
   final WidgetBuilder notificationBuilder;
   final List<NewUiAppDestination> destinations;
   final NewUiLegacyHostWrapper? legacyHostWrapper;
+  final String? connectionStatusText;
 
   void _pushLegacy(
     BuildContext context,
@@ -76,6 +78,7 @@ class NewUiAppShell extends StatelessWidget {
           root: (tabContext) {
             return NewUiPrimaryPage(
               title: destination.label,
+              connectionStatusText: connectionStatusText,
               onOpenNotifications: () {
                 _pushLegacy(tabContext, notificationBuilder);
               },

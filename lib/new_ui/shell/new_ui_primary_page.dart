@@ -7,21 +7,40 @@ class NewUiPrimaryPage extends StatelessWidget {
     required this.onOpenNotifications,
     required this.onOpenLegacyFeature,
     this.legacyFeatureLabel = '打开现有功能',
+    this.connectionStatusText,
   });
 
   final String title;
   final VoidCallback onOpenNotifications;
   final VoidCallback onOpenLegacyFeature;
   final String legacyFeatureLabel;
+  final String? connectionStatusText;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          title,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
+        title: Row(
+          children: [
+            Flexible(
+              child: Text(
+                title,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            if (connectionStatusText case final status?) ...[
+              const SizedBox(width: 8),
+              Text(
+                status,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+              ),
+            ],
+          ],
         ),
         actions: [
           IconButton(

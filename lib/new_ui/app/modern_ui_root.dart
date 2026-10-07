@@ -54,7 +54,9 @@ class _ModernUiRootState extends State<ModernUiRoot> {
         activateContext: _contextAdapter.activate,
         addServerBuilder: (_) => AddServer(),
         selectAccountBuilder: (_) => const SelectServer(),
-        shellBuilder: (_, __) => const DsmNewUiShell(),
+        shellBuilder: (_, result) => DsmNewUiShell(
+          initialContextStatus: result.status,
+        ),
       ),
     );
   }
