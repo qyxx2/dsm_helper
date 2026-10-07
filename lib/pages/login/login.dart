@@ -6,7 +6,9 @@ import 'package:dsm_helper/database/table_extension.dart';
 import 'package:dsm_helper/database/tables.dart';
 import 'package:dsm_helper/models/Syno/Api/auth.dart';
 import 'package:dsm_helper/models/Syno/SDS/Session/SessionData.dart';
-import 'package:dsm_helper/pages/home.dart';
+import 'package:dsm_helper/new_ui/session/active_context_coordinator.dart';
+import 'package:dsm_helper/new_ui/session/active_context_mapping.dart';
+import 'package:dsm_helper/new_ui/shell/new_ui_shell.dart';
 import 'package:dsm_helper/pages/login/dialogs/otp_code_dialog.dart';
 import 'package:dsm_helper/pages/server/select_server.dart';
 import 'package:dsm_helper/themes/app_theme.dart';
@@ -80,23 +82,39 @@ class _LoginState extends State<Login> {
       setState(() {
         loading = false;
       });
-      await DbUtils.db.into(DbUtils.db.accounts).insertReturning(
-            AccountsCompanion.insert(
-              account: account,
-              serverId: widget.server.id,
-              password: password,
-              remark: "",
-              createTime: DateTime.now().secondsSinceEpoch,
-              lastLoginTime: DateTime.now().secondsSinceEpoch,
-              isDefault: isDefault,
-              deviceId: authModel.deviceId!,
-              ikMessage: authModel.ikMessage!,
-              sid: authModel.sid!,
-              synoToken: authModel.synotoken!,
-            ),
-          );
-      Api.dsm = DsmApi(baseUrl: widget.server.url, deviceId: authModel.deviceId!, sid: authModel.sid!);
-      context.push(Home(), replace: true);
+      final savedAccount =
+          await DbUtils.db.into(DbUtils.db.accounts).insertReturning(
+                AccountsCompanion.insert(
+                  account: account,
+                  serverId: widget.server.id,
+                  password: password,
+                  remark: "",
+                  createTime: DateTime.now().secondsSinceEpoch,
+                  lastLoginTime: DateTime.now().secondsSinceEpoch,
+                  isDefault: isDefault,
+                  deviceId: authModel.deviceId!,
+                  ikMessage: authModel.ikMessage!,
+                  sid: authModel.sid!,
+                  synoToken: authModel.synotoken!,
+                ),
+              );
+      final target =
+          ActiveContextMapping.savedAccount(widget.server, savedAccount);
+      final result = await ActiveContextCoordinator().restore(target);
+      if (!mounted) {
+        return;
+      }
+      if (result.status == ActiveContextStatus.reauthenticationRequired) {
+        setState(() {
+          loading = false;
+        });
+        Utils.toast("登录状态无效，请重新登录");
+        return;
+      }
+      context.push(
+        NewUiShell(contextLabel: target.label),
+        replace: true,
+      );
     } on DsmException catch (e) {
       if (e.code == 400) {
         setState(() {

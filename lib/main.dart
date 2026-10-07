@@ -5,7 +5,8 @@ import 'package:cool_ui/cool_ui.dart';
 import 'package:dsm_helper/pages/control_panel/control_panel.dart';
 import 'package:dsm_helper/pages/docker/docker.dart';
 import 'package:dsm_helper/pages/download_station/download_station.dart';
-import 'package:dsm_helper/pages/home.dart';
+import 'package:dsm_helper/new_ui/shell/new_ui_shell.dart';
+import 'package:dsm_helper/new_ui/theme/new_ui_theme.dart';
 import 'package:dsm_helper/pages/moments/moments.dart';
 import 'package:dsm_helper/pages/packages/packages.dart';
 import 'package:dsm_helper/pages/photos/photos.dart';
@@ -218,10 +219,10 @@ class _DsmHelperState extends State<DsmHelper> {
               supportedLocales: [
                 const Locale('zh', 'CN'),
               ],
-              home: Splash(),
+              home: Splash(launcherSelectionEnabled: widget.launchAccountPage),
               theme: lightTheme,
               darkTheme: darkTheme,
-              themeMode: ThemeMode.system,
+              themeMode: NewUiTheme.resolveMode(darkModeProvider.darkMode),
               // home: widget.authPage
               //     ? AuthPage(
               //         launchAccountPage: widget.launchAccountPage,
@@ -230,7 +231,7 @@ class _DsmHelperState extends State<DsmHelper> {
               //         ? Accounts()
               //         : Login(),
               routes: {
-                "/home": (BuildContext context) => Home(),
+                "/home": (BuildContext context) => const NewUiShell(),
                 "/control_panel": (BuildContext context) => ControlPanel(),
                 "/package_center": (BuildContext context) => Packages(),
                 "/resource_monitor": (BuildContext context) => ResourceMonitor(),

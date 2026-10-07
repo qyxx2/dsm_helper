@@ -6,9 +6,10 @@ import 'package:dsm_helper/apis/dsm_api/dsm_api.dart';
 import 'package:dsm_helper/database/table_extension.dart';
 import 'package:dsm_helper/database/tables.dart';
 import 'package:dsm_helper/models/Syno/Api/auth.dart';
-import 'package:dsm_helper/models/Syno/Core/NormalUser.dart';
 import 'package:dsm_helper/models/api_model.dart';
-import 'package:dsm_helper/pages/home.dart';
+import 'package:dsm_helper/new_ui/session/active_context_coordinator.dart';
+import 'package:dsm_helper/new_ui/session/active_context_mapping.dart';
+import 'package:dsm_helper/new_ui/shell/new_ui_shell.dart';
 import 'package:dsm_helper/pages/login/dialogs/otp_code_dialog.dart';
 import 'package:dsm_helper/pages/login/login.dart';
 import 'package:dsm_helper/pages/server/add_server.dart';
@@ -562,12 +563,28 @@ class _SelectServerState extends State<SelectServer> {
     var hide = showWeuiLoadingToast(context: context);
     try {
       Auth authModel = await Auth.login(account: account.account, password: account.password);
-      DbUtils.db.updateAccount(account.copyWith(
+      final updatedAccount = account.copyWith(
         sid: authModel.sid!,
-      ));
-      Api.dsm = DsmApi(baseUrl: server.url, deviceId: account.deviceId, sid: authModel.sid);
+      );
+      await DbUtils.db.updateAccount(updatedAccount);
+      final target = ActiveContextMapping.savedAccount(
+        server,
+        updatedAccount,
+        sid: authModel.sid,
+      );
+      final result = await ActiveContextCoordinator().restore(target);
       hide();
-      context.push(Home(), replace: true);
+      if (!mounted) {
+        return;
+      }
+      if (result.status == ActiveContextStatus.reauthenticationRequired) {
+        Utils.toast("登录状态无效，请重新登录");
+        return;
+      }
+      context.push(
+        NewUiShell(contextLabel: target.label),
+        replace: true,
+      );
     } on DsmException catch (e) {
       hide();
       if (e.code == 400) {
@@ -596,18 +613,20 @@ class _SelectServerState extends State<SelectServer> {
       behavior: HitTestBehavior.opaque,
       onTap: () async {
         var hide = showWeuiLoadingToast(context: context);
-        Api.dsm = DsmApi(baseUrl: server.url, deviceId: account.deviceId, sid: account.sid);
-        ApiModel.apiInfo = await ApiModel.info();
-        try {
-          await NormalUser.get();
-          hide();
-          context.push(Home(), replace: true);
-        } on DsmException catch (e) {
-          hide();
-          if (e.code == 119) {
-            login(account, server);
-          }
+        final target = ActiveContextMapping.savedAccount(server, account);
+        final result = await ActiveContextCoordinator().restore(target);
+        hide();
+        if (!mounted) {
+          return;
         }
+        if (result.status == ActiveContextStatus.reauthenticationRequired) {
+          login(account, server);
+          return;
+        }
+        context.push(
+          NewUiShell(contextLabel: target.label),
+          replace: true,
+        );
       },
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
