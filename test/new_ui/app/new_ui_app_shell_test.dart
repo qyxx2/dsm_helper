@@ -111,4 +111,24 @@ void main() {
     final navigationBar = tester.widget<NavigationBar>(find.byType(NavigationBar));
     expect(navigationBar.selectedIndex, 2);
   });
+  testWidgets('connection status propagates to every primary tab without healthy-state noise', (tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: NewUiTheme.light(),
+        home: NewUiAppShell(
+          connectionStatusText: '离线',
+          notificationBuilder: (_) => _legacy('notifications'),
+          destinations: _destinations(),
+        ),
+      ),
+    );
+
+    expect(find.text('离线'), findsOneWidget);
+
+    await tester.tap(find.text('任务'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('离线'), findsOneWidget);
+    expect(find.byKey(const Key('new-ui-notifications')), findsOneWidget);
+  });
 }

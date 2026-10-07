@@ -62,4 +62,10 @@ void main() {
       expect(root, contains(token), reason: 'missing startup wiring: $token');
     }
   });
+  test('cold-start activation result is forwarded into the concrete shell', () {
+    final root = _read('lib/new_ui/app/modern_ui_root.dart');
+
+    expect(root, contains('shellBuilder: (_, result)'));
+    expect(root, contains('initialContextStatus: result.status'));
+  });
 }

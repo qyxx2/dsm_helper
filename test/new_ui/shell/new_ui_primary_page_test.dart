@@ -48,4 +48,21 @@ void main() {
     expect(find.text('概览'), findsOneWidget);
     expect(find.byKey(const Key('open-legacy-feature')), findsOneWidget);
   });
+  testWidgets('abnormal connection status is visible without removing global notification', (tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: NewUiTheme.light(),
+        home: NewUiPrimaryPage(
+          title: '概览',
+          connectionStatusText: '离线',
+          onOpenNotifications: () {},
+          onOpenLegacyFeature: () {},
+        ),
+      ),
+    );
+
+    expect(find.text('概览'), findsOneWidget);
+    expect(find.text('离线'), findsOneWidget);
+    expect(find.byKey(const Key('new-ui-notifications')), findsOneWidget);
+  });
 }
