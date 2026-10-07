@@ -5,7 +5,17 @@ class LegacySessionBridge {
   const LegacySessionBridge._();
 
   static void bind(ActiveContextRequest request) {
-    Utils.baseUrl = request.baseUrl;
-    Utils.sid = request.sid;
+    bindValues(
+      baseUrl: request.baseUrl,
+      sid: request.sid,
+    );
+  }
+
+  static void bindValues({
+    required String baseUrl,
+    required String? sid,
+  }) {
+    Utils.baseUrl = baseUrl;
+    Utils.sid = sid ?? '';
   }
 }
