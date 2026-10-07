@@ -74,6 +74,8 @@ Legacy visuals remain valid only inside the legacy fallback boundary.
 
 ### 3.2 Brand and color-source policy
 
+Theme modes are System / Light / Dark, with System as the default. Theme mode and color source are independent settings.
+
 DSM Helper default brand/accent seed is:
 
 `#00A6FF`
@@ -213,17 +215,18 @@ Chinese-first UI uses the platform/system font stack. No custom font dependency 
 
 | Token | Size | Weight / use |
 |---|---:|---|
-| appBarTitle | 20sp | medium/semibold as appropriate |
-| pageTitle | 22sp | semibold; use only when a page genuinely needs a page-level title below the App Bar |
+| appBarTitle | 20sp | 500 |
+| pageTitle | 22sp | 600; use only when a page genuinely needs a page-level title below the App Bar |
 | sectionTitle | 16sp | 600 |
-| listTitle | 15sp | 400–500 |
-| body | 14sp | regular |
-| formValue | 14sp | regular |
-| metadata | 12sp | regular |
-| badge | 11–12sp | medium; short labels only |
-| metricSmall | 20sp | medium/semibold |
-| metricMedium | 24sp | medium/semibold |
-| metricLarge | 28sp | semibold; maximum default metric emphasis |
+| listTitle | 15sp | 500 |
+| body | 14sp | 400 |
+| formValue | 14sp | 400 |
+| metadata | 12sp | 400 |
+| badge | 12sp | 500; short labels only |
+| captionCompact | 11sp | 400; non-interactive tertiary/chart labels only |
+| metricSmall | 20sp | 600 |
+| metricMedium | 24sp | 600 |
+| metricLarge | 28sp | 600; maximum default metric emphasis |
 
 There is no global oversized hero typography.
 
@@ -269,8 +272,8 @@ Default mappings:
 
 - small status container / compact highlight: 6dp;
 - Button and TextField: 10dp;
-- Card: 12–14dp;
-- Dialog and modal Bottom Sheet top corners: approximately 20dp.
+- Card: 14dp;
+- Dialog and modal Bottom Sheet top corners: 20dp.
 
 Pill / fully rounded shapes are reserved for components whose semantics justify them, such as badge, chip, segmented selection, or a Material indicator. Ordinary Cards do not become pills.
 
@@ -322,6 +325,7 @@ Default New UI Top App Bar:
 - body height: 56dp, excluding the actual status-bar inset;
 - title: 20sp;
 - title alignment: left;
+- normal App Bar titles are one line with ellipsis when space is exhausted; a feature needing a longer readable heading places that heading in page content rather than increasing the global App Bar height;
 - icon size: 24dp;
 - each action hit target: at least 48×48dp;
 - elevation at rest: 0dp;
@@ -345,7 +349,7 @@ Primary navigation contains the five Task 1 destinations and always shows icon +
 
 Baseline:
 
-- body height: approximately 72dp, excluding only real system UI insets that cannot safely contain app interactions;
+- body height: 72dp baseline, excluding only real system UI insets that cannot safely contain app interactions; it may grow when system font scaling requires it;
 - icon: 24dp;
 - label: 12sp;
 - equal destination widths;
@@ -402,7 +406,7 @@ Cards are reserved for meaningful grouped hierarchy, including:
 
 Default:
 
-- radius: 12–14dp;
+- radius: 14dp;
 - elevation: 0–1dp;
 - internal padding: 16dp;
 - compact approved Card variant: 12dp internal padding;
@@ -453,7 +457,7 @@ Default field style is filled tonal Material 3.
 Baseline:
 
 - radius: 10dp;
-- normal minimum interactive height: approximately 52dp;
+- normal minimum interactive height: 52dp baseline, growing with multiline/helper/error content;
 - field-to-field gap: 12–16dp;
 - multiline fields grow naturally;
 - focus uses primary emphasis;
@@ -664,9 +668,15 @@ Color is never the only status carrier.
 
 ### 5.7 Progress and capacity
 
-Default progress/capacity bar thickness:
+Default thickness:
 
-- approximately 4–6dp.
+- generic linear progress: 4dp;
+- capacity/usage bar: 6dp.
+
+Circular progress baseline:
+
+- inline/control progress: 20–24dp visual size inside a compliant hit/layout region;
+- section/page loading progress: 32dp visual size when a larger indicator is needed.
 
 Rules:
 
@@ -937,6 +947,7 @@ If a feature genuinely cannot satisfy its content requirements with these rules,
 | NavigationBar | ~72dp body |
 | Navigation icon | 24dp |
 | Navigation label | 12sp, always visible |
+| Card radius | 14dp |
 | Card padding | 16dp; compact variant 12dp |
 | Card elevation | 0–1dp |
 | Button minimum height | 48dp |
@@ -944,7 +955,7 @@ If a feature genuinely cannot satisfy its content requirements with these rules,
 | TextField style | filled tonal |
 | Chart line | 1.5–2dp |
 | Inline chart height | ~140–180dp |
-| Progress/capacity thickness | ~4–6dp |
+| Linear progress / capacity bar | 4dp / 6dp |
 | Snackbar | floating, 16dp side margin |
 | Motion | 100–150 / 180–220 / 220–280ms |
 
