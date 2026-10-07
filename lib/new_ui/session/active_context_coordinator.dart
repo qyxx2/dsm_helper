@@ -1,6 +1,5 @@
 import 'package:dsm_helper/apis/api.dart';
 import 'package:dsm_helper/apis/dsm_api/dsm_api.dart';
-import 'package:dsm_helper/apis/dsm_api/dsm_exception.dart';
 import 'package:dsm_helper/models/Syno/Core/NormalUser.dart';
 import 'package:dsm_helper/models/api_model.dart';
 
