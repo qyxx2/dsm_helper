@@ -53,6 +53,7 @@ class _NewUiShellState extends State<NewUiShell>
   PrimaryDestination _currentDestination = PrimaryDestination.overview;
   ExternalIntentController? _intentController;
   bool _authGateVisible = false;
+  bool _authGateArmed = false;
 
   GlobalKey<NavigatorState> get _currentNavigatorKey =>
       _navigatorKeys[_currentDestination]!;
@@ -76,6 +77,13 @@ class _NewUiShellState extends State<NewUiShell>
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.paused) {
+      _authGateArmed =
+          widget.launchAuthEnabled?.call() ?? LaunchAuthGate.isEnabled();
+      return;
+    }
+
+    if (state == AppLifecycleState.resumed && _authGateArmed) {
+      _authGateArmed = false;
       _showLaunchAuthGateIfNeeded();
     }
   }

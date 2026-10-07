@@ -138,7 +138,12 @@ void main() {
     );
 
     for (final destination in PrimaryDestination.values) {
-      await tester.tap(find.text(destination.label));
+      await tester.tap(
+        find.descendant(
+          of: find.byType(NavigationBar),
+          matching: find.text(destination.label),
+        ),
+      );
       await tester.pumpAndSettle();
       await tester.tap(find.byKey(const ValueKey('new-ui-notifications')));
       await tester.pumpAndSettle();

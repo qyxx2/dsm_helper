@@ -41,11 +41,12 @@ void main() {
     expect(find.text('nested-before-background'), findsOneWidget);
 
     tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
-    await tester.pumpAndSettle();
-    expect(find.text('unlock-test-gate'), findsOneWidget);
+    await tester.pump();
 
     tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
     await tester.pumpAndSettle();
+    expect(find.text('unlock-test-gate'), findsOneWidget);
+
     await tester.tap(find.text('unlock-test-gate'));
     await tester.pumpAndSettle();
 
