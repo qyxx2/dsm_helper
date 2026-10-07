@@ -101,9 +101,9 @@ class _DsmNewUiShellState extends State<DsmNewUiShell> {
           }
           await Navigator.of(context, rootNavigator: true).push<void>(
             MaterialPageRoute<void>(
-              builder: (_) => LegacyPageHost(
-                builder: (_) => providerScope.wrap(
-                  AddDownloadTask(torrentPath: path),
+              builder: (_) => providerScope.wrap(
+                LegacyPageHost(
+                  builder: (_) => AddDownloadTask(torrentPath: path),
                 ),
               ),
             ),
@@ -111,9 +111,9 @@ class _DsmNewUiShellState extends State<DsmNewUiShell> {
         case ExternalIntentKind.upload:
           await Navigator.of(context, rootNavigator: true).push<void>(
             MaterialPageRoute<void>(
-              builder: (_) => LegacyPageHost(
-                builder: (_) => providerScope.wrap(
-                  Upload(
+              builder: (_) => providerScope.wrap(
+                LegacyPageHost(
+                  builder: (_) => Upload(
                     '',
                     selectedFilesPath: decision.paths,
                   ),
@@ -166,42 +166,39 @@ class _DsmNewUiShellState extends State<DsmNewUiShell> {
                   );
                 },
                 child: NewUiAppShell(
-                  notificationBuilder: (_) => providerScope.wrap(
-                    const LegacyNotificationEntry(),
-                  ),
+                  legacyHostWrapper: providerScope.wrap,
+                  notificationBuilder: (_) => const LegacyNotificationEntry(),
                   destinations: [
                     NewUiAppDestination(
                       label: '概览',
                       icon: Icons.dashboard_outlined,
                       selectedIcon: Icons.dashboard,
-                      legacyBuilder: (_) => providerScope.wrap(Dashboard()),
+                      legacyBuilder: (_) => Dashboard(),
                     ),
                     NewUiAppDestination(
                       label: '文件',
                       icon: Icons.folder_outlined,
                       selectedIcon: Icons.folder,
-                      legacyBuilder: (_) => providerScope.wrap(
-                        FilePage(key: _filePageKey),
-                      ),
+                      legacyBuilder: (_) => FilePage(key: _filePageKey),
                       onLegacyBack: _handleFileBack,
                     ),
                     NewUiAppDestination(
                       label: '应用',
                       icon: Icons.apps_outlined,
                       selectedIcon: Icons.apps,
-                      legacyBuilder: (_) => providerScope.wrap(Applications()),
+                      legacyBuilder: (_) => Applications(),
                     ),
                     NewUiAppDestination(
                       label: '任务',
                       icon: Icons.swap_vert_outlined,
                       selectedIcon: Icons.swap_vert,
-                      legacyBuilder: (_) => providerScope.wrap(Transfer()),
+                      legacyBuilder: (_) => Transfer(),
                     ),
                     NewUiAppDestination(
                       label: '我的',
                       icon: Icons.person_outline,
                       selectedIcon: Icons.person,
-                      legacyBuilder: (_) => providerScope.wrap(Setting()),
+                      legacyBuilder: (_) => Setting(),
                     ),
                   ],
                 ),
