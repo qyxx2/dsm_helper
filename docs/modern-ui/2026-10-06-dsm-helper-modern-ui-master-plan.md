@@ -170,6 +170,26 @@ User real-device validation 负责：
 
 > CI 证明代码成立；实机验证证明产品成立。
 
+### Android APK install/update identity — APK-IDENTITY-01
+
+从 2026-10-07 Task 3 实机验收后起，所有提供给用户真机安装的后续 Modern UI APK 必须保持稳定的 Android 安装/升级身份，目标是允许直接覆盖安装上一版，而不是每次卸载重装。
+
+冻结规则：
+
+- Modern UI beta/debug 用户安装包的 canonical Gradle `applicationId` 固定为 `top.apaipai.dsm_helper`。
+- 后续面向用户的 CI APK 不得按 Task、Batch、commit 或 workflow run 改变该 `applicationId`。
+- 后续面向用户的 CI APK 必须复用同一 development signing key / signing certificate；禁止每次 workflow run 临时生成新的 signing identity。
+- development signing identity 必须与原作者 production signing secret 解耦，不要求、不得依赖原作者私有发布密钥。
+- development keystore / 私钥不得直接提交到 Git 仓库；应通过 GitHub Actions Secrets、受保护的 secret storage 或等价安全机制注入。
+- release/production signing 语义保持独立；除非有明确迁移决策，不得用本规则顺带修改 production 发布身份。
+- signing key 一旦用于用户可安装的 Modern UI APK，就视为长期升级身份；若丢失或更换，必须显式记录为安装身份迁移，不得静默替换。
+- 从本规则生效后的下一份用户安装 APK 开始，真机 Gate 必须额外验证：**不卸载当前已安装版本，直接覆盖安装新 APK 成功**，且应用数据/持久化状态在 Android 正常升级语义下保持。
+
+历史说明：
+
+- Task 0 / Task 3 CI 使用过每次运行生成的 ephemeral development keystore，这是当时为摆脱原作者 signing secret 建立远端构建能力的历史实现。
+- 该历史实现从本规则生效起被 supersede；在下一次需要用户安装新 APK 的 Gate 之前，CI signing 必须改为稳定 development signing identity。
+
 ---
 
 ## 5. Branch / Commit / PR Rules
@@ -342,8 +362,9 @@ Task 0 已通过实际 CI 找到“最少改 legacy code”的可构建组合。
 目标：
 - Development APK 可由 Actions 独立生成。
 - 不改变生产签名语义。
-- 尽量允许新版与原版同时安装，若需要 package/application ID 区分则只做构建层最小调整。
 - APK 作为 Actions Artifact 保存。
+- Task 0 的 ephemeral development keystore 只记录为历史 bootstrap 手段；后续用户安装 APK 必须遵守 `APK-IDENTITY-01`。
+- beta/debug 用户安装包固定使用 `top.apaipai.dsm_helper`，并复用同一稳定 development signing identity，使后续 APK 可以直接覆盖安装。
 
 #### T0.7 Baseline Real-Device Gate
 
@@ -840,6 +861,7 @@ T4 并非所有 Feature 的硬技术依赖，但它是完整真实登录链路�
 - 需要真实 DSM 的行为已经实机验证。
 - 需要视觉验收的页面已经真机确认。
 - legacy fallback / replacement 状态已明确。
+- 若本 Feature 生成供用户安装的 Android APK，则必须满足 `APK-IDENTITY-01`；从规则生效后的下一份用户 APK 起，真机 Gate 必须验证可直接覆盖安装上一版。
 - Master Plan 状态已按需更新。
 
 ---
@@ -932,6 +954,37 @@ Task 2 Exit Gate:
 - no unresolved Design Gap blocks Task 3;
 - no production code was changed by Task 2.
 
+### Completed
+
+Task 3 — New UI Foundation / Shell is complete and accepted on `feature/t3-new-ui-shell`.
+
+Task 3 acceptance record:
+```text
+docs/modern-ui/acceptance/2026-10-07-task-3-new-ui-shell-acceptance.md
+```
+
+Task 3 accepted HEAD:
+```text
+13a99e390353670a5cd9af61ba7a87281bee3c3f
+```
+
+Task 3 final automated Gate:
+- GitHub Actions `Modern UI Android CI` run `37624680181` / run number `116`: success.
+- `flutter test`: 61 tests passed.
+- targeted `flutter analyze`: no issues found.
+- beta debug APK build: passed.
+- Artifact `dsm-helper-modern-ui-android-debug` / ID `11483638463`: uploaded successfully.
+- final shared-bootstrap regression proves cold start Applications no longer depends on Dashboard mount order.
+- context-keyed provider lifecycle prevents old NAS/account InitData provider reuse.
+- offline startup relationship remains preserved.
+- user real-device Gate completed successfully, including cold start → no Dashboard → directly Applications → normal application list.
+
+Task 3 Exit Gate: **PASS**.
+
+Post-acceptance build follow-up:
+- `APK-IDENTITY-01` is now frozen project-wide.
+- Existing ephemeral CI development signing must be replaced with a stable development signing identity before the next user-installable APK Gate.
+
 ### Active
 
 ```text
@@ -941,7 +994,7 @@ No implementation Task is active.
 ### Next
 
 ```text
-Task 3 — New UI Foundation / Shell
+Task 4 — Server / Account / Login / OTP
 ```
 
-Task 3 is unblocked by the completed Task 2 Exit Gate but has not started.
+Task 4 is unblocked by the completed Task 3 Exit Gate but has not started.

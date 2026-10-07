@@ -1,19 +1,11 @@
-import 'dart:async';
 import 'dart:io';
 
 import 'package:cool_ui/cool_ui.dart';
-import 'package:dsm_helper/pages/control_panel/control_panel.dart';
-import 'package:dsm_helper/pages/docker/docker.dart';
-import 'package:dsm_helper/pages/download_station/download_station.dart';
-import 'package:dsm_helper/pages/home.dart';
-import 'package:dsm_helper/pages/moments/moments.dart';
-import 'package:dsm_helper/pages/packages/packages.dart';
-import 'package:dsm_helper/pages/photos/photos.dart';
-import 'package:dsm_helper/pages/resource_monitor/resource_monitor.dart';
-import 'package:dsm_helper/pages/security_scan/security_scan.dart';
-import 'package:dsm_helper/pages/splash/splash.dart';
-import 'package:dsm_helper/pages/storage_manager/storage_manager.dart';
-import 'package:dsm_helper/pages/virtual_machine/virtual_machine.dart';
+import 'package:dsm_helper/new_ui/app/modern_ui_root.dart';
+import 'package:dsm_helper/new_ui/app/modern_ui_shell_entry.dart';
+import 'package:dsm_helper/new_ui/legacy/legacy_route_registry.dart';
+import 'package:dsm_helper/new_ui/startup/app_service_endpoint_resolver.dart';
+import 'package:dsm_helper/new_ui/theme/new_ui_theme.dart';
 import 'package:dsm_helper/providers/audio_player_provider.dart';
 import 'package:dsm_helper/providers/background_task_provider.dart';
 import 'package:dsm_helper/providers/external_device_provider.dart';
@@ -45,22 +37,6 @@ void main() async {
     return true;
   };
 
-  Future<String> getBestDomain(List<String> domains) async {
-    final completer = Completer<String>();
-    for (String domain in domains) {
-      try {
-        Utils.get(domain).then((res) {
-          if (res != null && res['code'] == 1) {
-            if (!completer.isCompleted) {
-              completer.complete("http://${res['data']}");
-            }
-          }
-        });
-      } catch (e) {}
-    }
-    return completer.future;
-  }
-
   WidgetsFlutterBinding.ensureInitialized();
   await SpUtil.getInstance();
   bool agreement = SpUtil.getBool("agreement", defValue: false)!;
@@ -86,7 +62,22 @@ void main() async {
     bool isForever = false;
     DateTime? noAdTime;
     try{
-      Utils.appUrl = await getBestDomain(['http://dsm.apaipai.top/index/check', 'http://dsm.flutter.fit/index/check']);
+      final resolvedAppUrl = await AppServiceEndpointResolver.resolve(
+        const [
+          'http://dsm.apaipai.top/index/check',
+          'http://dsm.flutter.fit/index/check',
+        ],
+        probe: (endpoint) async {
+          final res = await Utils.get(endpoint);
+          if (res != null && res['code'] == 1) {
+            return "http://${res['data']}";
+          }
+          return null;
+        },
+      );
+      if (resolvedAppUrl != null) {
+        Utils.appUrl = resolvedAppUrl;
+      }
       String userToken = SpUtil.getString("user_token", defValue: '')!;
       String noAdTimeStr = SpUtil.getString("no_ad_time", defValue: '')!;
       if (noAdTimeStr.isNotBlank) {
@@ -218,10 +209,10 @@ class _DsmHelperState extends State<DsmHelper> {
               supportedLocales: [
                 const Locale('zh', 'CN'),
               ],
-              home: Splash(),
+              home: ModernUiRoot(initialAuthRequired: widget.authPage),
               theme: lightTheme,
               darkTheme: darkTheme,
-              themeMode: ThemeMode.system,
+              themeMode: NewUiThemeMode.fromLegacyValue(darkModeProvider.darkMode),
               // home: widget.authPage
               //     ? AuthPage(
               //         launchAccountPage: widget.launchAccountPage,
@@ -230,18 +221,8 @@ class _DsmHelperState extends State<DsmHelper> {
               //         ? Accounts()
               //         : Login(),
               routes: {
-                "/home": (BuildContext context) => Home(),
-                "/control_panel": (BuildContext context) => ControlPanel(),
-                "/package_center": (BuildContext context) => Packages(),
-                "/resource_monitor": (BuildContext context) => ResourceMonitor(),
-                "/storage_manager": (BuildContext context) => StorageManager(),
-                "/security_scan": (BuildContext context) => SecurityScan(),
-                "/docker": (BuildContext context) => Docker(),
-                "/container_manager": (BuildContext context) => Docker(isContainer: true),
-                "/download_station": (BuildContext context) => DownloadStation(),
-                "/moments": (BuildContext context) => Moments(),
-                "/synology_photos": (BuildContext context) => Photos(),
-                "/virtual_machine": (BuildContext context) => VirtualMachine(),
+                "/home": (BuildContext context) => const ModernUiShellEntry(),
+                ...legacyNamedRoutes,
               },
             ),
           ),
