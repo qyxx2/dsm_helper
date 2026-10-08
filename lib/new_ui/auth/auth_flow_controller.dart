@@ -26,7 +26,11 @@ class AuthFlowController extends ChangeNotifier {
           account: existingAccount?.account ?? '',
           password: existingAccount?.password ?? '',
           isDefault: existingAccount?.isDefault ?? false,
-        );
+        ) {
+    _account = existingAccount?.account ?? '';
+    _password = existingAccount?.password ?? '';
+    _isDefault = existingAccount?.isDefault ?? false;
+  }
 
   final Server server;
   final Account? existingAccount;
@@ -40,20 +44,35 @@ class AuthFlowController extends ChangeNotifier {
   String _account = '';
   String _password = '';
   bool _isDefault = false;
+  bool _isSubmitting = false;
+  bool get isSubmitting => _isSubmitting;
 
   Future<void> submitCredentials({
     required String account,
     required String password,
     required bool isDefault,
   }) async {
-    _account = account;
+    if (_isSubmitting || _state.stage == AuthFlowStage.authenticated) return;
+    _account = existingAccount?.account ?? account;
     _password = password;
     _isDefault = isDefault;
     await _authenticate();
   }
 
-  Future<void> submitVerification(String code) {
-    return _authenticate(optCode: code);
+  Future<void> submitVerification(String code) async {
+    if (_isSubmitting || _state.stage != AuthFlowStage.verification) return;
+    await _authenticate(optCode: code);
+  }
+
+  void returnToCredentials() {
+    if (_isSubmitting || _state.stage != AuthFlowStage.verification) return;
+    _state = AuthFlowState(
+      stage: AuthFlowStage.credentials,
+      account: _account,
+      password: _password,
+      isDefault: _isDefault,
+    );
+    notifyListeners();
   }
 
   Future<void> reauthenticateSavedAccount() async {
@@ -61,6 +80,7 @@ class AuthFlowController extends ChangeNotifier {
     if (account == null) {
       throw StateError('No saved account is available for reauthentication');
     }
+    if (_isSubmitting || _state.stage == AuthFlowStage.authenticated) return;
     _account = account.account;
     _password = account.password;
     _isDefault = account.isDefault;
@@ -68,6 +88,8 @@ class AuthFlowController extends ChangeNotifier {
   }
 
   Future<void> _authenticate({String? optCode}) async {
+    _isSubmitting = true;
+    notifyListeners();
     try {
       final auth = await _login(
         account: _account,
@@ -111,11 +133,13 @@ class AuthFlowController extends ChangeNotifier {
         account: _account,
         password: _password,
         isDefault: _isDefault,
-        message: '登录失败',
+        message: '登录失败，请检查网络连接并重试',
         error: error,
       );
+    } finally {
+      _isSubmitting = false;
+      notifyListeners();
     }
-    notifyListeners();
   }
 
   AuthFlowState _stateForDsmError(DsmException error) {
@@ -140,17 +164,23 @@ class AuthFlowController extends ChangeNotifier {
           error: error,
         );
       case 404:
+        final isEmail = _state.verificationKind == AuthVerificationKind.email;
         return AuthFlowState(
           stage: AuthFlowStage.verification,
           account: _account,
           password: _password,
           isDefault: _isDefault,
-          verificationKind: AuthVerificationKind.otp,
+          verificationKind:
+              isEmail ? AuthVerificationKind.email : AuthVerificationKind.otp,
+          verificationEmail: isEmail ? _state.verificationEmail : null,
           message: '错误的验证码。请再试一次',
           error: error,
         );
       case 414:
-        final email = _verificationEmail(error.source);
+        final email = _verificationEmail(error.source) ??
+            (_state.verificationKind == AuthVerificationKind.email
+                ? _state.verificationEmail
+                : null);
         return AuthFlowState(
           stage: AuthFlowStage.verification,
           account: _account,
@@ -176,13 +206,9 @@ class AuthFlowController extends ChangeNotifier {
   }
 
   String? _verificationEmail(dynamic source) {
-    if (source is! Map) {
-      return null;
-    }
+    if (source is! Map) return null;
     final errors = source['errors'];
-    if (errors is! Map) {
-      return null;
-    }
+    if (errors is! Map) return null;
     return errors['email']?.toString();
   }
 }
