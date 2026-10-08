@@ -101,6 +101,7 @@ void main() {
   });
 
   testWidgets('119 on unique default must not degrade to generic selector', (tester) async {
+    StartupSavedContext? exactReauth;
     await tester.pumpWidget(MaterialApp(
       home: ModernStartup(
         dataSource: const _StartupSource(StartupSnapshot(
@@ -116,9 +117,12 @@ void main() {
         addServerBuilder: (_) => _marker('modern-add-server'),
         selectAccountBuilder: (_) => _marker('modern-selector'),
         shellBuilder: (_, __) => _marker('shell'),
+        onReauthNeeded: (value) => exactReauth = value,
       ),
     ));
     await tester.pumpAndSettle();
+    expect(exactReauth?.serverId, 7);
+    expect(exactReauth?.accountId, 42);
     // RED on Task 3 startup: it currently loses the exact account and
     // displays the generic selector. Batch 5 supplies an identity handoff.
     expect(find.text('modern-selector'), findsNothing);
