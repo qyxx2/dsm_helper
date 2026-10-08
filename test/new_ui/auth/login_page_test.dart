@@ -72,10 +72,8 @@ void main() {
     expect(submittedAccount, 'user');
     expect(submittedPassword, 'new-password');
     expect((await db.select(db.accounts).get()).single.isDefault, isTrue);
-    final button = tester.widget<FilledButton>(
-      find.byKey(const Key('auth-submit')),
-    );
-    expect(button.style?.minimumSize?.resolve({})?.height, greaterThanOrEqualTo(48));
+    expect(tester.getSize(find.byKey(const Key('auth-submit'))).height,
+        greaterThanOrEqualTo(48));
   });
 
   testWidgets('saved reauthentication keeps account identity and updates its row', (tester) async {
