@@ -29,6 +29,25 @@ class ServerAccountStore {
     });
   }
 
+  /// Invalidate only this saved session without deleting credentials,
+  /// the trusted-device identity, or the default-account choice.
+  Future<void> clearAccountSession(int accountId) {
+    return db.transaction(() async {
+      final updated = await (db.update(db.accounts)
+            ..where((table) => table.id.equals(accountId)))
+          .write(
+        const AccountsCompanion(
+          sid: Value(''),
+          synoToken: Value(''),
+          ikMessage: Value(''),
+        ),
+      );
+      if (updated != 1) {
+        throw StateError('Account not found: $accountId');
+      }
+    });
+  }
+
   Future<void> setDefaultAccount(int accountId) {
     return db.transaction(() async {
       final target = await (db.select(db.accounts)
