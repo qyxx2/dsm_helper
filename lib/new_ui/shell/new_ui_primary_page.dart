@@ -8,6 +8,8 @@ class NewUiPrimaryPage extends StatelessWidget {
     required this.onOpenLegacyFeature,
     this.legacyFeatureLabel = '打开现有功能',
     this.connectionStatusText,
+    this.onOpenAccountManagement,
+    this.onLogout,
   });
 
   final String title;
@@ -15,6 +17,8 @@ class NewUiPrimaryPage extends StatelessWidget {
   final VoidCallback onOpenLegacyFeature;
   final String legacyFeatureLabel;
   final String? connectionStatusText;
+  final VoidCallback? onOpenAccountManagement;
+  final VoidCallback? onLogout;
 
   @override
   Widget build(BuildContext context) {
@@ -58,6 +62,24 @@ class NewUiPrimaryPage extends StatelessWidget {
             '此功能将在后续迁移任务中替换。当前继续使用经过验证的现有页面。',
             style: Theme.of(context).textTheme.bodyMedium,
           ),
+          if (onOpenAccountManagement != null) ...[
+            const SizedBox(height: 16),
+            FilledButton.tonalIcon(
+              key: const Key('modern-manage-accounts'),
+              onPressed: onOpenAccountManagement,
+              icon: const Icon(Icons.manage_accounts_outlined),
+              label: const Text('服务器与账号管理'),
+            ),
+          ],
+          if (onLogout != null) ...[
+            const SizedBox(height: 12),
+            OutlinedButton.icon(
+              key: const Key('modern-logout'),
+              onPressed: onLogout,
+              icon: const Icon(Icons.logout),
+              label: const Text('退出登录'),
+            ),
+          ],
           const SizedBox(height: 16),
           FilledButton.tonalIcon(
             key: const Key('open-legacy-feature'),
