@@ -10,6 +10,7 @@ class StartupSavedContext {
     required this.baseUrl,
     required this.deviceId,
     required this.sid,
+    this.checkSsl = true,
   });
 
   final int accountId;
@@ -18,6 +19,7 @@ class StartupSavedContext {
   final String baseUrl;
   final String deviceId;
   final String sid;
+  final bool checkSsl;
 
   StartupAccountCandidate get candidate => StartupAccountCandidate(
         accountId: accountId,
@@ -30,6 +32,7 @@ class StartupSavedContext {
         baseUrl: baseUrl,
         deviceId: deviceId,
         sid: sid,
+        checkSsl: checkSsl,
       );
 }
 

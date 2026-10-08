@@ -6,8 +6,10 @@ import 'package:dsm_helper/new_ui/session/active_context_coordinator.dart';
 import 'package:dsm_helper/new_ui/session/legacy_session_bridge.dart';
 
 class DsmActiveContextAdapter {
-  DsmActiveContextAdapter()
-      : _coordinator = ActiveContextCoordinator(
+  DsmActiveContextAdapter({
+    Future<void> Function()? discoverCapabilities,
+    Future<void> Function()? probeSession,
+  }) : _coordinator = ActiveContextCoordinator(
           clearCapabilities: () {
             ApiModel.apiInfo = <String, ApiModel>{};
           },
@@ -17,14 +19,17 @@ class DsmActiveContextAdapter {
               baseUrl: request.baseUrl,
               deviceId: request.deviceId,
               sid: request.sid,
+              checkSsl: request.checkSsl,
             );
           },
-          discoverCapabilities: () async {
-            ApiModel.apiInfo = await ApiModel.info();
-          },
-          probeSession: () async {
-            await NormalUser.get();
-          },
+          discoverCapabilities: discoverCapabilities ??
+              () async {
+                ApiModel.apiInfo = await ApiModel.info();
+              },
+          probeSession: probeSession ??
+              () async {
+                await NormalUser.get();
+              },
         );
 
   final ActiveContextCoordinator _coordinator;

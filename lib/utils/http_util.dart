@@ -1,11 +1,14 @@
+import 'dart:io';
+
 import 'package:dio/dio.dart';
+import 'package:dio/io.dart';
 
 class HttpUtil {
   Dio? dio;
 
   bool isShowLoginDialog = false;
 
-  init(String baseUrl, {String? deviceId, String? sid}) {
+  init(String baseUrl, {String? deviceId, String? sid, bool checkSsl = true}) {
     // final Directory appDocDir = await getApplicationDocumentsDirectory();
     // final String appDocPath = appDocDir.path;
     // final cookieJar = PersistCookieJar(
@@ -20,6 +23,16 @@ class HttpUtil {
       headers: {},
     );
     dio = Dio(options);
+    if (!checkSsl) {
+      dio!.httpClientAdapter = IOHttpClientAdapter(
+        createHttpClient: () {
+          final client = HttpClient();
+          client.badCertificateCallback =
+              (X509Certificate cert, String host, int port) => true;
+          return client;
+        },
+      );
+    }
     // if (kDebugMode) {
     //   (dio?.httpClientAdapter as IOHttpClientAdapter).onHttpClientCreate = (client) {
     //     client.findProxy = (uri) {
