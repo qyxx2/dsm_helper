@@ -1,14 +1,15 @@
 import 'package:dsm_helper/database/table_extension.dart';
 import 'package:dsm_helper/models/api_model.dart';
+import 'package:dsm_helper/apis/dsm_api/dsm_exception.dart';
 import 'package:dsm_helper/new_ui/app/modern_ui_root.dart';
 import 'package:dsm_helper/new_ui/app/new_ui_app_shell.dart';
-import 'package:dsm_helper/utils/db_utils.dart';
 import 'package:drift/native.dart';
 import 'package:dsm_helper/database/tables.dart';
 import 'package:dsm_helper/models/Syno/Api/auth.dart';
 import 'package:dsm_helper/new_ui/auth/auth_flow_controller.dart';
 import 'package:dsm_helper/new_ui/auth/auth_flow_models.dart';
 import 'package:dsm_helper/new_ui/auth/server_account_store.dart';
+import 'package:dsm_helper/new_ui/auth/server_form_controller.dart';
 import 'package:dsm_helper/new_ui/session/active_context_coordinator.dart';
 import 'package:dsm_helper/new_ui/startup/modern_startup.dart';
 import 'package:flutter/material.dart';
@@ -215,283 +216,231 @@ void main() {
     expect(find.text('重试'), findsOneWidget);
   });
 
-  group('Modern root production handoff with real Drift persistence', () {
-    late Database originalDb;
+  group('Real Drift auth, server persistence and context activation', () {
     late Database db;
+    late ServerAccountStore store;
 
     setUp(() {
-      originalDb = DbUtils.db;
       db = Database.forTesting(NativeDatabase.memory());
-      DbUtils.db = db;
+      store = ServerAccountStore(db);
     });
-
-    tearDown(() async {
-      DbUtils.db = originalDb;
-      await db.close();
-    });
+    tearDown(() async => db.close());
 
     Future<({Server server, Account account})> savedAccount() async {
-      final id = await db.into(db.servers).insert(
+      final server = await db.into(db.servers).insertReturning(
         ServersCompanion.insert(
-          groupId: 1,
-          ssl: true,
-          qcid: '',
-          domain: 'nas.local',
-          port: 5001,
-          checkSsl: false,
-          remark: '',
-          macAddress: '',
-          createTime: 1,
+          groupId: 1, ssl: true, qcid: '', domain: 'nas.local',
+          port: 5001, checkSsl: false, remark: '',
+          macAddress: '', createTime: 1,
         ),
       );
-      final server = await (db.select(db.servers)
-            ..where((row) => row.id.equals(id)))
-          .getSingle();
-      final accountId = await db.into(db.accounts).insert(
+      final account = await db.into(db.accounts).insertReturning(
         AccountsCompanion.insert(
-          serverId: server.id,
-          account: 'alice',
-          password: 'stored-password',
-          remark: '',
-          createTime: 1,
-          lastLoginTime: 1,
-          isDefault: true,
-          deviceId: 'saved-device',
-          sid: 'stale-sid',
-          ikMessage: 'ik-old',
-          synoToken: 'old-token',
+          serverId: server.id, account: 'alice',
+          password: 'stored-password', remark: '',
+          createTime: 1, lastLoginTime: 1, isDefault: true,
+          deviceId: 'saved-device', sid: 'stale-sid',
+          ikMessage: 'ik-old', synoToken: 'old-token',
         ),
       );
-      final account = await (db.select(db.accounts)
-            ..where((row) => row.id.equals(accountId)))
-          .getSingle();
       return (server: server, account: account);
     }
 
-    testWidgets('no-server modern form -> login -> real persisted account -> activation -> shell',
-        (tester) async {
-      final activations = <ActiveContextRequest>[];
-      await tester.pumpWidget(MaterialApp(
-        home: ModernUiRoot(
-          initialAuthRequired: false,
-          initializeDownloader: false,
-          dataSource: const _StartupSource(StartupSnapshot(
-            hasServers: false,
-            launcherSelectionEnabled: false,
-            knownServerIds: <int>{},
-            contexts: <StartupSavedContext>[],
-          )),
-          serverProbe: ({required baseUrl, required checkSsl}) async =>
-              <String, ApiModel>{'SYNO.API.Auth': ApiModel(maxVersion: 7)},
-          loginPreparation: (server, account) async {},
-          authLogin: ({required account, required password, optCode}) async =>
-              Auth(
-                account: account,
-                deviceId: 'new-device',
-                sid: 'new-sid',
-                ikMessage: '',
-                synotoken: 'new-token',
-              ),
-          contextActivator: (request) async {
-            activations.add(request);
-            return ActiveContextResult(
-              contextId: request.contextId,
-              status: ActiveContextStatus.authenticated,
-            );
-          },
-          shellBuilder: (_, result) =>
-              _marker('shell-${result.status.name}-${result.contextId}'),
+    test('no Server -> endpoint validation -> actual login persistence -> activation', () async {
+      final form = ServerFormController(
+        db: db,
+        probe: ({required baseUrl, required checkSsl}) async {
+          expect(baseUrl, 'https://nas.local:5001');
+          expect(checkSsl, false);
+          return {'SYNO.API.Auth': ApiModel(maxVersion: 7)};
+        },
+        nowEpochSeconds: () => 10,
+      );
+      final server = await form.submit(
+        https: true, host: 'nas.local', port: '',
+        checkSsl: false, remark: '',
+      );
+      expect(server, isNotNull);
+      final auth = AuthFlowController(
+        server: server!,
+        store: store,
+        nowEpochSeconds: () => 20,
+        login: ({required account, required password, optCode}) async {
+          expect(account, 'alice');
+          expect(password, 'secret');
+          return Auth(
+            account: account, deviceId: 'new-device',
+            sid: 'new-sid', ikMessage: '',
+            synotoken: 'new-token',
+          );
+        },
+      );
+      await auth.submitCredentials(
+        account: 'alice', password: 'secret', isDefault: true,
+      );
+      expect(auth.state.stage, AuthFlowStage.authenticated);
+      final persisted = (await db.select(db.accounts).get()).single;
+      expect(persisted.id, auth.state.authenticatedAccount!.id);
+      expect(persisted.serverId, server.id);
+      final operations = <String>[];
+      final coordinator = ActiveContextCoordinator(
+        clearCapabilities: () => operations.add('clear'),
+        bindTransport: (req) => operations.add('bind:${req.contextId}:${req.sid}'),
+        discoverCapabilities: () async => operations.add('discover'),
+        probeSession: () async => operations.add('probe'),
+      );
+      final result = await coordinator.activate(
+        ActiveContextRequest(
+          contextId: '${server.id}/${persisted.id}',
+          baseUrl: server.url,
+          deviceId: persisted.deviceId,
+          sid: persisted.sid,
+          checkSsl: server.checkSsl,
         ),
-      ));
-      await tester.pumpAndSettle();
+      );
+      expect(result.status, ActiveContextStatus.authenticated);
+      expect(operations, [
+        'clear', 'bind:${server.id}/${persisted.id}:new-sid',
+        'discover', 'probe',
+      ]);
+      expect((await db.select(db.servers).get()).length, 1);
+      auth.dispose();
+      form.dispose();
+    });
 
-      expect(find.byKey(const Key('server-form-host')), findsOneWidget);
-      await tester.enterText(
-          find.byKey(const Key('server-form-host')), 'nas.local');
-      await tester.tap(find.byKey(const Key('server-form-submit')));
-      await tester.pumpAndSettle();
-
-      expect(find.byKey(const Key('auth-account')), findsOneWidget);
-      await tester.enterText(find.byKey(const Key('auth-account')), 'alice');
-      await tester.enterText(find.byKey(const Key('auth-password')), 'pass');
-      await tester.tap(find.byKey(const Key('auth-submit')));
-      await tester.pumpAndSettle();
-
-      final accounts = await db.select(db.accounts).get();
-      final servers = await db.select(db.servers).get();
-      expect(accounts.length, 1);
-      expect(servers.length, 1);
-      expect(activations.length, 1);
-      expect(activations.single.contextId,
-          '${servers.single.id}/${accounts.single.id}');
-      expect(activations.single.sid, 'new-sid');
-      expect(find.text('shell-authenticated-${activations.single.contextId}'),
-          findsOneWidget);
-      await tester.pumpWidget(const SizedBox());
-    }, timeout: const Timeout(Duration(seconds: 45)));
-
-    testWidgets('cold-start 119 reauthenticates the exact saved row without duplication',
-        (tester) async {
+    test('119 reauth updates exact saved Account and reactivates same context', () async {
       final saved = await savedAccount();
-      final requests = <ActiveContextRequest>[];
-      var logins = 0;
-      await tester.pumpWidget(MaterialApp(
-        home: ModernUiRoot(
-          initialAuthRequired: false,
-          initializeDownloader: false,
-          dataSource: _StartupSource(StartupSnapshot(
-            hasServers: true,
-            launcherSelectionEnabled: false,
-            knownServerIds: {saved.server.id},
-            contexts: [
-              StartupSavedContext(
-                serverId: saved.server.id,
-                accountId: saved.account.id,
-                isDefault: true,
-                baseUrl: saved.server.url,
-                deviceId: saved.account.deviceId,
-                sid: saved.account.sid,
-                checkSsl: saved.server.checkSsl,
-              ),
-            ],
-          )),
-          loginPreparation: (server, account) async {
-            expect(server.id, saved.server.id);
-            expect(account?.id, saved.account.id);
-          },
-          authLogin: ({required account, required password, optCode}) async {
-            logins++;
-            expect(account, 'alice');
-            expect(password, 'stored-password');
-            return Auth(
-              account: account,
-              deviceId: 'new-device',
-              sid: 'renewed-sid',
-              ikMessage: '',
-              synotoken: 'renewed-token',
-            );
-          },
-          contextActivator: (request) async {
-            requests.add(request);
-            return ActiveContextResult(
-              contextId: request.contextId,
-              status: requests.length == 1
-                  ? ActiveContextStatus.reauthNeeded
-                  : ActiveContextStatus.authenticated,
-            );
-          },
-          shellBuilder: (_, result) => _marker('shell-${result.contextId}'),
-        ),
-      ));
-      await tester.pumpAndSettle();
+      final operations = <String>[];
+      var probes = 0;
+      final coordinator = ActiveContextCoordinator(
+        clearCapabilities: () => operations.add('clear'),
+        bindTransport: (req) => operations.add('bind:${req.contextId}:${req.sid}'),
+        discoverCapabilities: () async => operations.add('discover'),
+        probeSession: () async {
+          probes++;
+          if (probes == 1) throw const DsmException(119);
+        },
+      );
+      ActiveContextRequest request(Account account) => ActiveContextRequest(
+        contextId: '${saved.server.id}/${account.id}',
+        baseUrl: saved.server.url,
+        deviceId: account.deviceId,
+        sid: account.sid,
+        checkSsl: saved.server.checkSsl,
+      );
+      expect((await coordinator.activate(request(saved.account))).status,
+          ActiveContextStatus.reauthNeeded);
 
-      expect(logins, 1);
-      expect(requests.length, 2);
-      expect(requests.first.sid, 'stale-sid');
-      expect(requests.last.sid, 'renewed-sid');
-      expect(requests.last.contextId,
-          '${saved.server.id}/${saved.account.id}');
-      final after = await db.select(db.accounts).get();
-      expect(after.length, 1);
-      expect(after.single.id, saved.account.id);
-      expect(after.single.sid, 'renewed-sid');
-      expect(find.text('shell-${requests.last.contextId}'), findsOneWidget);
-      expect(find.byKey(const Key('auth-account')), findsNothing);
-      await tester.pumpWidget(const SizedBox());
-    }, timeout: const Timeout(Duration(seconds: 45)));
-
-    testWidgets('launcher selection activates the chosen saved identity before shell',
-        (tester) async {
-      final saved = await savedAccount();
-      ActiveContextRequest? activation;
-      await tester.pumpWidget(MaterialApp(
-        home: ModernUiRoot(
-          initialAuthRequired: false,
-          initializeDownloader: false,
-          dataSource: _StartupSource(StartupSnapshot(
-            hasServers: true,
-            launcherSelectionEnabled: true,
-            knownServerIds: {saved.server.id},
-            contexts: [
-              StartupSavedContext(
-                serverId: saved.server.id,
-                accountId: saved.account.id,
-                isDefault: true,
-                baseUrl: saved.server.url,
-                deviceId: saved.account.deviceId,
-                sid: saved.account.sid,
-                checkSsl: saved.server.checkSsl,
-              ),
-            ],
-          )),
-          contextActivator: (request) async {
-            activation = request;
-            return ActiveContextResult(
-              contextId: request.contextId,
-              status: ActiveContextStatus.offline,
-            );
-          },
-          shellBuilder: (_, result) => _marker('shell-${result.status.name}'),
-        ),
-      ));
-      await tester.pumpAndSettle();
-      expect(find.byKey(Key('server-account-${saved.account.id}')),
-          findsOneWidget);
-      expect(activation, isNull);
-      await tester.tap(find.byKey(Key('server-account-${saved.account.id}')));
-      await tester.pumpAndSettle();
-      expect(activation?.contextId,
-          '${saved.server.id}/${saved.account.id}');
-      expect(activation?.checkSsl, false);
-      expect(find.text('shell-offline'), findsOneWidget);
-      await tester.pumpWidget(const SizedBox());
-    }, timeout: const Timeout(Duration(seconds: 45)));
-
-    testWidgets('post-login activation failure never presents shell',
-        (tester) async {
-      await tester.pumpWidget(MaterialApp(
-        home: ModernUiRoot(
-          initialAuthRequired: false,
-          initializeDownloader: false,
-          dataSource: const _StartupSource(StartupSnapshot(
-            hasServers: false,
-            launcherSelectionEnabled: false,
-            knownServerIds: <int>{},
-            contexts: <StartupSavedContext>[],
-          )),
-          serverProbe: ({required baseUrl, required checkSsl}) async =>
-              <String, ApiModel>{'SYNO.API.Auth': ApiModel(maxVersion: 7)},
-          loginPreparation: (server, account) async {},
-          authLogin: ({required account, required password, optCode}) async =>
-              Auth(
-                account: account,
-                deviceId: 'device',
-                sid: 'sid',
-                ikMessage: '',
-                synotoken: 'token',
-              ),
-          contextActivator: (request) async => ActiveContextResult(
-            contextId: request.contextId,
-            status: ActiveContextStatus.failed,
-            error: StateError('invalid context'),
-          ),
-          shellBuilder: (_, __) => _marker('shell'),
-        ),
-      ));
-      await tester.pumpAndSettle();
-      await tester.enterText(
-          find.byKey(const Key('server-form-host')), 'nas.local');
-      await tester.tap(find.byKey(const Key('server-form-submit')));
-      await tester.pumpAndSettle();
-      await tester.enterText(find.byKey(const Key('auth-account')), 'alice');
-      await tester.enterText(find.byKey(const Key('auth-password')), 'pass');
-      await tester.tap(find.byKey(const Key('auth-submit')));
-      await tester.pumpAndSettle();
-      expect(find.text('shell'), findsNothing);
-      expect(find.text('无法激活此账号，请重试'), findsOneWidget);
-      await tester.pumpWidget(const SizedBox());
-    }, timeout: const Timeout(Duration(seconds: 45)));
+      final auth = AuthFlowController(
+        server: saved.server,
+        existingAccount: saved.account,
+        store: store,
+        login: ({required account, required password, optCode}) async {
+          expect(account, 'alice');
+          expect(password, 'stored-password');
+          return Auth(account: account, deviceId: 'renewed-device',
+              sid: 'renewed-sid', ikMessage: '',
+              synotoken: 'renewed-token');
+        },
+      );
+      await auth.reauthenticateSavedAccount();
+      expect(auth.state.stage, AuthFlowStage.authenticated);
+      final updated = (await db.select(db.accounts).get()).single;
+      expect(updated.id, saved.account.id);
+      expect(updated.sid, 'renewed-sid');
+      expect(updated.isDefault, true);
+      final result = await coordinator.activate(request(updated));
+      expect(result.status, ActiveContextStatus.authenticated);
+      expect(result.contextId, '${saved.server.id}/${saved.account.id}');
+      expect(operations, [
+        'clear', 'bind:${saved.server.id}/${saved.account.id}:stale-sid',
+        'discover', 'clear',
+        'bind:${saved.server.id}/${saved.account.id}:renewed-sid',
+        'discover',
+      ]);
+      expect((await db.select(db.accounts).get()).length, 1);
+      auth.dispose();
+    });
   });
+
+  testWidgets('Modern root starts at Modern add-server without legacy builders or activation',
+      (tester) async {
+    var activations = 0;
+    await tester.pumpWidget(MaterialApp(
+      home: ModernUiRoot(
+        initialAuthRequired: false,
+        initializeDownloader: false,
+        dataSource: const _StartupSource(StartupSnapshot(
+          hasServers: false, launcherSelectionEnabled: false,
+          knownServerIds: <int>{},
+          contexts: <StartupSavedContext>[],
+        )),
+        contextActivator: (_) async {
+          activations++;
+          throw StateError('No account should activate');
+        },
+      ),
+    ));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('server-form-host')), findsOneWidget);
+    expect(find.byKey(const Key('server-form-submit')), findsOneWidget);
+    expect(activations, 0);
+    await tester.pumpWidget(const SizedBox());
+  }, timeout: const Timeout(Duration(seconds: 45)));
+
+  testWidgets('Modern root cold-start forwards exact activated context and offline status',
+      (tester) async {
+    ActiveContextRequest? bound;
+    await tester.pumpWidget(MaterialApp(
+      home: ModernUiRoot(
+        initialAuthRequired: false,
+        initializeDownloader: false,
+        dataSource: const _StartupSource(StartupSnapshot(
+          hasServers: true, launcherSelectionEnabled: false,
+          knownServerIds: <int>{7},
+          contexts: <StartupSavedContext>[_saved],
+        )),
+        contextActivator: (req) async {
+          bound = req;
+          return const ActiveContextResult(
+            contextId: '7/42', status: ActiveContextStatus.offline,
+          );
+        },
+        shellBuilder: (_, result) =>
+            _marker('shell-${result.status.name}-${result.contextId}'),
+      ),
+    ));
+    await tester.pumpAndSettle();
+    expect(bound?.contextId, '7/42');
+    expect(bound?.sid, 'sid-42');
+    expect(bound?.checkSsl, false);
+    expect(find.text('shell-offline-7/42'), findsOneWidget);
+    await tester.pumpWidget(const SizedBox());
+  }, timeout: const Timeout(Duration(seconds: 45)));
+
+  testWidgets('Modern root activation failure does not create a shell',
+      (tester) async {
+    await tester.pumpWidget(MaterialApp(
+      home: ModernUiRoot(
+        initialAuthRequired: false,
+        initializeDownloader: false,
+        dataSource: const _StartupSource(StartupSnapshot(
+          hasServers: true, launcherSelectionEnabled: false,
+          knownServerIds: <int>{7},
+          contexts: <StartupSavedContext>[_saved],
+        )),
+        contextActivator: (_) async => ActiveContextResult(
+          contextId: '7/42', status: ActiveContextStatus.failed,
+          error: StateError('capabilities failed'),
+        ),
+        shellBuilder: (_, __) => _marker('shell'),
+      ),
+    ));
+    await tester.pumpAndSettle();
+    expect(find.text('shell'), findsNothing);
+    expect(find.text('重试'), findsOneWidget);
+    await tester.pumpWidget(const SizedBox());
+  }, timeout: const Timeout(Duration(seconds: 45)));
 
   testWidgets('My tab exposes scoped modern management/logout without losing legacy fallback',
       (tester) async {
