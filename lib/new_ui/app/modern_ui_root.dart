@@ -24,6 +24,7 @@ import 'package:dsm_helper/new_ui/session/dsm_active_context_adapter.dart';
 import 'package:dsm_helper/new_ui/session/legacy_session_bridge.dart';
 import 'package:dsm_helper/new_ui/startup/dsm_startup_data_source.dart';
 import 'package:dsm_helper/new_ui/startup/modern_startup.dart';
+import 'package:dsm_helper/new_ui/theme/new_ui_theme.dart';
 import 'package:dsm_helper/pages/login/auth_page.dart';
 import 'package:dsm_helper/utils/db_utils.dart';
 import 'package:flutter/material.dart';
@@ -407,11 +408,17 @@ class _ModernUiRootState extends State<ModernUiRoot> {
 
   @override
   Widget build(BuildContext context) {
+    final modernTheme = Theme.of(context).brightness == Brightness.dark
+        ? NewUiTheme.dark()
+        : NewUiTheme.light();
     return LaunchAuthGate(
       gateInitially: widget.initialAuthRequired,
       shouldGate: _shouldGate,
       gateBuilder: (_) => AuthPage(launch: false),
-      child: _content(context),
+      child: Theme(
+        data: modernTheme,
+        child: _content(context),
+      ),
     );
   }
 }
