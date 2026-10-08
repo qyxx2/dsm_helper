@@ -39,11 +39,15 @@ class DsmNewUiShell extends StatefulWidget {
     this.initialContextStatus = ActiveContextStatus.authenticated,
     this.contextId,
     this.legacyBootstrap,
+    this.onManageAccounts,
+    this.onLogout,
   });
 
   final ActiveContextStatus initialContextStatus;
   final String? contextId;
   final LegacySharedBootstrap? legacyBootstrap;
+  final VoidCallback? onManageAccounts;
+  final VoidCallback? onLogout;
 
   @override
   State<DsmNewUiShell> createState() => _DsmNewUiShellState();
@@ -198,6 +202,8 @@ class _DsmNewUiShellState extends State<DsmNewUiShell> {
                   child: NewUiAppShell(
                     legacyHostWrapper: providerScope.wrap,
                     connectionStatusText: _connectionStatusText,
+                    onOpenAccountManagement: widget.onManageAccounts,
+                    onLogout: widget.onLogout,
                     notificationBuilder: (_) => const LegacyNotificationEntry(),
                     destinations: [
                       NewUiAppDestination(
@@ -229,7 +235,10 @@ class _DsmNewUiShellState extends State<DsmNewUiShell> {
                         label: '我的',
                         icon: Icons.person_outline,
                         selectedIcon: Icons.person,
-                        legacyBuilder: (_) => Setting(),
+                        legacyBuilder: (_) => Setting(
+                          onManageAccounts: widget.onManageAccounts,
+                          onLogout: widget.onLogout,
+                        ),
                       ),
                     ],
                   ),

@@ -23,6 +23,7 @@ class LegacyStartupAdapter {
             baseUrl: server.url,
             deviceId: account.deviceId,
             sid: account.sid,
+            checkSsl: server.checkSsl,
           );
         })
         .toList(growable: false);

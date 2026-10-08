@@ -12,11 +12,16 @@ class DsmApi extends HttpUtil {
   String? baseUrl;
   String? deviceId;
   String? sid;
-  DsmApi({String baseUrl = "", String? deviceId, String? sid}) {
+  DsmApi({
+    String baseUrl = "",
+    String? deviceId,
+    String? sid,
+    bool checkSsl = true,
+  }) {
     this.baseUrl = baseUrl;
     this.deviceId = deviceId;
     this.sid = sid;
-    super.init(baseUrl, deviceId: deviceId, sid: sid);
+    super.init(baseUrl, deviceId: deviceId, sid: sid, checkSsl: checkSsl);
   }
 
   Future<DsmResponse> entry<T>(

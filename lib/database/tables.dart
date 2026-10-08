@@ -53,6 +53,8 @@ class Accounts extends Table {
 class Database extends _$Database {
   Database() : super(_openConnection());
 
+  Database.forTesting(QueryExecutor executor) : super(executor);
+
   @override
   // TODO: implement schemaVersion
   int get schemaVersion => 4;
@@ -87,7 +89,7 @@ class Database extends _$Database {
   }
 
   Future deleteAccountByServerId(int serverId) {
-    return (delete(accounts)..where((t) => t.id.equals(serverId))).go();
+    return (delete(accounts)..where((t) => t.serverId.equals(serverId))).go();
   }
 }
 

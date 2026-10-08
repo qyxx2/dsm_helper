@@ -112,6 +112,11 @@ class ThemeButton extends StatelessWidget {
 }
 
 class Setting extends StatefulWidget {
+  const Setting({super.key, this.onManageAccounts, this.onLogout});
+
+  final VoidCallback? onManageAccounts;
+  final VoidCallback? onLogout;
+
   @override
   _SettingState createState() => _SettingState();
 }
@@ -446,7 +451,12 @@ class _SettingState extends State<Setting> {
                                 children: [
                                   CupertinoButton(
                                     onPressed: () {
-                                      LogoutDialog.show(context: context, otpEnable: normalUser.otpEnable == true);
+                                      if (widget.onLogout != null) {
+                                        Navigator.of(context, rootNavigator: true).pop();
+                                        widget.onLogout!();
+                                      } else {
+                                        LogoutDialog.show(context: context, otpEnable: normalUser.otpEnable == true);
+                                      }
                                     },
                                     child: Image.asset(
                                       "assets/icons/exit.png",
@@ -456,7 +466,12 @@ class _SettingState extends State<Setting> {
                                   ),
                                   CupertinoButton(
                                     onPressed: () {
-                                      context.push(SelectServer(), name: "select_server");
+                                      if (widget.onManageAccounts != null) {
+                                        Navigator.of(context, rootNavigator: true).pop();
+                                        widget.onManageAccounts!();
+                                      } else {
+                                        context.push(SelectServer(), name: "select_server");
+                                      }
                                     },
                                     child: Image.asset(
                                       "assets/icons/change.png",

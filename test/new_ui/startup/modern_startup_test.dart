@@ -136,7 +136,8 @@ void main() {
     expect(request?.sid, 'sid');
   });
 
-  testWidgets('reauth-needed context returns to account selection instead of shell', (tester) async {
+  testWidgets('reauth-needed context sends the exact saved identity to reauth instead of generic selection', (tester) async {
+    StartupSavedContext? reauth;
     await tester.pumpWidget(
       MaterialApp(
         home: ModernStartup(
@@ -164,12 +165,15 @@ void main() {
           addServerBuilder: (_) => _label('add-server'),
           selectAccountBuilder: (_) => _label('select-account'),
           shellBuilder: (_, __) => _label('shell'),
+          onReauthNeeded: (value) => reauth = value,
         ),
       ),
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('select-account'), findsOneWidget);
+    expect(reauth?.accountId, 42);
+    expect(reauth?.serverId, 7);
+    expect(find.text('select-account'), findsNothing);
     expect(find.text('shell'), findsNothing);
   });
 }

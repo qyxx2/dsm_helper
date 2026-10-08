@@ -10,6 +10,7 @@ class StartupSavedContext {
     required this.baseUrl,
     required this.deviceId,
     required this.sid,
+    this.checkSsl = true,
   });
 
   final int accountId;
@@ -18,6 +19,7 @@ class StartupSavedContext {
   final String baseUrl;
   final String deviceId;
   final String sid;
+  final bool checkSsl;
 
   StartupAccountCandidate get candidate => StartupAccountCandidate(
         accountId: accountId,
@@ -30,6 +32,7 @@ class StartupSavedContext {
         baseUrl: baseUrl,
         deviceId: deviceId,
         sid: sid,
+        checkSsl: checkSsl,
       );
 }
 
@@ -69,6 +72,7 @@ enum _StartupPhase {
   addServer,
   selectAccount,
   shell,
+  reauth,
   error,
 }
 
@@ -80,6 +84,7 @@ class ModernStartup extends StatefulWidget {
     required this.addServerBuilder,
     required this.selectAccountBuilder,
     required this.shellBuilder,
+    this.onReauthNeeded,
     this.errorBuilder,
   });
 
@@ -88,6 +93,7 @@ class ModernStartup extends StatefulWidget {
   final WidgetBuilder addServerBuilder;
   final WidgetBuilder selectAccountBuilder;
   final StartupShellBuilder shellBuilder;
+  final ValueChanged<StartupSavedContext>? onReauthNeeded;
   final StartupErrorBuilder? errorBuilder;
 
   @override
@@ -159,9 +165,18 @@ class _ModernStartupState extends State<ModernStartup> {
               });
               return;
             case ActiveContextStatus.reauthNeeded:
-              setState(() {
-                _phase = _StartupPhase.selectAccount;
-              });
+              final onReauthNeeded = widget.onReauthNeeded;
+              if (onReauthNeeded == null) {
+                setState(() {
+                  _error = StateError('Exact-account reauthentication handler is missing');
+                  _phase = _StartupPhase.error;
+                });
+              } else {
+                setState(() {
+                  _phase = _StartupPhase.reauth;
+                });
+                onReauthNeeded(context);
+              }
               return;
             case ActiveContextStatus.failed:
               setState(() {
@@ -195,6 +210,10 @@ class _ModernStartupState extends State<ModernStartup> {
         return widget.selectAccountBuilder(context);
       case _StartupPhase.shell:
         return widget.shellBuilder(context, _result!);
+      case _StartupPhase.reauth:
+        return const Scaffold(
+          body: Center(child: Text('正在重新认证账号')),
+        );
       case _StartupPhase.error:
         final error = _error!;
         final builder = widget.errorBuilder;

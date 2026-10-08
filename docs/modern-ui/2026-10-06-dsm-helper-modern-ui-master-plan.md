@@ -170,6 +170,16 @@ User real-device validation 负责：
 
 > CI 证明代码成立；实机验证证明产品成立。
 
+### Documentation-only CI trigger policy — CI-DOCS-01
+
+为避免规划、规格、验收等纯文档提交重复执行完整 Flutter test / analyze / Android APK build：
+
+- `Modern UI Android CI` 对仅修改 `docs/**` 或 Markdown（`**/*.md`）的 push / pull request 默认不触发。
+- 如果同一提交同时包含 production code、test、Android build/config、dependency 或 workflow 等非文档变更，则 CI 正常触发。
+- `workflow_dispatch` 保留，可在纯文档提交后按需手动执行完整 CI。
+- 不使用 commit message 的 `[skip ci]` 作为常规机制；CI 跳过由仓库路径规则统一控制。
+- 本规则只减少无意义的文档构建，不降低任何代码、测试、构建配置或用户 APK Gate 的验证要求。
+
 ### Android APK install/update identity — APK-IDENTITY-01
 
 从 2026-10-07 Task 3 实机验收后起，所有提供给用户真机安装的后续 Modern UI APK 必须保持稳定的 Android 安装/升级身份，目标是允许直接覆盖安装上一版，而不是每次卸载重装。
@@ -985,16 +995,35 @@ Post-acceptance build follow-up:
 - `APK-IDENTITY-01` is now frozen project-wide.
 - Existing ephemeral CI development signing must be replaced with a stable development signing identity before the next user-installable APK Gate.
 
+### Completed — Task 4 (user-scoped acceptance)
+
+Task 4 — Server / Account / Login / OTP is **accepted for the user's verified HTTP-only personal-use scope**, on `feature/t4-server-auth`. This is **not** blanket physical-device acceptance of every supported configuration.
+
+Batch 6 / Task 4 acceptance:
+```text
+docs/modern-ui/acceptance/2026-10-08-task-4-server-auth-acceptance.md
+```
+
+- Final CI-verified implementation SHA: `422dbe0bfc5e4e353c3b1e5fa23a76afb44e064c`.
+- GitHub Actions Modern UI Android CI run #159 / ID `37756282193`: **completed / success**; full `flutter test` **117 passed**, targeted `flutter analyze` **no issues**, beta debug APK **built and uploaded**.
+- Stable development package/signing: `top.apaipai.dsm_helper`; certificate SHA-256 `0b8e6e0765cfba89e156f3037b66c9e9382d91f788e5e9be50516df02313d9a2`.
+- User real-device PASS: overlay install with login/data retained (two CI APKs), HTTP DSM add/edit/login/reopen/persistence, default/zero-default cold start, single-account/server management including delete/re-add, offline/reconnect, and logout followed by saved-credential reauthentication.
+- **Not exercised on a real device:** HTTPS/self-signed certificate policy (not used); second DSM account switch/isolation (none available); OTP/2FA (not requested); explicit server-side SID revocation/119 (deferred). Existing executable contracts cover their relevant logic, **not** those omitted real-device experiments.
+- User authorized omitting currently irrelevant physical-device scenarios. These gaps are **not accepted as tested**; before enabling or claiming any of them, perform the corresponding verification. They are non-blocking for subsequent Tasks that use the accepted HTTP-only path.
+- `CI-DOCS-01` applies to Batch 5/6 documentation-only closure; the accepted implementation remains the exact #159 verified SHA. No Task 4 production changes were required in Batch 6.
+
+**Task 4 Exit Gate: PASS for the expressly restricted HTTP-only personal deployment, with the above coverage exceptions.** The original broader Feature Spec remains authoritative for other environments; do not interpret this as complete HTTPS/OTP/multi-account/server-side-invalidation acceptance. The feature branch is **not merged** into `modern-ui` by this status entry.
+
 ### Active
 
 ```text
 No implementation Task is active.
 ```
 
-### Next
+### Next (not automatically started)
 
 ```text
-Task 4 — Server / Account / Login / OTP
+Task 5 — Dashboard
 ```
 
-Task 4 is unblocked by the completed Task 3 Exit Gate but has not started.
+Task 5 may be planned after the Task 4 integration decision and normal next-Task preflight. No next-Task implementation or branch merge is authorized by this status update.

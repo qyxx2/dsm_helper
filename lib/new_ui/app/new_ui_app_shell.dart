@@ -42,12 +42,16 @@ class NewUiAppShell extends StatelessWidget {
     required this.destinations,
     this.legacyHostWrapper,
     this.connectionStatusText,
+    this.onOpenAccountManagement,
+    this.onLogout,
   }) : assert(destinations.length == 5);
 
   final WidgetBuilder notificationBuilder;
   final List<NewUiAppDestination> destinations;
   final NewUiLegacyHostWrapper? legacyHostWrapper;
   final String? connectionStatusText;
+  final VoidCallback? onOpenAccountManagement;
+  final VoidCallback? onLogout;
 
   void _pushLegacy(
     BuildContext context,
@@ -79,6 +83,9 @@ class NewUiAppShell extends StatelessWidget {
             return NewUiPrimaryPage(
               title: destination.label,
               connectionStatusText: connectionStatusText,
+              onOpenAccountManagement:
+                  destination.label == '我的' ? onOpenAccountManagement : null,
+              onLogout: destination.label == '我的' ? onLogout : null,
               onOpenNotifications: () {
                 _pushLegacy(tabContext, notificationBuilder);
               },

@@ -1,4 +1,5 @@
 import 'package:dsm_helper/apis/api.dart';
+import 'package:dsm_helper/utils/http_util.dart';
 
 /// maxVersion : 6
 /// minVersion : 1
@@ -11,9 +12,9 @@ class ApiModel {
     this.path,
   });
   static Map<String, ApiModel> apiInfo = {};
-  static Future<Map<String, ApiModel>> info() async {
+  static Future<Map<String, ApiModel>> info({HttpUtil? client}) async {
     Map<String, ApiModel> apis = {};
-    Map res = await Api.dsm.post("/webapi/query.cgi", data: {
+    Map res = await (client ?? Api.dsm).post("/webapi/query.cgi", data: {
       "query": "all",
       "api": "SYNO.API.Info",
       "method": "query",

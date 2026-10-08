@@ -13,12 +13,14 @@ class ActiveContextRequest {
     required this.baseUrl,
     required this.deviceId,
     required this.sid,
+    this.checkSsl = true,
   });
 
   final String contextId;
   final String baseUrl;
   final String deviceId;
   final String sid;
+  final bool checkSsl;
 }
 
 class ActiveContextResult {
