@@ -1,6 +1,6 @@
 # Task 4 Batch 0 — Stable Development APK Signing Acceptance
 
-> Status: In progress  
+> Status: In progress — second identical-signature run pending  
 > Date: 2026-10-08  
 > Task: Task 4 — Server / Account / Login / OTP  
 > Batch: 0 — Stable Development APK Signing  
@@ -36,15 +36,23 @@ The secret values are intentionally not recorded in this repository or acceptanc
 
 Pending:
 
-- [ ] user confirms the four repository secrets exist;
-- [ ] workflow no longer generates an ephemeral key;
-- [ ] CI run 1 succeeds;
+- [x] user confirms the four repository secrets exist;
+- [x] workflow no longer generates an ephemeral key;
+- [x] CI run 1 succeeds — run #126 / ID `37713701457`, attempt 1;
 - [ ] CI run 2 succeeds;
-- [ ] package id confirmed as `top.apaipai.dsm_helper`;
-- [ ] run 1 signing SHA-256 fingerprint recorded;
+- [x] package id confirmed as `top.apaipai.dsm_helper` by run #126 identity assertion;
+- [x] run 1 signing SHA-256 fingerprint: `0b8e6e0765cfba89e156f3037b66c9e9382d91f788e5e9be50516df02313d9a2`;
 - [ ] run 2 signing SHA-256 fingerprint matches run 1;
-- [ ] no keystore/private-key artifact appears in Git diff.
+- [x] no keystore/private-key artifact appears in the Batch 0 Git diff; the repository's pre-existing `keystore/file_station.keystore` is unchanged and is not the Modern UI development signing key.
 
-## Final certificate fingerprint
+## Stable development certificate fingerprint
 
-Pending.
+User-generated certificate:
+
+`0B:8E:6E:07:65:CF:BA:89:E1:56:F3:03:7B:66:C9:E9:38:2D:91:F7:88:E5:E9:BE:50:51:6D:F0:23:13:D9:A2`
+
+CI run #126 attempt 1 independently reported the normalized equivalent:
+
+`0b8e6e0765cfba89e156f3037b66c9e9382d91f788e5e9be50516df02313d9a2`
+
+Second-run equality is still pending.
