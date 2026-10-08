@@ -47,21 +47,21 @@ void main() {
     await tester.enterText(find.byKey(const Key('auth-account')), 'user');
     await tester.enterText(find.byKey(const Key('auth-password')), 'password');
     await tester.tap(find.byKey(const Key('auth-submit')));
-    await tester.pumpAndSettle(timeout: const Duration(seconds: 10));
+    await tester.pumpAndSettle();
 
     expect(controller.state.stage, AuthFlowStage.verification);
     expect(find.byKey(const Key('auth-verification-code')), findsOneWidget);
     expect(store.savedAccounts, isEmpty);
     await tester.enterText(find.byKey(const Key('auth-verification-code')), '000000');
     await tester.tap(find.byKey(const Key('auth-verify-submit')));
-    await tester.pumpAndSettle(timeout: const Duration(seconds: 10));
+    await tester.pumpAndSettle();
     expect(find.textContaining('错误的验证码'), findsOneWidget);
     expect(find.byKey(const Key('auth-verification-code')), findsOneWidget);
     expect(store.savedAccounts, isEmpty);
 
     await tester.enterText(find.byKey(const Key('auth-verification-code')), '123456');
     await tester.tap(find.byKey(const Key('auth-verify-submit')));
-    await tester.pumpAndSettle(timeout: const Duration(seconds: 10));
+    await tester.pumpAndSettle();
     expect(codes, <String?>[null, '000000', '123456']);
     expect(controller.state.stage, AuthFlowStage.authenticated);
     expect(store.savedAccounts, hasLength(1));
@@ -86,11 +86,11 @@ void main() {
     await tester.enterText(find.byKey(const Key('auth-account')), 'user');
     await tester.enterText(find.byKey(const Key('auth-password')), 'secret');
     await tester.tap(find.byKey(const Key('auth-submit')));
-    await tester.pumpAndSettle(timeout: const Duration(seconds: 10));
+    await tester.pumpAndSettle();
 
     expect(find.textContaining('user@example.com'), findsOneWidget);
     await tester.tap(find.byKey(const Key('auth-verification-back')));
-    await tester.pumpAndSettle(timeout: const Duration(seconds: 10));
+    await tester.pumpAndSettle();
     expect(controller.state.stage, AuthFlowStage.credentials);
     expect(tester.widget<TextField>(find.byKey(const Key('auth-account'))).controller?.text, 'user');
     expect(tester.widget<TextField>(find.byKey(const Key('auth-password'))).controller?.text, 'secret');
