@@ -68,7 +68,7 @@ void main() {
     await tester.tap(find.byKey(const Key('auth-default')));
     await tester.pump();
     await tester.tap(find.byKey(const Key('auth-submit')));
-    await tester.pumpAndSettle(timeout: const Duration(seconds: 10));
+    await tester.pumpAndSettle();
 
     expect(submittedAccount, 'user');
     expect(submittedPassword, 'new-password');
@@ -107,7 +107,7 @@ void main() {
 
     await tester.enterText(find.byKey(const Key('auth-password')), 'replacement');
     await tester.tap(find.byKey(const Key('auth-submit')));
-    await tester.pumpAndSettle(timeout: const Duration(seconds: 10));
+    await tester.pumpAndSettle();
 
     expect(store.savedAccounts, hasLength(1));
     expect(store.savedAccounts.single.id, saved.id);
