@@ -36,6 +36,64 @@ class ServerAccountStore {
     });
   }
 
+  Future<Account> saveAuthenticatedAccount({
+    required int serverId,
+    required String account,
+    required String password,
+    required bool isDefault,
+    required String deviceId,
+    required String sid,
+    required String ikMessage,
+    required String synoToken,
+    required int timestamp,
+  }) {
+    return db.transaction(() async {
+      final existing = await (db.select(db.accounts)
+            ..where(
+              (table) =>
+                  table.serverId.equals(serverId) &
+                  table.account.equals(account),
+            ))
+          .getSingleOrNull();
+
+      if (isDefault) {
+        await db.update(db.accounts).write(
+              const AccountsCompanion(isDefault: Value(false)),
+            );
+      }
+
+      if (existing == null) {
+        return db.into(db.accounts).insertReturning(
+              AccountsCompanion.insert(
+                serverId: serverId,
+                account: account,
+                password: password,
+                remark: '',
+                createTime: timestamp,
+                lastLoginTime: timestamp,
+                isDefault: isDefault,
+                deviceId: deviceId,
+                sid: sid,
+                ikMessage: ikMessage,
+                synoToken: synoToken,
+              ),
+            );
+      }
+
+      final updated = existing.copyWith(
+        password: password,
+        lastLoginTime: timestamp,
+        isDefault: isDefault,
+        deviceId: deviceId,
+        sid: sid,
+        ikMessage: ikMessage,
+        synoToken: synoToken,
+      );
+      await db.updateAccount(updated);
+      return updated;
+    });
+  }
+
   Future<void> clearDefaultAccount(int accountId) {
     return db.transaction(() async {
       final updated =
