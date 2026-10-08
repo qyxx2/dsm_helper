@@ -7,6 +7,7 @@ Server _server({
   bool ssl = true,
   String domain = 'nas.local',
   int port = 5001,
+  bool checkSsl = true,
 }) {
   return Server(
     id: id,
@@ -15,7 +16,7 @@ Server _server({
     qcid: '',
     domain: domain,
     port: port,
-    checkSsl: true,
+    checkSsl: checkSsl,
     remark: '',
     macAddress: '',
     createTime: 1,
@@ -48,7 +49,13 @@ void main() {
     final snapshot = LegacyStartupAdapter.buildSnapshot(
       servers: [
         _server(id: 7),
-        _server(id: 9, ssl: false, domain: '10.0.0.9', port: 5000),
+        _server(
+          id: 9,
+          ssl: false,
+          domain: '10.0.0.9',
+          port: 5000,
+          checkSsl: false,
+        ),
       ],
       accounts: [
         _account(id: 42, serverId: 7, isDefault: true),
@@ -71,6 +78,8 @@ void main() {
 
     final second = snapshot.contexts.firstWhere((item) => item.accountId == 43);
     expect(second.baseUrl, 'http://10.0.0.9:5000');
+    expect(second.checkSsl, isFalse);
+    expect(second.request.checkSsl, isFalse);
     expect(snapshot.contexts.any((item) => item.accountId == 99), isFalse);
   });
 
