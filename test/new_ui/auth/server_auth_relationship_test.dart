@@ -12,6 +12,7 @@ import 'package:dsm_helper/new_ui/auth/server_account_store.dart';
 import 'package:dsm_helper/new_ui/auth/server_form_controller.dart';
 import 'package:dsm_helper/new_ui/session/active_context_coordinator.dart';
 import 'package:dsm_helper/new_ui/startup/modern_startup.dart';
+import 'package:dsm_helper/new_ui/theme/new_ui_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -367,6 +368,7 @@ void main() {
       (tester) async {
     var activations = 0;
     await tester.pumpWidget(MaterialApp(
+      theme: ThemeData.light(),
       home: ModernUiRoot(
         initialAuthRequired: false,
         initializeDownloader: false,
@@ -384,6 +386,11 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byKey(const Key('server-form-host')), findsOneWidget);
     expect(find.byKey(const Key('server-form-submit')), findsOneWidget);
+    final formTheme = Theme.of(
+      tester.element(find.byKey(const Key('server-form-host'))),
+    );
+    expect(formTheme.colorScheme.primary, NewUiTheme.light().colorScheme.primary);
+    expect(formTheme.useMaterial3, isTrue);
     expect(activations, 0);
     await tester.pumpWidget(const SizedBox());
   }, timeout: const Timeout(Duration(seconds: 45)));
