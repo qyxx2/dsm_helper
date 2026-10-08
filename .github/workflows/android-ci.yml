@@ -47,17 +47,24 @@ jobs:
           flutter --version
           java -version
 
-      - name: Create ephemeral development signing key
+      - name: Restore stable development signing key
         shell: bash
+        env:
+          KEYSTORE_B64: ${{ secrets.MODERN_UI_DEV_KEYSTORE_B64 }}
+          STORE_PASSWORD: ${{ secrets.MODERN_UI_DEV_STORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.MODERN_UI_DEV_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.MODERN_UI_DEV_KEY_PASSWORD }}
         run: |
-          keytool -genkeypair             -v             -keystore android/ci-debug.keystore             -storepass android             -alias ci-debug             -keypass android             -keyalg RSA             -keysize 2048             -validity 10000             -dname "CN=DSM Helper Modern UI CI, OU=Development, O=Local, L=Local, S=Local, C=US"
-
-          cat > android/key.properties <<'EOF'
-          storePassword=android
-          keyPassword=android
-          keyAlias=ci-debug
-          storeFile=../ci-debug.keystore
-          EOF
+          set -euo pipefail
+          printf '%s' "$KEYSTORE_B64" | base64 --decode > android/modern-ui-dev.jks
+          chmod 600 android/modern-ui-dev.jks
+          {
+            printf 'storePassword=%s\n' "$STORE_PASSWORD"
+            printf 'keyPassword=%s\n' "$KEY_PASSWORD"
+            printf 'keyAlias=%s\n' "$KEY_ALIAS"
+            printf 'storeFile=../modern-ui-dev.jks\n'
+          } > android/key.properties
+          chmod 600 android/key.properties
 
       - name: Resolve dependencies
         run: flutter pub get
