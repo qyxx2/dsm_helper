@@ -3,7 +3,7 @@ import 'package:dsm_helper/database/tables.dart';
 import 'package:dsm_helper/models/Syno/Api/auth.dart';
 import 'package:dsm_helper/new_ui/auth/auth_flow_controller.dart';
 import 'package:dsm_helper/new_ui/auth/login_page.dart';
-import 'package:dsm_helper/new_ui/auth/server_account_store.dart';
+import 'support/fake_server_account_store.dart';
 import 'package:dsm_helper/new_ui/theme/new_ui_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -37,9 +37,10 @@ void main() {
   testWidgets('Stage 1 exposes compact fields, password toggle, default and primary action', (tester) async {
     String? submittedAccount;
     String? submittedPassword;
+    final store = FakeServerAccountStore(db);
     final controller = AuthFlowController(
       server: server,
-      store: ServerAccountStore(db),
+      store: store,
       login: ({required account, required password, optCode}) async {
         submittedAccount = account;
         submittedPassword = password;
@@ -67,29 +68,30 @@ void main() {
     await tester.tap(find.byKey(const Key('auth-default')));
     await tester.pump();
     await tester.tap(find.byKey(const Key('auth-submit')));
-    await tester.pumpAndSettle();
+    await tester.pumpAndSettle(timeout: const Duration(seconds: 10));
 
     expect(submittedAccount, 'user');
     expect(submittedPassword, 'new-password');
-    expect((await db.select(db.accounts).get()).single.isDefault, isTrue);
+    expect(store.savedAccounts, hasLength(1));
+    expect(store.savedAccounts.single.isDefault, isTrue);
+    expect(controller.state.authenticatedAccount?.id, store.savedAccounts.single.id);
+    expect(controller.isSubmitting, isFalse);
     expect(tester.getSize(find.byKey(const Key('auth-submit'))).height,
         greaterThanOrEqualTo(48));
   });
 
   testWidgets('saved reauthentication keeps account identity and updates its row', (tester) async {
-    final id = await db.into(db.accounts).insert(
-      AccountsCompanion.insert(
-        serverId: server.id, account: 'user', password: 'old',
-        remark: '', createTime: 1, lastLoginTime: 1,
-        isDefault: false, deviceId: 'device',
-        sid: 'old-sid', ikMessage: '', synoToken: 'token',
-      ),
+    final saved = Account(
+      id: 1, serverId: server.id, account: 'user', password: 'old',
+      remark: '', createTime: 1, lastLoginTime: 1,
+      isDefault: false, deviceId: 'device',
+      sid: 'old-sid', ikMessage: '', synoToken: 'token',
     );
-    final saved = (db.select(db.accounts)..where((t) => t.id.equals(id))).getSingle();
+    final store = FakeServerAccountStore(db, existingAccount: saved);
     final controller = AuthFlowController(
       server: server,
-      existingAccount: await saved,
-      store: ServerAccountStore(db),
+      existingAccount: saved,
+      store: store,
       login: ({required account, required password, optCode}) async => successfulLogin(),
     );
     addTearDown(controller.dispose);
@@ -105,12 +107,12 @@ void main() {
 
     await tester.enterText(find.byKey(const Key('auth-password')), 'replacement');
     await tester.tap(find.byKey(const Key('auth-submit')));
-    await tester.pumpAndSettle();
+    await tester.pumpAndSettle(timeout: const Duration(seconds: 10));
 
-    final rows = await db.select(db.accounts).get();
-    expect(rows, hasLength(1));
-    expect(rows.single.id, id);
-    expect(rows.single.sid, 'new-sid');
-    expect(rows.single.password, 'replacement');
+    expect(store.savedAccounts, hasLength(1));
+    expect(store.savedAccounts.single.id, saved.id);
+    expect(store.savedAccounts.single.sid, 'new-sid');
+    expect(store.savedAccounts.single.password, 'replacement');
+    expect(controller.isSubmitting, isFalse);
   });
 }
