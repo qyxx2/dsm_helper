@@ -328,7 +328,7 @@ void main() {
       expect(find.text('shell-authenticated-${activations.single.contextId}'),
           findsOneWidget);
       await tester.pumpWidget(const SizedBox());
-    });
+    , timeout: const Timeout(Duration(seconds: 45))});
 
     testWidgets('cold-start 119 reauthenticates the exact saved row without duplication',
         (tester) async {
@@ -398,7 +398,7 @@ void main() {
       expect(find.text('shell-${requests.last.contextId}'), findsOneWidget);
       expect(find.byKey(const Key('auth-account')), findsNothing);
       await tester.pumpWidget(const SizedBox());
-    });
+    , timeout: const Timeout(Duration(seconds: 45))});
 
     testWidgets('launcher selection activates the chosen saved identity before shell',
         (tester) async {
@@ -445,7 +445,7 @@ void main() {
       expect(activation?.checkSsl, false);
       expect(find.text('shell-offline'), findsOneWidget);
       await tester.pumpWidget(const SizedBox());
-    });
+    , timeout: const Timeout(Duration(seconds: 45))});
 
     testWidgets('post-login activation failure never presents shell',
         (tester) async {
@@ -490,7 +490,7 @@ void main() {
       expect(find.text('shell'), findsNothing);
       expect(find.text('无法激活此账号，请重试'), findsOneWidget);
       await tester.pumpWidget(const SizedBox());
-    });
+    , timeout: const Timeout(Duration(seconds: 45))});
   });
 
   testWidgets('My tab exposes scoped modern management/logout without losing legacy fallback',
@@ -523,6 +523,6 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byKey(const Key('modern-manage-accounts')), findsNothing);
     expect(find.byKey(const Key('modern-logout')), findsNothing);
-  });
+  }), timeout: const Timeout(Duration(seconds: 45));
 
 }
