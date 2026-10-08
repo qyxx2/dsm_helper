@@ -98,6 +98,30 @@ jobs:
       - name: Build beta debug APK
         run: flutter build apk --debug --flavor beta
 
+      - name: Verify APK install identity
+        shell: bash
+        env:
+          EXPECTED_PACKAGE_ID: top.apaipai.dsm_helper
+          EXPECTED_CERT_SHA256: 0B:8E:6E:07:65:CF:BA:89:E1:56:F3:03:7B:66:C9:E9:38:2D:91:F7:88:E5:E9:BE:50:51:6D:F0:23:13:D9:A2
+        run: |
+          set -euo pipefail
+          APK=build/app/outputs/flutter-apk/app-beta-debug.apk
+          BUILD_TOOLS_DIR="$(find "$ANDROID_HOME/build-tools" -mindepth 1 -maxdepth 1 -type d | sort -V | tail -n 1)"
+          AAPT="$BUILD_TOOLS_DIR/aapt"
+          APKSIGNER="$BUILD_TOOLS_DIR/apksigner"
+
+          PACKAGE_ID="$("$AAPT" dump badging "$APK" | sed -n "s/^package: name='\([^']*\)'.*/\1/p" | head -n 1)"
+          CERT_SHA256="$("$APKSIGNER" verify --print-certs "$APK" | sed -n 's/^Signer #1 certificate SHA-256 digest: //p' | head -n 1)"
+
+          EXPECTED_CERT_NORMALIZED="$(printf '%s' "$EXPECTED_CERT_SHA256" | tr -d ':' | tr '[:upper:]' '[:lower:]')"
+          CERT_NORMALIZED="$(printf '%s' "$CERT_SHA256" | tr -d ':' | tr '[:upper:]' '[:lower:]')"
+
+          echo "Package ID: $PACKAGE_ID"
+          echo "Signing certificate SHA-256: $CERT_SHA256"
+
+          test "$PACKAGE_ID" = "$EXPECTED_PACKAGE_ID"
+          test "$CERT_NORMALIZED" = "$EXPECTED_CERT_NORMALIZED"
+
       - name: Upload development APK
         uses: actions/upload-artifact@v4
         with:
