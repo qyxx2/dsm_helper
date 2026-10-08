@@ -17,6 +17,18 @@ class ServerAccountStore {
     });
   }
 
+  /// Deleting an Account must not remove its Server or sibling Accounts.
+  Future<void> deleteAccount(int accountId) {
+    return db.transaction(() async {
+      final deleted = await (db.delete(db.accounts)
+            ..where((table) => table.id.equals(accountId)))
+          .go();
+      if (deleted != 1) {
+        throw StateError('Account not found: $accountId');
+      }
+    });
+  }
+
   Future<void> setDefaultAccount(int accountId) {
     return db.transaction(() async {
       final target = await (db.select(db.accounts)
