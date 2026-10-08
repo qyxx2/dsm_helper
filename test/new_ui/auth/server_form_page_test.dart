@@ -88,7 +88,7 @@ void main() {
         createTime: 1,
       ),
     );
-    final server = await (db.select(db.servers)..where((t) => t.id.equals(id)).getSingle();
+    final server = await (db.select(db.servers)..where((t) => t.id.equals(id))).getSingle();
     await db.into(db.accounts).insert(
       AccountsCompanion.insert(
         serverId: id, account: 'user', password: 'secret',
