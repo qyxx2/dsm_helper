@@ -89,7 +89,7 @@ void main() {
       const sharingEvents = MethodChannel('flutter_sharing_intent/events-sharing');
       messenger.setMockMethodCallHandler(
         sharing,
-        (call) async => call.method == 'getInitialSharing' ? <dynamic>[] : null,
+        (call) async => call.method == 'getInitialSharing' ? '[]' : null,
       );
       messenger.setMockMethodCallHandler(sharingEvents, (call) async => null);
       final originalDb = DbUtils.db;
