@@ -142,7 +142,7 @@ void main() {
     expect(tester.getTopLeft(h1).dx, lessThan(tester.getTopLeft(s1).dx));
     expect(tester.getTopLeft(h2).dx, lessThan(tester.getTopLeft(s2).dx));
     expect(tester.getTopLeft(h1).dy, lessThan(tester.getTopLeft(h2).dy));
-    expect(find.text('正常'), findsOneWidget);
+    expect(find.text('良好'), findsOneWidget);
     expect(find.textContaining('已用'), findsOneWidget);
     expect(tester.takeException(), isNull);
   }, timeout: const Timeout(Duration(seconds: 15)));
