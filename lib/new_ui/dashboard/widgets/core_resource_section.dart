@@ -53,7 +53,10 @@ class CoreResourceSection extends StatelessWidget {
         if (volumes != null)
           for (final volume in volumes) ...[
             const SizedBox(height: 8),
-            _VolumeBlock(volume: volume),
+            _VolumeBlock(
+              volume: volume,
+              temperatures: _diskTemperatureLabels(storage, volume),
+            ),
           ],
       ],
     );
@@ -62,6 +65,89 @@ class CoreResourceSection extends StatelessWidget {
 
 String _num(num value) =>
     value == value.roundToDouble() ? value.toInt().toString() : value.toString();
+
+/// Read disk temperatures only through an exact, unambiguous volume -> pool
+/// -> disk relation from the existing Storage response.
+List<String> _diskTemperatureLabels(Storage? storage, Volumes volume) {
+  final identity = volume.poolPath;
+  if (storage == null || identity == null || identity.trim().isEmpty) {
+    return const [];
+  }
+
+  final pools = storage.storagePools ?? const <StoragePools>[];
+  final matches = pools.where(
+    (pool) => pool.id == identity || pool.poolPath == identity,
+  ).toList();
+  if (matches.length != 1) return const [];
+  final pool = matches.single;
+
+  final allDisks = storage.disks ?? const <Disks>[];
+  final poolDiskIds = pool.disks ?? const <String>[];
+  final related = <Disks>[];
+
+  if (poolDiskIds.isNotEmpty) {
+    final seenIds = <String>{};
+    for (final id in poolDiskIds) {
+      if (id.isEmpty || !seenIds.add(id)) continue;
+      final matches = allDisks.where((disk) => disk.id == id).toList();
+      if (matches.length != 1) continue;
+      final disk = matches.single;
+      final usedBy = disk.usedBy;
+      if (usedBy != null && usedBy.isNotEmpty &&
+          usedBy != pool.id && usedBy != pool.poolPath) {
+        continue;
+      }
+      related.add(disk);
+    }
+  } else {
+    // Some DSM replies omit pool.disks. A unique matching usedBy identity
+    // can recover that relation, but never use an orphan or another pool.
+    final poolIdentities = {
+      if (pool.id != null && pool.id!.isNotEmpty) pool.id!,
+      if (pool.poolPath != null && pool.poolPath!.isNotEmpty) pool.poolPath!,
+    };
+    final seenIds = <String>{};
+    for (final disk in allDisks) {
+      final usedBy = disk.usedBy;
+      final id = disk.id;
+      if (usedBy == null || !poolIdentities.contains(usedBy) ||
+          id == null || id.isEmpty || !seenIds.add(id)) {
+        continue;
+      }
+      final owners = pools.where(
+        (candidate) =>
+            candidate.id == usedBy || candidate.poolPath == usedBy,
+      );
+      if (owners.length != 1 || !identical(owners.single, pool)) continue;
+      if (allDisks.where((candidate) => candidate.id == id).length != 1) {
+        continue;
+      }
+      related.add(disk);
+    }
+  }
+
+  final visible = <Disks>[];
+  for (final disk in related) {
+    final temperature = disk.temp;
+    if (disk.isSsd == null || temperature == null ||
+        !temperature.isFinite || temperature <= 0) {
+      continue;
+    }
+    visible.add(disk);
+    if (visible.length == 4) break;
+  }
+  final hddCount = visible.where((disk) => disk.isSsd == false).length;
+  final ssdCount = visible.length - hddCount;
+  var hddIndex = 0;
+  var ssdIndex = 0;
+  return [
+    for (final disk in visible)
+      if (disk.isSsd == true)
+        'SSD${ssdCount > 1 ? ' ${++ssdIndex}' : ''} ${_num(disk.temp!)}℃'
+      else
+        'HDD${hddCount > 1 ? ' ${++hddIndex}' : ''} ${_num(disk.temp!)}℃',
+  ];
+}
 
 double? _fraction(num? percent) {
   if (percent == null || !percent.isFinite || percent < 0 || percent > 100) {
@@ -128,9 +214,10 @@ class _ResourceBlock extends StatelessWidget {
 }
 
 class _VolumeBlock extends StatelessWidget {
-  const _VolumeBlock({required this.volume});
+  const _VolumeBlock({required this.volume, required this.temperatures});
 
   final Volumes volume;
+  final List<String> temperatures;
 
   @override
   Widget build(BuildContext context) {
@@ -157,17 +244,61 @@ class _VolumeBlock extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (name.isNotEmpty)
-              Text(name, style: theme.textTheme.titleSmall),
-            if (statusLabel != null) ...[
-              const SizedBox(height: 4),
-              Text(
-                statusLabel,
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: theme.colorScheme.onSurfaceVariant,
+            if (temperatures.isEmpty) ...[
+              if (name.isNotEmpty)
+                Text(name, style: theme.textTheme.titleSmall),
+              if (statusLabel != null) ...[
+                const SizedBox(height: 4),
+                Text(
+                  statusLabel,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
                 ),
+              ],
+            ] else
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    flex: 2,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (name.isNotEmpty)
+                          Text(name, style: theme.textTheme.titleSmall),
+                        if (statusLabel != null) ...[
+                          const SizedBox(height: 4),
+                          Text(
+                            statusLabel,
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: theme.colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    flex: 3,
+                    child: Wrap(
+                      alignment: WrapAlignment.end,
+                      spacing: 8,
+                      runSpacing: 4,
+                      children: [
+                        for (final temperature in temperatures)
+                          Text(
+                            temperature,
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: theme.colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-            ],
             if (percent != null) ...[
               const SizedBox(height: 4),
               Text(
