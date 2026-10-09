@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:dsm_helper/models/Syno/Core/CurrentConnection.dart';
 import 'package:dsm_helper/new_ui/dashboard/overview_source_state.dart';
 import 'package:dsm_helper/new_ui/dashboard/widgets/current_connection_extension.dart';
