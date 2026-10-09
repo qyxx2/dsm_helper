@@ -1,7 +1,9 @@
 import 'dart:async';
 
+import 'package:dsm_helper/new_ui/dashboard/overview_alerts.dart';
 import 'package:dsm_helper/new_ui/dashboard/overview_controller.dart';
 import 'package:dsm_helper/new_ui/dashboard/overview_source_state.dart';
+import 'package:dsm_helper/new_ui/dashboard/widgets/abnormal_summary.dart';
 import 'package:dsm_helper/new_ui/dashboard/widgets/core_resource_section.dart';
 import 'package:dsm_helper/new_ui/dashboard/widgets/device_summary.dart';
 import 'package:dsm_helper/providers/init_data_provider.dart';
@@ -20,11 +22,13 @@ class OverviewPage extends StatefulWidget {
     super.key,
     required this.controllerFactory,
     required this.onOpenNotifications,
+    this.onOpenAlertDestination,
     this.connectionStatusText,
   });
 
   final OverviewControllerFactory controllerFactory;
   final VoidCallback onOpenNotifications;
+  final ValueChanged<OverviewAlertDestination>? onOpenAlertDestination;
   final String? connectionStatusText;
 
   @override
@@ -106,6 +110,11 @@ class _OverviewPageState extends State<OverviewPage> {
           final system = controller.system;
           final utilization = controller.utilization;
           final storage = controller.storage;
+          final notifications = controller.notifications;
+          final alerts = buildOverviewAlerts(
+            storage: storage.value,
+            notifications: notifications.value,
+          );
           final refreshing = [
             system.phase,
             utilization.phase,
@@ -159,6 +168,15 @@ class _OverviewPageState extends State<OverviewPage> {
                   utilization: utilization.value,
                   storage: storage.value,
                 ),
+                if (alerts.isNotEmpty) ...[
+                  const SizedBox(height: 16),
+                  AbnormalSummary(
+                    alerts: alerts,
+                    notificationsStale:
+                        notifications.phase == OverviewSourcePhase.stale,
+                    onOpenDestination: widget.onOpenAlertDestination,
+                  ),
+                ],
               ],
             ),
           );
