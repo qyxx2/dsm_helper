@@ -589,6 +589,13 @@ Validation
 
 ## Task 5 — Dashboard
 
+> **Status: COMPLETE — automated gates and declared real-device scope accepted on 2026-10-09.**  
+> Final implementation HEAD: `699157d1dbb16aab34d306589b29ddb4ef1a26ee`  
+> Final CI: Modern UI Android CI #232 / run `37926403702` — 235 tests passed, targeted analyze clean, beta debug APK built, stable package/signing identity verified, artifact uploaded.  
+> Real-device Gate: PASS for the user's declared HTTP LAN DSM scope, including the focused Batch 7 corrective follow-up. HTTPS/self-signed, second-account, OTP and forced-119 scenarios remain explicitly **NOT TESTED**, not accepted by implication.  
+> Acceptance: [Task 5 Dashboard Acceptance](acceptance/2026-10-09-task-5-dashboard-acceptance.md).  
+> Task 6 has not started and is not implied by this completion status.
+
 ### Scope
 
 第一套完整的新核心页面。
