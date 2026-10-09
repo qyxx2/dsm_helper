@@ -53,21 +53,25 @@ void main() {
         ['套件中心', '控制面板', '存储空间管理员', '资源监控']);
   });
 
-  test('Docker and Container Manager follow actual DSM availability', () {
+  testWidgets('Docker and Container Manager follow actual DSM availability', (tester) async {
+    await tester.pumpWidget(const MaterialApp(home: Scaffold()));
+    final context = tester.element(find.byType(Scaffold));
     final oldDocker = catalog.build(fixture(
         [shortcut(docker)], [docker])).single;
     final newDocker = catalog.build(fixture(
         [shortcut(docker)], [container])).single;
     expect(oldDocker.routeName, '/docker');
     expect(newDocker.routeName, '/container_manager');
-    expect(oldDocker.legacyBuilder(_context).runtimeType, Docker);
-    expect(newDocker.legacyBuilder(_context).runtimeType, Docker);
-    expect((oldDocker.legacyBuilder(_context) as Docker).isContainer, isNot(true));
-    expect((newDocker.legacyBuilder(_context) as Docker).isContainer, isTrue);
+    expect(oldDocker.legacyBuilder(context).runtimeType, Docker);
+    expect(newDocker.legacyBuilder(context).runtimeType, Docker);
+    expect((oldDocker.legacyBuilder(context) as Docker).isContainer, isNot(true));
+    expect((newDocker.legacyBuilder(context) as Docker).isContainer, isTrue);
     expect(catalog.build(fixture([shortcut(docker)], [])), isEmpty);
   });
 
-  test('URL shortcut preserves exact URL and container name', () {
+  testWidgets('URL shortcut preserves exact URL and container name', (tester) async {
+    await tester.pumpWidget(const MaterialApp(home: Scaffold()));
+    final context = tester.element(find.byType(Scaffold));
     const target = 'http://nas.example:9096/?path=a%2Fb';
     final entries = catalog.build(fixture([
       ShortcutItems(
@@ -79,11 +83,13 @@ void main() {
     ], [container]));
     expect(entries.single.label, 'my-container');
     expect(entries.single.routeName, '/browser');
-    final browser = entries.single.legacyBuilder(_context) as Browser;
+    final browser = entries.single.legacyBuilder(context) as Browser;
     expect(browser.url, target);
   });
 
-  test('named container detail retains exact name rather than URL fallback', () {
+  testWidgets('named container detail retains exact name rather than URL fallback', (tester) async {
+    await tester.pumpWidget(const MaterialApp(home: Scaffold()));
+    final context = tester.element(find.byType(Scaffold));
     final entries = catalog.build(fixture([
       ShortcutItems(
         className: detail,
@@ -92,7 +98,7 @@ void main() {
     ], [docker]));
     expect(entries.single.routeName, '/docker_container_detail');
     expect(entries.single.label, 'jellyfin');
-    expect(entries.single.legacyBuilder(_context), isA<ContainerDetail>());
+    expect(entries.single.legacyBuilder(context), isA<ContainerDetail>());
   });
 
   test('missing URL/name, empty capability and unknown entries stay excluded', () {
@@ -105,6 +111,3 @@ void main() {
     expect(catalog.build(InitDataModel()), isEmpty);
   });
 }
-
-BuildContext get _context => throw UnimplementedError(
-    'Tests replace BuildContext when constructing legacy page builders');
