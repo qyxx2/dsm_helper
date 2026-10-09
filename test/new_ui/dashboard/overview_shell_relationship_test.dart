@@ -17,8 +17,11 @@ import 'package:dsm_helper/new_ui/dashboard/overview_data_source.dart';
 import 'package:dsm_helper/new_ui/dashboard/overview_page.dart';
 import 'package:dsm_helper/new_ui/dashboard/widgets/shortcut_section.dart';
 import 'package:dsm_helper/new_ui/legacy/legacy_shared_bootstrap.dart';
+import 'package:dsm_helper/new_ui/legacy/legacy_page_host.dart';
+import 'package:dsm_helper/new_ui/notifications/legacy_notification_entry.dart';
 import 'package:dsm_helper/new_ui/session/active_context_coordinator.dart';
 import 'package:dsm_helper/new_ui/startup/modern_startup.dart';
+import 'package:dsm_helper/pages/control_panel/control_panel.dart';
 import 'package:dsm_helper/providers/dark_mode.dart';
 import 'package:dsm_helper/providers/init_data_provider.dart';
 import 'package:dsm_helper/providers/setting_provider.dart';
@@ -409,5 +412,169 @@ void main() {
       }
     },
     timeout: const Timeout(Duration(seconds: 35)),
+  );
+
+  testWidgets(
+    'production shell notifications and legacy handoff survive Overview failures and preserve other tabs',
+    (tester) async {
+      final messenger =
+          TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
+      const sharing = MethodChannel('flutter_sharing_intent');
+      const sharingEvents =
+          MethodChannel('flutter_sharing_intent/events-sharing');
+      messenger.setMockMethodCallHandler(
+        sharing,
+        (call) async => call.method == 'getInitialSharing' ? '[]' : null,
+      );
+      messenger.setMockMethodCallHandler(sharingEvents, (_) async => null);
+
+      final initData = InitDataModel.fromJson({
+        'Session': {'majorversion': '7', 'hostname': 'DSM-NAV'},
+        'UserSettings': {
+          'Desktop': {
+            'ShortcutItems': [
+              {'className': 'SYNO.SDS.AdminCenter.Application'},
+            ],
+            'valid_appview_order': ['SYNO.SDS.AdminCenter.Application'],
+          },
+          'SYNO.SDS._Widget.Instance': {'modulelist': <String>[]},
+        },
+      });
+      var failed = false;
+      var systemRequests = 0;
+      var manageCalls = 0;
+      var logoutCalls = 0;
+      OverviewController? firstController;
+
+      Widget host() => MultiProvider(
+            providers: [
+              ChangeNotifierProvider(create: (_) => DarkModeProvider(0)),
+              ChangeNotifierProvider(
+                create: (_) => SettingProvider(refreshDuration: 3600),
+              ),
+            ],
+            child: MaterialApp(
+              home: DsmNewUiShell(
+                contextId: '7/42',
+                legacyBootstrap: LegacySharedBootstrap(
+                  loadInitData: () async => initData,
+                ),
+                overviewControllerFactory: (interval) {
+                  final controller = OverviewController(
+                    refreshInterval: interval,
+                    dataSource: OverviewDataSource(
+                      loadSystem: () async {
+                        systemRequests++;
+                        if (failed) throw StateError('DSM unavailable');
+                        return System(upTime: '24:0:0');
+                      },
+                      loadUtilization: () async =>
+                          Utilization(memory: Memory(realUsage: 49)),
+                      loadStorage: () async => Storage(),
+                      loadNotifications: () async => DsmNotify(),
+                      loadCurrentConnections: () async => null,
+                      loadTaskScheduler: () async => null,
+                    ),
+                  );
+                  firstController ??= controller;
+                  return controller;
+                },
+                onManageAccounts: () => manageCalls++,
+                onLogout: () => logoutCalls++,
+              ),
+            ),
+          );
+
+      Future<void> openNotifications() async {
+        await tester.tap(find.byKey(const Key('new-ui-notifications')));
+        await tester.pump();
+        expect(find.byType(LegacyPageHost), findsOneWidget);
+        expect(find.byType(LegacyNotificationEntry), findsOneWidget);
+        await tester.binding.handlePopRoute();
+        await tester.pumpAndSettle();
+      }
+
+      try {
+        await tester.pumpWidget(host());
+        await tester.pumpAndSettle();
+        expect(find.byType(OverviewPage), findsOneWidget);
+        expect(find.text('DSM-NAV'), findsOneWidget);
+        expect(find.text('49%'), findsOneWidget);
+
+        await openNotifications();
+        expect(find.text('DSM-NAV'), findsOneWidget);
+        expect(tester.widget<NavigationBar>(find.byType(NavigationBar))
+            .selectedIndex, 0);
+
+        failed = true;
+        await firstController!.refresh();
+        await tester.pump();
+        expect(find.text('系统信息数据已过期'), findsOneWidget);
+        expect(find.text('49%'), findsOneWidget);
+        await openNotifications();
+        expect(find.text('系统信息数据已过期'), findsOneWidget);
+
+        await tester.scrollUntilVisible(
+          find.byKey(const Key(
+              'overview-shortcut-0:SYNO.SDS.AdminCenter.Application')),
+          130,
+          scrollable: find.descendant(
+            of: find.byKey(const Key('overview-scroll')),
+            matching: find.byType(Scrollable),
+          ),
+        );
+        await tester.tap(find.byKey(const Key(
+            'overview-shortcut-0:SYNO.SDS.AdminCenter.Application')));
+        await tester.pumpAndSettle();
+        expect(find.byType(LegacyPageHost), findsOneWidget);
+        expect(find.byType(ControlPanel), findsOneWidget);
+        await tester.binding.handlePopRoute();
+        await tester.pumpAndSettle();
+        expect(find.byType(OverviewPage), findsOneWidget);
+        expect(find.text('DSM-NAV'), findsOneWidget);
+
+        await tester.tap(find.text('应用'));
+        await tester.pumpAndSettle();
+        expect(tester.widget<NavigationBar>(find.byType(NavigationBar))
+            .selectedIndex, 2);
+        await openNotifications();
+        expect(tester.widget<NavigationBar>(find.byType(NavigationBar))
+            .selectedIndex, 2);
+        expect(find.byKey(const Key('open-legacy-feature')), findsOneWidget);
+
+        await tester.tap(find.text('我的'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.byKey(const Key('modern-manage-accounts')));
+        await tester.tap(find.byKey(const Key('modern-logout')));
+        expect(manageCalls, 1);
+        expect(logoutCalls, 1);
+        expect(tester.widget<NavigationBar>(find.byType(NavigationBar))
+            .selectedIndex, 4);
+        await openNotifications();
+        expect(tester.widget<NavigationBar>(find.byType(NavigationBar))
+            .selectedIndex, 4);
+
+        final oldController = firstController!;
+        await tester.pumpWidget(const SizedBox.shrink());
+        final before = systemRequests;
+        await oldController.refresh();
+        expect(systemRequests, before);
+
+        // A disposed Overview must not own or disable notifications for a
+        // fresh shell, even when its new Overview cannot load system data.
+        await tester.pumpWidget(host());
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('文件'));
+        await tester.pumpAndSettle();
+        await openNotifications();
+        expect(tester.widget<NavigationBar>(find.byType(NavigationBar))
+            .selectedIndex, 1);
+      } finally {
+        await tester.pumpWidget(const SizedBox.shrink());
+        messenger.setMockMethodCallHandler(sharing, null);
+        messenger.setMockMethodCallHandler(sharingEvents, null);
+      }
+    },
+    timeout: const Timeout(Duration(seconds: 45)),
   );
 }
