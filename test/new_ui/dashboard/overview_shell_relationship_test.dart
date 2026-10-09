@@ -19,6 +19,7 @@ import 'package:dsm_helper/providers/dark_mode.dart';
 import 'package:dsm_helper/providers/setting_provider.dart';
 import 'package:dsm_helper/utils/db_utils.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -81,6 +82,16 @@ void main() {
   testWidgets(
     'runtime shell auth signal reuses exact saved account and defers persistence until login success',
     (tester) async {
+      // The shell's platform share listener is unrelated to the DSM auth
+      // relationship under test. Provide empty platform event responses.
+      final messenger = TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
+      const sharing = MethodChannel('flutter_sharing_intent');
+      const sharingEvents = MethodChannel('flutter_sharing_intent/events-sharing');
+      messenger.setMockMethodCallHandler(
+        sharing,
+        (call) async => call.method == 'getInitialSharing' ? <dynamic>[] : null,
+      );
+      messenger.setMockMethodCallHandler(sharingEvents, (call) async => null);
       final originalDb = DbUtils.db;
       final db = Database.forTesting(NativeDatabase.memory());
       DbUtils.db = db;
@@ -180,6 +191,8 @@ void main() {
         expect(activations, greaterThanOrEqualTo(1));
       } finally {
         await tester.pumpWidget(const SizedBox());
+        messenger.setMockMethodCallHandler(sharing, null);
+        messenger.setMockMethodCallHandler(sharingEvents, null);
         DbUtils.db = originalDb;
         await db.close();
       }
