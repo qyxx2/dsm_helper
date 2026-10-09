@@ -627,6 +627,8 @@ void main() {
 
   testWidgets('fixed AppBar refresh slot preserves positions across manual, stale and timer refresh',
       (tester) async {
+    final semantics = tester.ensureSemantics();
+    addTearDown(semantics.dispose);
     tester.view.physicalSize = const ui.Size(400, 1000);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
