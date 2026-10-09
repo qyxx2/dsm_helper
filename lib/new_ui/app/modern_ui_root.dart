@@ -8,6 +8,7 @@ import 'package:dsm_helper/database/table_extension.dart';
 import 'package:dsm_helper/database/tables.dart';
 import 'package:dsm_helper/models/api_model.dart';
 import 'package:dsm_helper/new_ui/app/dsm_new_ui_shell.dart';
+import 'package:dsm_helper/new_ui/dashboard/overview_page.dart';
 import 'package:dsm_helper/new_ui/auth/auth_flow_controller.dart';
 import 'package:dsm_helper/new_ui/auth/auth_flow_models.dart';
 import 'package:dsm_helper/new_ui/auth/login_page.dart';
@@ -47,6 +48,7 @@ class ModernUiRoot extends StatefulWidget {
     this.serverProbe,
     this.loginPreparation,
     this.shellBuilder,
+    this.overviewControllerFactory,
     this.gatePolicy,
     this.initializeDownloader = true,
   });
@@ -59,6 +61,7 @@ class ModernUiRoot extends StatefulWidget {
   final ServerFormProbe? serverProbe;
   final ModernLoginPreparation? loginPreparation;
   final StartupShellBuilder? shellBuilder;
+  final OverviewControllerFactory? overviewControllerFactory;
   final Future<bool> Function()? gatePolicy;
   final bool initializeDownloader;
 
@@ -365,6 +368,7 @@ class _ModernUiRootState extends State<ModernUiRoot> {
     return DsmNewUiShell(
       initialContextStatus: result.status,
       contextId: result.contextId,
+      overviewControllerFactory: widget.overviewControllerFactory,
       onManageAccounts: _showSelector,
       onReauthNeeded: () {
         // Accept only the shell's current saved context; a stale route
