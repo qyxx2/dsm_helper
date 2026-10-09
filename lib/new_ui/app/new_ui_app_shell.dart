@@ -4,6 +4,11 @@ import 'package:dsm_helper/new_ui/shell/new_ui_shell.dart';
 import 'package:flutter/material.dart';
 
 typedef NewUiLegacyHostWrapper = Widget Function(Widget child);
+typedef NewUiModernRootBuilder = Widget Function(
+  BuildContext context, {
+  required VoidCallback onOpenNotifications,
+  required String? connectionStatusText,
+});
 
 class NewUiAppDestination {
   const NewUiAppDestination({
@@ -11,6 +16,7 @@ class NewUiAppDestination {
     required this.icon,
     required this.selectedIcon,
     required this.legacyBuilder,
+    this.modernBuilder,
     this.onLegacyBack,
   });
 
@@ -32,6 +38,7 @@ class NewUiAppDestination {
   final IconData icon;
   final IconData selectedIcon;
   final WidgetBuilder legacyBuilder;
+  final NewUiModernRootBuilder? modernBuilder;
   final bool Function()? onLegacyBack;
 }
 
@@ -80,15 +87,26 @@ class NewUiAppShell extends StatelessWidget {
           icon: destination.icon,
           selectedIcon: destination.selectedIcon,
           root: (tabContext) {
+            void openNotifications() {
+              _pushLegacy(tabContext, notificationBuilder);
+            }
+
+            final modernBuilder = destination.modernBuilder;
+            if (modernBuilder != null) {
+              return modernBuilder(
+                tabContext,
+                onOpenNotifications: openNotifications,
+                connectionStatusText: connectionStatusText,
+              );
+            }
+
             return NewUiPrimaryPage(
               title: destination.label,
               connectionStatusText: connectionStatusText,
               onOpenAccountManagement:
                   destination.label == '我的' ? onOpenAccountManagement : null,
               onLogout: destination.label == '我的' ? onLogout : null,
-              onOpenNotifications: () {
-                _pushLegacy(tabContext, notificationBuilder);
-              },
+              onOpenNotifications: openNotifications,
               onOpenLegacyFeature: () {
                 _pushLegacy(
                   tabContext,
