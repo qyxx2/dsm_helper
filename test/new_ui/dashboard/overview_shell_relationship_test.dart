@@ -381,7 +381,10 @@ void main() {
         await tester.scrollUntilVisible(
           find.byKey(const Key('overview-shortcuts')),
           150,
-          scrollable: find.byKey(const Key('overview-scroll')),
+          scrollable: find.descendant(
+            of: find.byKey(const Key('overview-scroll')),
+            matching: find.byType(Scrollable),
+          ),
         );
         final shortcuts = tester.widget<ShortcutSection>(
           find.byType(ShortcutSection),
@@ -392,7 +395,10 @@ void main() {
         await tester.scrollUntilVisible(
           find.byKey(const Key('overview-task-scheduler')),
           150,
-          scrollable: find.byKey(const Key('overview-scroll')),
+          scrollable: find.descendant(
+            of: find.byKey(const Key('overview-scroll')),
+            matching: find.byType(Scrollable),
+          ),
         );
       } finally {
         if (!delayedA.isCompleted) {
