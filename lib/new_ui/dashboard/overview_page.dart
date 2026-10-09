@@ -160,6 +160,34 @@ class _OverviewPageState extends State<OverviewPage> {
             const Flexible(
               child: Text('概览', maxLines: 1, overflow: TextOverflow.ellipsis),
             ),
+            const SizedBox(width: 8),
+            SizedBox(
+              key: const Key('overview-refresh-slot'),
+              width: 20,
+              height: 20,
+              child: AnimatedBuilder(
+                animation: controller,
+                builder: (context, _) {
+                  final refreshing = [
+                    controller.system.phase,
+                    controller.utilization.phase,
+                    controller.storage.phase,
+                  ].contains(OverviewSourcePhase.refreshing);
+                  if (!refreshing) return const SizedBox.shrink();
+                  return Center(
+                    child: Semantics(
+                      label: '数据刷新中',
+                      child: const SizedBox(
+                        key: Key('overview-refresh-indicator'),
+                        width: 14,
+                        height: 14,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
             if (widget.connectionStatusText != null) ...[
               const SizedBox(width: 8),
               Flexible(
@@ -204,12 +232,6 @@ class _OverviewPageState extends State<OverviewPage> {
             storage: storage.value,
             notifications: notifications.value,
           );
-          final refreshing = [
-            system.phase,
-            utilization.phase,
-            storage.phase,
-          ].contains(OverviewSourcePhase.refreshing);
-
           final hasCoreData =
               system.hasValue || utilization.hasValue || storage.hasValue;
           final hasInitialError = [
@@ -229,16 +251,6 @@ class _OverviewPageState extends State<OverviewPage> {
                   hostname: hostname,
                   uptime: system.value?.upTime,
                 ),
-                if (refreshing)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 8),
-                    child: Text(
-                      '数据刷新中',
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: theme.colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                  ),
                 if (!hasCoreData && hasInitialError) ...[
                   const Text('概览数据加载失败'),
                   Align(
