@@ -6,12 +6,16 @@ import 'package:dsm_helper/new_ui/dashboard/overview_widget_config_controller.da
 import 'package:dsm_helper/new_ui/dashboard/overview_controller.dart';
 import 'package:dsm_helper/new_ui/dashboard/overview_shortcuts.dart';
 import 'package:dsm_helper/new_ui/dashboard/overview_source_state.dart';
+import 'package:dsm_helper/new_ui/dashboard/overview_widget_config.dart';
 import 'package:dsm_helper/new_ui/dashboard/widgets/abnormal_summary.dart';
 import 'package:dsm_helper/new_ui/dashboard/widgets/core_resource_section.dart';
+import 'package:dsm_helper/new_ui/dashboard/widgets/current_connection_extension.dart';
 import 'package:dsm_helper/new_ui/dashboard/widgets/device_summary.dart';
+import 'package:dsm_helper/new_ui/dashboard/widgets/task_scheduler_extension.dart';
 import 'package:dsm_helper/new_ui/dashboard/widgets/shortcut_section.dart';
 import 'package:dsm_helper/providers/init_data_provider.dart';
 import 'package:dsm_helper/providers/setting_provider.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -44,6 +48,7 @@ class OverviewPage extends StatefulWidget {
 class _OverviewPageState extends State<OverviewPage> {
   OverviewController? _controller;
   Duration? _refreshInterval;
+  Set<String> _enabledExtensionIds = <String>{};
 
   @override
   void didChangeDependencies() {
@@ -51,10 +56,22 @@ class _OverviewPageState extends State<OverviewPage> {
     final interval = Duration(
       seconds: context.watch<SettingProvider>().refreshDuration,
     );
+    final moduleIds = context
+        .watch<InitDataProvider>()
+        .initData
+        .userSettings
+        ?.synoSDSWidgetInstance
+        ?.moduleList;
+    final enabledExtensionIds = <String>{
+      for (final id in moduleIds ?? const <String>[])
+        if (task5OwnedOverviewWidgetIds.contains(id)) id,
+    };
 
     if (_controller == null) {
       _refreshInterval = interval;
-      _controller = widget.controllerFactory(interval);
+      _enabledExtensionIds = enabledExtensionIds;
+      _controller = widget.controllerFactory(interval)
+        ..updateEnabledExtensions(enabledExtensionIds);
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
         final controller = _controller;
@@ -62,9 +79,24 @@ class _OverviewPageState extends State<OverviewPage> {
         unawaited(controller.loadInitial());
         controller.startAutoRefresh();
       });
-    } else if (_refreshInterval != interval) {
-      _refreshInterval = interval;
-      _controller!.updateRefreshInterval(interval);
+    } else {
+      if (_refreshInterval != interval) {
+        _refreshInterval = interval;
+        _controller!.updateRefreshInterval(interval);
+      }
+      if (!setEquals(_enabledExtensionIds, enabledExtensionIds)) {
+        _enabledExtensionIds = enabledExtensionIds;
+        final controller = _controller!;
+        final expectedIds = Set<String>.of(enabledExtensionIds);
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!mounted ||
+              !identical(_controller, controller) ||
+              !setEquals(_enabledExtensionIds, expectedIds)) {
+            return;
+          }
+          controller.updateEnabledExtensions(expectedIds);
+        });
+      }
     }
   }
 
@@ -111,6 +143,15 @@ class _OverviewPageState extends State<OverviewPage> {
     final initData = context.watch<InitDataProvider>().initData;
     final hostname = initData.session?.hostname;
     final shortcuts = const OverviewShortcutCatalog().build(initData);
+    final extensionIds = <String>[];
+    for (final id
+        in initData.userSettings?.synoSDSWidgetInstance?.moduleList ??
+            const <String>[]) {
+      if (task5OwnedOverviewWidgetIds.contains(id) &&
+          !extensionIds.contains(id)) {
+        extensionIds.add(id);
+      }
+    }
     final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(
@@ -230,6 +271,17 @@ class _OverviewPageState extends State<OverviewPage> {
                   shortcuts: shortcuts,
                   onOpenShortcut: widget.onOpenShortcut,
                 ),
+                for (final id in extensionIds) ...[
+                  const SizedBox(height: 16),
+                  if (id == task5OwnedOverviewWidgetIds[0])
+                    CurrentConnectionExtension(
+                      state: controller.currentConnections,
+                    )
+                  else if (id == task5OwnedOverviewWidgetIds[1])
+                    TaskSchedulerExtension(
+                      state: controller.taskScheduler,
+                    ),
+                ],
               ],
             ),
           );
