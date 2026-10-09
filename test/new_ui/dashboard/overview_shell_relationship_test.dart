@@ -487,7 +487,7 @@ void main() {
 
       Future<void> openNotifications() async {
         await tester.tap(find.byKey(const Key('new-ui-notifications')));
-        await tester.pump();
+        await tester.pumpAndSettle();
         expect(find.byType(LegacyPageHost), findsOneWidget);
         expect(find.byType(LegacyNotificationEntry), findsOneWidget);
         await tester.binding.handlePopRoute();
