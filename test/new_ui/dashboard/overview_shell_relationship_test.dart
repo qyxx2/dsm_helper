@@ -16,7 +16,6 @@ import 'package:dsm_helper/new_ui/dashboard/overview_controller.dart';
 import 'package:dsm_helper/new_ui/dashboard/overview_data_source.dart';
 import 'package:dsm_helper/new_ui/dashboard/overview_page.dart';
 import 'package:dsm_helper/new_ui/dashboard/widgets/shortcut_section.dart';
-import 'package:dsm_helper/new_ui/shell/new_ui_shell.dart';
 import 'package:dsm_helper/new_ui/legacy/legacy_shared_bootstrap.dart';
 import 'package:dsm_helper/new_ui/session/active_context_coordinator.dart';
 import 'package:dsm_helper/new_ui/startup/modern_startup.dart';
