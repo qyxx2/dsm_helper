@@ -282,20 +282,7 @@ class _VolumeBlock extends StatelessWidget {
                   const SizedBox(width: 8),
                   Expanded(
                     flex: 2,
-                    child: Wrap(
-                      alignment: WrapAlignment.end,
-                      spacing: 4,
-                      runSpacing: 4,
-                      children: [
-                        for (final temperature in temperatures)
-                          Text(
-                            temperature,
-                            style: theme.textTheme.bodySmall?.copyWith(
-                              color: theme.colorScheme.onSurfaceVariant,
-                            ),
-                          ),
-                      ],
-                    ),
+                    child: _VolumeTemperatures(temperatures: temperatures),
                   ),
                 ],
               ),
@@ -325,6 +312,72 @@ class _VolumeBlock extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+/// Use two explicit columns on normal phone sizes; narrow/large-text
+/// layouts wrap naturally without clipping or creating empty placeholders.
+class _VolumeTemperatures extends StatelessWidget {
+  const _VolumeTemperatures({required this.temperatures});
+
+  final List<String> temperatures;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final style = theme.textTheme.bodySmall?.copyWith(
+      color: theme.colorScheme.onSurfaceVariant,
+    );
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final twoColumns = constraints.maxWidth >= 160 &&
+            MediaQuery.textScalerOf(context).scale(12) <= 17;
+        if (!twoColumns) {
+          return Wrap(
+            alignment: WrapAlignment.end,
+            spacing: 4,
+            runSpacing: 4,
+            children: [
+              for (final temperature in temperatures)
+                Text(temperature, style: style),
+            ],
+          );
+        }
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            for (var i = 0; i < temperatures.length; i += 2) ...[
+              if (i > 0) const SizedBox(height: 4),
+              if (i + 1 == temperatures.length)
+                Text(temperatures[i], style: style)
+              else
+                Row(
+                  children: [
+                    for (final index in [i, i + 1]) ...[
+                      if (index != i) const SizedBox(width: 4),
+                      Expanded(
+                        child: Align(
+                          alignment: Alignment.centerRight,
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            alignment: Alignment.centerRight,
+                            child: Text(
+                              temperatures[index],
+                              style: style,
+                              softWrap: false,
+                              maxLines: 1,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+            ],
+          ],
+        );
+      },
     );
   }
 }
