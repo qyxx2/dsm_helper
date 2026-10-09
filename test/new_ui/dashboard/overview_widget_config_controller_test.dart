@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:dsm_helper/new_ui/dashboard/overview_widget_config.dart';
 import 'package:dsm_helper/new_ui/dashboard/overview_widget_config_controller.dart';
 import 'package:flutter_test/flutter_test.dart';
 
