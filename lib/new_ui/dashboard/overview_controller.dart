@@ -1,7 +1,9 @@
 import 'dart:async';
 
 import 'package:dsm_helper/apis/dsm_api/dsm_exception.dart';
+import 'package:dsm_helper/models/Syno/Core/CurrentConnection.dart';
 import 'package:dsm_helper/models/Syno/Core/Notify.dart';
+import 'package:dsm_helper/models/Syno/Core/TaskScheduler.dart';
 import 'package:dsm_helper/models/Syno/Core/System.dart';
 import 'package:dsm_helper/models/Syno/Core/System/Utilization.dart';
 import 'package:dsm_helper/models/Syno/Storage/Cgi/Storage.dart';
@@ -10,6 +12,11 @@ import 'package:dsm_helper/new_ui/dashboard/overview_source_state.dart';
 import 'package:flutter/foundation.dart';
 
 typedef OverviewAuthInvalidationHandler = void Function(DsmException error);
+
+const _currentConnectionModuleId =
+    'SYNO.SDS.SystemInfoApp.ConnectionLogWidget';
+const _taskSchedulerModuleId =
+    'SYNO.SDS.TaskScheduler.TaskSchedulerWidget';
 
 class OverviewController extends ChangeNotifier {
   OverviewController({
@@ -27,6 +34,10 @@ class OverviewController extends ChangeNotifier {
   Future<void>? _inFlight;
   bool _disposed = false;
   bool _authInvalidated = false;
+  bool _started = false;
+  Set<String> _enabledExtensions = <String>{};
+  int _currentConnectionGeneration = 0;
+  int _taskSchedulerGeneration = 0;
 
   OverviewSourceState<System> _system =
       const OverviewSourceState<System>(phase: OverviewSourcePhase.initial);
@@ -36,20 +47,36 @@ class OverviewController extends ChangeNotifier {
       const OverviewSourceState<Storage>(phase: OverviewSourcePhase.initial);
   OverviewSourceState<DsmNotify> _notifications =
       const OverviewSourceState<DsmNotify>(phase: OverviewSourcePhase.initial);
+  OverviewSourceState<CurrentConnection> _currentConnections =
+      const OverviewSourceState<CurrentConnection>(
+        phase: OverviewSourcePhase.initial,
+      );
+  OverviewSourceState<TaskScheduler> _taskScheduler =
+      const OverviewSourceState<TaskScheduler>(
+        phase: OverviewSourcePhase.initial,
+      );
 
   OverviewSourceState<System> get system => _system;
   OverviewSourceState<Utilization> get utilization => _utilization;
   OverviewSourceState<Storage> get storage => _storage;
   OverviewSourceState<DsmNotify> get notifications => _notifications;
+  OverviewSourceState<CurrentConnection> get currentConnections =>
+      _currentConnections;
+  OverviewSourceState<TaskScheduler> get taskScheduler => _taskScheduler;
 
-  Future<void> loadInitial() => refresh();
+  Future<void> loadInitial() {
+    _started = true;
+    return refresh();
+  }
 
   Future<void> refresh() {
     if (_disposed) return Future<void>.value();
     final running = _inFlight;
     if (running != null) return running;
 
-    final cycle = Future.wait<void>([
+    final currentConnectionGeneration = _currentConnectionGeneration;
+    final taskSchedulerGeneration = _taskSchedulerGeneration;
+    final requests = <Future<void>>[
       _refreshSource<System>(
         previous: _system,
         loader: _dataSource.loadSystem,
@@ -70,7 +97,26 @@ class OverviewController extends ChangeNotifier {
         loader: _dataSource.loadNotifications,
         publish: (state) => _notifications = state,
       ),
-    ]).then((_) {});
+      if (_enabledExtensions.contains(_currentConnectionModuleId))
+        _refreshSource<CurrentConnection>(
+          previous: _currentConnections,
+          loader: _dataSource.loadCurrentConnections,
+          publish: (state) => _currentConnections = state,
+          shouldPublish: () =>
+              _enabledExtensions.contains(_currentConnectionModuleId) &&
+              _currentConnectionGeneration == currentConnectionGeneration,
+        ),
+      if (_enabledExtensions.contains(_taskSchedulerModuleId))
+        _refreshSource<TaskScheduler>(
+          previous: _taskScheduler,
+          loader: _dataSource.loadTaskScheduler,
+          publish: (state) => _taskScheduler = state,
+          shouldPublish: () =>
+              _enabledExtensions.contains(_taskSchedulerModuleId) &&
+              _taskSchedulerGeneration == taskSchedulerGeneration,
+        ),
+    ];
+    final cycle = Future.wait<void>(requests).then((_) {});
     _inFlight = cycle;
     // The four source requests handle their own failures and publish separately.
     // Clear the cycle only after every source has settled.
@@ -84,6 +130,7 @@ class OverviewController extends ChangeNotifier {
     required OverviewSourceState<T> previous,
     required Future<T?> Function() loader,
     required void Function(OverviewSourceState<T>) publish,
+    bool Function()? shouldPublish,
   }) async {
     _publish(
       publish,
@@ -97,7 +144,7 @@ class OverviewController extends ChangeNotifier {
     );
     try {
       final loaded = await loader();
-      if (_disposed) return;
+      if (_disposed || (shouldPublish != null && !shouldPublish())) return;
       _publish(
         publish,
         loaded == null
@@ -110,17 +157,19 @@ class OverviewController extends ChangeNotifier {
       );
     } catch (error) {
       if (_disposed) return;
-      _publish(
-        publish,
-        OverviewSourceState<T>(
-          phase: previous.hasValue
-              ? OverviewSourcePhase.stale
-              : OverviewSourcePhase.error,
-          value: previous.value,
-          updatedAt: previous.updatedAt,
-          error: error,
-        ),
-      );
+      if (shouldPublish == null || shouldPublish()) {
+        _publish(
+          publish,
+          OverviewSourceState<T>(
+            phase: previous.hasValue
+                ? OverviewSourcePhase.stale
+                : OverviewSourcePhase.error,
+            value: previous.value,
+            updatedAt: previous.updatedAt,
+            error: error,
+          ),
+        );
+      }
       if (error is DsmException && error.code == 119 && !_authInvalidated) {
         _authInvalidated = true;
         _onAuthInvalidated?.call(error);
@@ -135,6 +184,54 @@ class OverviewController extends ChangeNotifier {
     if (_disposed) return;
     write(state);
     notifyListeners();
+  }
+
+  void updateEnabledExtensions(Set<String> moduleIds) {
+    if (_disposed) return;
+    final next = moduleIds
+        .where((id) =>
+            id == _currentConnectionModuleId || id == _taskSchedulerModuleId)
+        .toSet();
+    if (setEquals(next, _enabledExtensions)) return;
+
+    final hadCurrent =
+        _enabledExtensions.contains(_currentConnectionModuleId);
+    final hasCurrent = next.contains(_currentConnectionModuleId);
+    final hadScheduler =
+        _enabledExtensions.contains(_taskSchedulerModuleId);
+    final hasScheduler = next.contains(_taskSchedulerModuleId);
+
+    _enabledExtensions = next;
+    var resetVisibleState = false;
+    var enabledNewExtension = false;
+
+    if (hadCurrent != hasCurrent) {
+      _currentConnectionGeneration++;
+      if (hasCurrent) {
+        enabledNewExtension = true;
+      } else {
+        _currentConnections = const OverviewSourceState<CurrentConnection>(
+          phase: OverviewSourcePhase.initial,
+        );
+        resetVisibleState = true;
+      }
+    }
+    if (hadScheduler != hasScheduler) {
+      _taskSchedulerGeneration++;
+      if (hasScheduler) {
+        enabledNewExtension = true;
+      } else {
+        _taskScheduler = const OverviewSourceState<TaskScheduler>(
+          phase: OverviewSourcePhase.initial,
+        );
+        resetVisibleState = true;
+      }
+    }
+
+    if (resetVisibleState) notifyListeners();
+    if (_started && enabledNewExtension) {
+      unawaited(refresh());
+    }
   }
 
   void startAutoRefresh() {
