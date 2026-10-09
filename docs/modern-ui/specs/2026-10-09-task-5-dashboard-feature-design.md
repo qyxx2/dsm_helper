@@ -1,6 +1,6 @@
 # DSM Helper Modern UI — Task 5 Dashboard Feature Design
 
-> Status: Preflight complete — awaiting user review  
+> Status: Approved — Batch planning authorized  
 > Date: 2026-10-09  
 > Task: Task 5 — Dashboard  
 > Branch: `feature/t5-dashboard`  
@@ -115,14 +115,36 @@ Rules:
 1. A refresh never clears last-valid data before replacement data succeeds.
 2. Failure of one source does not convert the whole Overview into a page error when other core data remains usable.
 3. Network failure is stale/offline, not logout.
-4. Auth invalidation continues to be classified by the existing session/auth layer.
-5. Initial page loading may use progress/skeleton according to the Task 2 visual contract.
-6. Manual refresh uses pull-to-refresh.
-7. Automatic refresh uses `SettingProvider.refreshDuration` as the Task 5 cadence authority. Legacy hard-coded 30-second recursive loops are not copied into the Modern Overview.
-8. A manual refresh attempts all currently supported Overview sources and preserves all prior valid source values until replacements succeed.
-9. Duplicate widget-owned timers are prohibited.
+4. A DSM `DsmException` with code `119` from any Overview source is authenticated-session invalidation, not a generic source/network failure. The Overview controller emits one runtime auth-invalidation signal for the active controller lifetime; it preserves last-valid data while the shell transitions and does not silently clear the saved Account/default state.
+5. The runtime auth-invalidation signal is consumed by `ModernUiRoot`, which reuses the existing exact saved Server + Account reauthentication flow. No second auth protocol or session authority is introduced.
+6. Non-119 DSM errors remain source-local failures; transport/network failures remain stale/offline and must not invoke reauthentication.
+7. Initial page loading may use progress/skeleton according to the Task 2 visual contract.
+8. Manual refresh uses pull-to-refresh.
+9. Automatic refresh uses `SettingProvider.refreshDuration` as the Task 5 cadence authority. Legacy hard-coded 30-second recursive loops are not copied into the Modern Overview.
+10. A manual refresh attempts all currently supported Overview sources and preserves all prior valid source values until replacements succeed.
+11. Duplicate widget-owned timers are prohibited.
 
 The shell owns the global offline/reconnecting App Bar status. Overview data may be marked stale, but it must not duplicate a second full-page connection banner.
+
+### 6.1 Runtime session invalidation seam
+
+The repository audit during Batch planning confirmed that Task 4 classifies code `119` during active-context activation/probe, but there is no global listener for a later feature request that receives `119` after the shell is already running.
+
+Task 5 therefore owns only the minimum signal seam required by the inherited auth/network contract:
+
+```text
+Overview source throws DsmException(119)
+        ↓
+OverviewController emits auth-invalidated once
+        ↓
+DsmNewUiShell forwards onReauthNeeded
+        ↓
+ModernUiRoot resolves the same saved Server + Account
+        ↓
+existing AuthFlowController saved-account reauthentication
+```
+
+This seam does not make Overview an auth authority. It only reports evidence from a DSM request to the already-authoritative Task 4 flow.
 
 ## 7. Fixed Overview Structure
 
@@ -434,6 +456,7 @@ The following previously open implementation questions are resolved by this desi
 11. **Connection/Task Scheduler operations:** Modern Task 5 summaries are read-only; mutations remain legacy capability.
 12. **Recent/File-change logs:** deferred from Modern Task 5 and preserved in configuration.
 13. **Widget full-list save risk:** opaque/non-owned module IDs are preservation-protected.
+14. **Runtime DSM 119 after shell entry:** Task 4 has activation-time 119 classification but no feature-request listener; Task 5 adds only a one-shot invalidation signal into the existing saved-account reauthentication flow.
 
 No blocking Task 5 Contract Gap remains after these resolutions.
 
@@ -447,4 +470,4 @@ Task 5 Feature Design Preflight passes when:
 - no blocking Contract Gap remains;
 - no production/test code was changed;
 - no Batch implementation has started;
-- user reviews this written design before Batch Execution Plan creation.
+- user reviewed and approved this written design before Batch Execution Plan creation.

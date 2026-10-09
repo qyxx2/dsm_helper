@@ -617,13 +617,20 @@ Preflight 已冻结：
 - 独立 source refresh / partial-failure / last-valid / stale 语义；
 - Overview 固定结构与真实数据 authority；
 - Dashboard core 不依赖弱语义 batch；
+- 运行期 DSM 119 通过一次性信号回到既有 saved-account reauth，不新增认证 authority；
 - shortcut read authority 与 fixed-region 规则；
 - extension widget owned/non-owned 边界及 full-list preservation merge；
 - CurrentConnection / TaskScheduler 在 Task 5 为只读 Modern summary；
 - Recent Log / File Change Log 现代化延期但其配置不得丢失；
 - final Overview shell cutover 与 legacy Dashboard retention 边界。
 
-Task 5 Batch Execution Plan 只能在用户审核批准上述书面 Feature Design / Contract Matrix 后创建。
+Task 5 Feature Design / Contract Matrix 已经用户审核批准。正式 Batch Execution Plan：
+
+```text
+docs/modern-ui/plans/2026-10-09-task-5-dashboard-batch-plan.md
+```
+
+实现顺序冻结为 B1 → B2 → B3 → B4 → B5 → B6 → B7。不得因后续 Batch 覆盖相近行为而跳过前置 Batch。
 
 ---
 
@@ -1039,23 +1046,23 @@ docs/modern-ui/acceptance/2026-10-08-task-4-server-auth-acceptance.md
 
 ```text
 Task 5 — Dashboard
-Preflight / Feature Design review only; implementation has not started.
+Planning complete; implementation has not started.
 ```
 
-Task 5 Preflight outputs:
+Task 5 planning authorities:
 
 ```text
 docs/modern-ui/specs/2026-10-09-task-5-dashboard-feature-design.md
 docs/modern-ui/contracts/2026-10-09-task-5-dashboard-contract-matrix.md
+docs/modern-ui/plans/2026-10-09-task-5-dashboard-batch-plan.md
 ```
 
-The Preflight is complete on `feature/t5-dashboard`. No production/test code is changed by this state.
+The Feature Design / Contract Matrix review gate is approved. The Batch Plan is frozen on `feature/t5-dashboard`. No production/test code is changed by planning.
 
-### Next (requires user review)
+### Next (not automatically started)
 
 ```text
-Review and approve the committed Task 5 Feature Design + Contract Matrix.
-Then create the Task 5 Batch Execution Plan.
+Task 5 Batch 1 — Overview Data / Refresh State Foundation
 ```
 
-Task 5 implementation must not start before the written Preflight review gate and Batch Plan are complete.
+Batch 1 requires an explicit execution instruction. Planning completion does not authorize implementation.

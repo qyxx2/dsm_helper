@@ -1,6 +1,6 @@
 # DSM Helper Modern UI — Task 5 Dashboard Contract Matrix
 
-> Status: Preflight complete — awaiting user review  
+> Status: Approved — Batch planning authorized  
 > Date: 2026-10-09  
 > Task: Task 5 — Dashboard  
 > Branch: `feature/t5-dashboard`  
@@ -34,6 +34,7 @@ Inherited global contracts remain authoritative, especially:
 | T5-STATE-02 | Partial failure isolation | At least one Overview source is usable | Independent source state | Failed section gets local state only | Valid sibling regions and fixed page structure | No full-page error unless no usable core data exists | Overview stays usable with localized error/stale status | CPU valid + Storage failure; Storage valid + Notify failure; assert usable page |
 | T5-REFRESH-01 | Automatic refresh | Overview mounted; active context unchanged | `SettingProvider.refreshDuration` | Refresh cycle starts at configured cadence | No duplicate timers; no route reset | Dispose/context change cancels old publication | Data updates without widget-local recursive polling | Fake clock/controller test; assert one cadence owner and cancellation |
 | T5-REFRESH-02 | Manual refresh | Overview mounted | Pull-to-refresh + same Task 5 source loaders | All supported sources are requested; successful replacements publish independently | Last-valid values until each source succeeds | Failed source remains last-valid/stale; no login redirect on transport failure | Pull gesture refreshes page without blanking it | Trigger manual refresh with mixed success/failure and assert per-source result |
+| T5-AUTH-01 | Runtime authenticated-session invalidation | Shell/Overview active; any source request throws `DsmException` code `119` | `DsmException`, `G-NET-01`, existing `ModernUiRoot` / `AuthFlowController` saved-account reauth | Overview emits one invalidation signal; root transitions the same Server + Account through existing reauthentication | Saved Account/default record, unrelated contexts, non-auth source state until transition | Non-119 DSM errors stay local; transport failures stay offline/stale; concurrent 119s must not start duplicate reauth | User is taken through the existing same-account reauth path rather than seeing 119 as offline or being logged out | Two sources throw 119 in one cycle → one callback/reauth; non-119 + timeout → zero reauth callbacks; same account identity preserved |
 | T5-CTX-01 | DSM context switch isolation | Context A active, then Task 3/4 activates B | `G-SESS-01`, `G-NAV-03`, context-keyed Modern shell | A controller/timers become dead; B Overview initializes only from B | Persisted A account and unrelated global preferences | Failed B request cannot cause A data to appear under B | Overview root for B never displays A hostname/resources/notifications | Seed unique A values; switch to B; deliver delayed A callback; assert ignored |
 | T5-DEVICE-01 | Device summary | InitData/System source available | `InitDataModel.session.hostname`, `System.upTime` | Presentation only | DSM state | Missing field omitted; no synthetic placeholder identity | Low-height hostname + uptime strip | Widget tests for both values, each missing separately, large font |
 | T5-RESOURCE-01 | CPU resource row | Valid Utilization/System values | `cpu.totalLoad`, optional `minLoad1/5/15`, `System.sysTemp` | Presentation only | Source models | Missing field omitted; 10-minute load/CPU-temp meaning must not be invented | CPU usage and only actually available metrics are labeled correctly | Fixture with 1/5/15 values; assert no 10-minute label; sysTemp labeled system temp |
@@ -109,6 +110,7 @@ Resolved during preflight:
 - fixed Modern shortcut structure vs legacy hide flag → Modern structure wins; legacy preference remains untouched;
 - no proven shortcut write authority → consume DSM Desktop shortcut configuration without adding a new write path;
 - full-list widget save hazard → preservation merge invariant;
+- runtime 119 after shell entry → one-shot Overview invalidation signal forwarded to the existing same-account reauthentication flow;
 - extension mutation scope → Task 5 summaries are read-only; legacy mutation capabilities remain outside the Modern Overview.
 
 ## 6. Preflight Verification
@@ -121,6 +123,6 @@ Required proof before moving to Batch Plan:
 - Feature Design and this Matrix agree on all Task 5-owned IDs and authorities;
 - no unresolved placeholder or open-ended marker remains;
 - Master Plan points to these Task 5 preflight authorities;
-- user reviews the committed documents.
+- user reviewed and approved the committed documents.
 
 Under `CI-DOCS-01`, no Android CI run is required for this docs-only Preflight commit.
