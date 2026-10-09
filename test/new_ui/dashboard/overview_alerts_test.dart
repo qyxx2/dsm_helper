@@ -31,7 +31,7 @@ void main() {
           notice('NOTIFICATION_INFO', 'InfoMessage', 1),
           notice('UNKNOWN_LEVEL', 'UnknownMessage', 2),
           notice('NOTIFICATION_WARNED', 'SimilarButUnsupported', 3),
-          DsmNotifyItems(level: 'NOTIFICATION_ERROR'),
+          DsmNotifyItems(),
         ]),
       ),
       isEmpty,
