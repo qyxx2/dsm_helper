@@ -36,7 +36,7 @@ void main() {
     ));
     expect(find.text('35%'), findsOneWidget);
     expect(find.textContaining('1 分钟'), findsOneWidget);
-    expect(find.textContaining('5 分钟'), findsOneWidget);
+    expect(find.text('5 分钟 200'), findsOneWidget);
     expect(find.textContaining('15 分钟'), findsOneWidget);
     expect(find.textContaining('10 分钟'), findsNothing);
     expect(find.textContaining('系统温度'), findsOneWidget);
