@@ -230,4 +230,123 @@ void main() {
     expect(systemCalls, 2);
     c.dispose();
   }, timeout: const Timeout(Duration(seconds: 15)));
+
+  test('each core source failure remains local to that source', () async {
+    for (final failed in <String>[
+      'system',
+      'utilization',
+      'storage',
+      'notifications',
+    ]) {
+      final c = controller(source(
+        system: () async {
+          if (failed == 'system') throw StateError('system failed');
+          return System(model: 'valid');
+        },
+        utilization: () async {
+          if (failed == 'utilization') throw StateError('utilization failed');
+          return Utilization();
+        },
+        storage: () async {
+          if (failed == 'storage') throw StateError('storage failed');
+          return Storage();
+        },
+        notifications: () async {
+          if (failed == 'notifications') throw StateError('notifications failed');
+          return DsmNotify(items: <DsmNotifyItems>[]);
+        },
+      ));
+      await c.loadInitial();
+
+      expect(c.system.phase, failed == 'system'
+          ? OverviewSourcePhase.error : OverviewSourcePhase.valid);
+      expect(c.utilization.phase, failed == 'utilization'
+          ? OverviewSourcePhase.error : OverviewSourcePhase.valid);
+      expect(c.storage.phase, failed == 'storage'
+          ? OverviewSourcePhase.error : OverviewSourcePhase.valid);
+      expect(c.notifications.phase, failed == 'notifications'
+          ? OverviewSourcePhase.error : OverviewSourcePhase.valid);
+      expect(<OverviewSourceState<Object?>>[
+        c.system,
+        c.utilization,
+        c.storage,
+        c.notifications,
+      ].where((state) => state.phase == OverviewSourcePhase.valid).length, 3);
+      c.dispose();
+    }
+  });
+
+  test('refresh holds V1 while pending, retains stale V1, then accepts V2',
+      () async {
+    Future<System?> Function() loader =
+        () async => System(model: 'V1');
+    final c = controller(source(system: () => loader()));
+    await c.loadInitial();
+    final initialUpdatedAt = c.system.updatedAt;
+
+    final pending = Completer<System?>();
+    loader = () => pending.future;
+    final refreshing = c.refresh();
+    expect(c.system.phase, OverviewSourcePhase.refreshing);
+    expect(c.system.value?.model, 'V1');
+    expect(c.system.updatedAt, initialUpdatedAt);
+
+    pending.completeError(StateError('temporary failure'));
+    await refreshing;
+    expect(c.system.phase, OverviewSourcePhase.stale);
+    expect(c.system.value?.model, 'V1');
+    expect(c.system.updatedAt, initialUpdatedAt);
+
+    loader = () async => System(model: 'V2');
+    await c.refresh();
+    expect(c.system.phase, OverviewSourcePhase.valid);
+    expect(c.system.value?.model, 'V2');
+    expect(c.system.error, isNull);
+    c.dispose();
+  });
+
+  test('fast sources publish before a slow sibling completes', () async {
+    final pendingStorage = Completer<Storage?>();
+    final c = controller(source(storage: () => pendingStorage.future));
+    final initial = c.loadInitial();
+    await Future<void>.delayed(Duration.zero);
+
+    expect(c.storage.phase, OverviewSourcePhase.loading);
+    expect(c.system.phase, OverviewSourcePhase.valid);
+    expect(c.utilization.phase, OverviewSourcePhase.valid);
+    expect(c.notifications.phase, OverviewSourcePhase.valid);
+
+    pendingStorage.complete(Storage());
+    await initial;
+    expect(c.storage.phase, OverviewSourcePhase.valid);
+    c.dispose();
+  });
+
+  test('storage and notifications can become stale without affecting CPU',
+      () async {
+    var fail = false;
+    final c = controller(source(
+      storage: () async {
+        if (fail) throw StateError('storage unavailable');
+        return Storage();
+      },
+      notifications: () async {
+        if (fail) throw StateError('notifications unavailable');
+        return DsmNotify(items: <DsmNotifyItems>[]);
+      },
+    ));
+    await c.loadInitial();
+    final storageV1 = c.storage.value;
+    final notificationV1 = c.notifications.value;
+
+    fail = true;
+    await c.refresh();
+    expect(c.system.phase, OverviewSourcePhase.valid);
+    expect(c.utilization.phase, OverviewSourcePhase.valid);
+    expect(c.storage.phase, OverviewSourcePhase.stale);
+    expect(identical(c.storage.value, storageV1), isTrue);
+    expect(c.notifications.phase, OverviewSourcePhase.stale);
+    expect(identical(c.notifications.value, notificationV1), isTrue);
+    c.dispose();
+  });
 }
