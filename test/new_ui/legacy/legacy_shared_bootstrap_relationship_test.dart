@@ -3,6 +3,7 @@ import 'package:dsm_helper/new_ui/app/dsm_new_ui_shell.dart';
 import 'package:dsm_helper/new_ui/legacy/legacy_shared_bootstrap.dart';
 import 'package:dsm_helper/new_ui/session/active_context_coordinator.dart';
 import 'package:dsm_helper/providers/dark_mode.dart';
+import 'package:dsm_helper/providers/setting_provider.dart';
 import 'package:dsm_helper/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -40,8 +41,11 @@ Future<void> _pumpShell(
   ActiveContextStatus status = ActiveContextStatus.authenticated,
 }) async {
   await tester.pumpWidget(
-    ChangeNotifierProvider(
-      create: (_) => DarkModeProvider(0),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => DarkModeProvider(0)),
+        ChangeNotifierProvider(create: (_) => SettingProvider()),
+      ],
       child: MaterialApp(
         home: DsmNewUiShell(
           initialContextStatus: status,
