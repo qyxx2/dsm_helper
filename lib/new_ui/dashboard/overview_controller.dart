@@ -70,7 +70,7 @@ class OverviewController extends ChangeNotifier {
         loader: _dataSource.loadNotifications,
         publish: (state) => _notifications = state,
       ),
-    ]);
+    ]).then((_) {});
     _inFlight = cycle;
     // The four source requests handle their own failures and publish separately.
     // Clear the cycle only after every source has settled.
