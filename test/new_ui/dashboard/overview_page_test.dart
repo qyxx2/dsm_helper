@@ -6,6 +6,7 @@ import 'package:dsm_helper/models/Syno/Core/Notify.dart';
 import 'package:dsm_helper/models/Syno/Core/System.dart';
 import 'package:dsm_helper/models/Syno/Core/System/Utilization.dart';
 import 'package:dsm_helper/models/Syno/Storage/Cgi/Storage.dart';
+import 'package:dsm_helper/new_ui/dashboard/overview_alerts.dart';
 import 'package:dsm_helper/new_ui/dashboard/overview_controller.dart';
 import 'package:dsm_helper/new_ui/dashboard/overview_data_source.dart';
 import 'package:dsm_helper/new_ui/dashboard/overview_page.dart';
@@ -61,6 +62,7 @@ Widget _host({
   Brightness brightness = Brightness.light,
   double scale = 1,
   VoidCallback? onNotification,
+  ValueChanged<OverviewAlertDestination>? onAlertDestination,
 }) {
   return MultiProvider(
     providers: [
@@ -76,6 +78,7 @@ Widget _host({
         child: OverviewPage(
           controllerFactory: factory,
           onOpenNotifications: onNotification ?? () {},
+          onOpenAlertDestination: onAlertDestination,
           connectionStatusText: '离线',
         ),
       ),
@@ -281,6 +284,130 @@ void main() {
       await tester.tap(find.byKey(const Key('new-ui-notifications')));
       expect(notifications, greaterThan(0));
     }
+    await tester.pumpWidget(const SizedBox.shrink());
+  }, timeout: const Timeout(Duration(seconds: 25)));
+
+  testWidgets('healthy Overview omits abnormal region and ordinary notifications',
+      (tester) async {
+    final init = _init();
+    final settings = _MutableSettings(30);
+    await tester.pumpWidget(_host(
+      initData: init,
+      settings: settings,
+      factory: (interval) => OverviewController(
+        dataSource: _source(notifications: () async => DsmNotify(items: [
+          DsmNotifyItems(
+            level: 'NOTIFICATION_INFO',
+            title: 'InformationalNotification',
+            time: 1,
+          ),
+        ])),
+        refreshInterval: interval,
+      ),
+    ));
+    await tester.pump();
+    expect(find.text('异常提醒'), findsNothing);
+    expect(find.text('InformationalNotification'), findsNothing);
+    expect(find.byKey(const Key('new-ui-notifications')), findsOneWidget);
+    await tester.pumpWidget(const SizedBox.shrink());
+  }, timeout: const Timeout(Duration(seconds: 20)));
+
+  testWidgets('abnormal section uses source severity and exact destination',
+      (tester) async {
+    tester.view.physicalSize = const ui.Size(400, 1400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final init = _init();
+    final settings = _MutableSettings(30);
+    final destinations = <OverviewAlertDestination>[];
+    var globalNotificationOpens = 0;
+    await tester.pumpWidget(_host(
+      initData: init,
+      settings: settings,
+      onNotification: () => globalNotificationOpens++,
+      onAlertDestination: destinations.add,
+      factory: (interval) => OverviewController(
+        dataSource: _source(
+          storage: () async => Storage(volumes: [
+            Volumes(id: 'volume_1', status: 'attention'),
+          ]),
+          notifications: () async => DsmNotify(items: [
+            DsmNotifyItems(
+              level: 'NOTIFICATION_ERROR',
+              title: 'DiskCritical',
+              time: 12,
+            ),
+            DsmNotifyItems(
+              level: 'NOTIFICATION_INFO',
+              title: 'HarmlessInfo',
+              time: 13,
+            ),
+          ]),
+        ),
+        refreshInterval: interval,
+      ),
+    ));
+    await tester.pump();
+    expect(find.text('异常提醒'), findsOneWidget);
+    expect(find.text('DiskCritical'), findsOneWidget);
+    expect(find.text('存储空间 1 · 警告'), findsOneWidget);
+    expect(find.text('HarmlessInfo'), findsNothing);
+    await tester.tap(find.text('DiskCritical'));
+    await tester.tap(find.text('存储空间 1 · 警告'));
+    expect(destinations, [
+      OverviewAlertDestination.notifications,
+      OverviewAlertDestination.storageManager,
+    ]);
+    await tester.tap(find.byKey(const Key('new-ui-notifications')));
+    expect(globalNotificationOpens, 1);
+    await tester.pumpWidget(const SizedBox.shrink());
+  }, timeout: const Timeout(Duration(seconds: 25)));
+
+  testWidgets('stale notification refresh keeps last-valid abnormal evidence',
+      (tester) async {
+    tester.view.physicalSize = const ui.Size(400, 1300);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final init = _init();
+    final settings = _MutableSettings(30);
+    final pending = Completer<DsmNotify?>();
+    var calls = 0;
+    OverviewController? controller;
+    await tester.pumpWidget(_host(
+      initData: init,
+      settings: settings,
+      factory: (interval) {
+        controller = OverviewController(
+          dataSource: _source(notifications: () {
+            calls++;
+            if (calls == 1) {
+              return Future.value(DsmNotify(items: [
+                DsmNotifyItems(
+                  level: 'NOTIFICATION_WARN',
+                  title: 'ActualWarning',
+                  time: 21,
+                ),
+              ]));
+            }
+            return pending.future;
+          }),
+          refreshInterval: interval,
+        );
+        return controller!;
+      },
+    ));
+    await tester.pump();
+    expect(find.text('ActualWarning'), findsOneWidget);
+    final refresh = controller!.refresh();
+    await tester.pump();
+    expect(find.text('ActualWarning'), findsOneWidget);
+    pending.completeError(StateError('notification network interruption'));
+    await refresh;
+    await tester.pump();
+    expect(find.text('ActualWarning'), findsOneWidget);
+    expect(find.text('通知数据已过期'), findsOneWidget);
     await tester.pumpWidget(const SizedBox.shrink());
   }, timeout: const Timeout(Duration(seconds: 25)));
 }
