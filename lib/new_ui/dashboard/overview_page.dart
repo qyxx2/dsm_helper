@@ -2,10 +2,12 @@ import 'dart:async';
 
 import 'package:dsm_helper/new_ui/dashboard/overview_alerts.dart';
 import 'package:dsm_helper/new_ui/dashboard/overview_controller.dart';
+import 'package:dsm_helper/new_ui/dashboard/overview_shortcuts.dart';
 import 'package:dsm_helper/new_ui/dashboard/overview_source_state.dart';
 import 'package:dsm_helper/new_ui/dashboard/widgets/abnormal_summary.dart';
 import 'package:dsm_helper/new_ui/dashboard/widgets/core_resource_section.dart';
 import 'package:dsm_helper/new_ui/dashboard/widgets/device_summary.dart';
+import 'package:dsm_helper/new_ui/dashboard/widgets/shortcut_section.dart';
 import 'package:dsm_helper/providers/init_data_provider.dart';
 import 'package:dsm_helper/providers/setting_provider.dart';
 import 'package:flutter/material.dart';
@@ -23,12 +25,14 @@ class OverviewPage extends StatefulWidget {
     required this.controllerFactory,
     required this.onOpenNotifications,
     this.onOpenAlertDestination,
+    this.onOpenShortcut,
     this.connectionStatusText,
   });
 
   final OverviewControllerFactory controllerFactory;
   final VoidCallback onOpenNotifications;
   final ValueChanged<OverviewAlertDestination>? onOpenAlertDestination;
+  final ValueChanged<OverviewShortcut>? onOpenShortcut;
   final String? connectionStatusText;
 
   @override
@@ -71,7 +75,9 @@ class _OverviewPageState extends State<OverviewPage> {
   @override
   Widget build(BuildContext context) {
     final controller = _controller!;
-    final hostname = context.watch<InitDataProvider>().initData.session?.hostname;
+    final initData = context.watch<InitDataProvider>().initData;
+    final hostname = initData.session?.hostname;
+    final shortcuts = const OverviewShortcutCatalog().build(initData);
     final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(
@@ -177,6 +183,11 @@ class _OverviewPageState extends State<OverviewPage> {
                     onOpenDestination: widget.onOpenAlertDestination,
                   ),
                 ],
+                const SizedBox(height: 16),
+                ShortcutSection(
+                  shortcuts: shortcuts,
+                  onOpenShortcut: widget.onOpenShortcut,
+                ),
               ],
             ),
           );
