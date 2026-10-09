@@ -627,8 +627,6 @@ void main() {
 
   testWidgets('fixed AppBar refresh slot preserves positions across manual, stale and timer refresh',
       (tester) async {
-    final semantics = tester.ensureSemantics();
-    addTearDown(semantics.dispose);
     tester.view.physicalSize = const ui.Size(400, 1000);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
@@ -683,7 +681,11 @@ void main() {
     final refresh = controller!.refresh();
     await tester.pump();
     expect(indicator, findsOneWidget);
-    expect(find.bySemanticsLabel('数据刷新中'), findsOneWidget);
+    expect(
+      find.byWidgetPredicate((widget) =>
+          widget is Semantics && widget.properties.label == '数据刷新中'),
+      findsOneWidget,
+    );
     expect(find.text('数据刷新中'), findsNothing);
     expect(find.text('43%'), findsOneWidget);
     expect(tester.getTopLeft(find.text('NAS-ONE')).dy, nameY);
