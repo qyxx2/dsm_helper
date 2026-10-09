@@ -1,6 +1,8 @@
 import 'dart:async';
 
+import 'package:dsm_helper/new_ui/dashboard/edit_overview_page.dart';
 import 'package:dsm_helper/new_ui/dashboard/overview_alerts.dart';
+import 'package:dsm_helper/new_ui/dashboard/overview_widget_config_controller.dart';
 import 'package:dsm_helper/new_ui/dashboard/overview_controller.dart';
 import 'package:dsm_helper/new_ui/dashboard/overview_shortcuts.dart';
 import 'package:dsm_helper/new_ui/dashboard/overview_source_state.dart';
@@ -72,6 +74,37 @@ class _OverviewPageState extends State<OverviewPage> {
     super.dispose();
   }
 
+  Future<void> _openWidgetEditor() async {
+    final initProvider = context.read<InitDataProvider>();
+    final settings = initProvider.initData.userSettings;
+    final instance = settings?.synoSDSWidgetInstance;
+    final original = instance?.moduleList;
+    if (settings == null || instance == null || original == null) return;
+
+    final editor = OverviewWidgetConfigController(
+      originalModuleIds: List<String>.of(original),
+      saveModuleIds: settings.apply,
+    );
+    try {
+      final confirmed = await Navigator.of(context).push<List<String>>(
+        MaterialPageRoute<List<String>>(
+          builder: (_) => EditOverviewPage(controller: editor),
+        ),
+      );
+      if (!mounted ||
+          confirmed == null ||
+          !identical(initProvider.initData.userSettings, settings) ||
+          !identical(settings.synoSDSWidgetInstance, instance)) {
+        return;
+      }
+      // Only a confirmed DSM apply may replace the authoritative module list.
+      instance.moduleList = List<String>.of(confirmed);
+      initProvider.notify();
+    } finally {
+      editor.dispose();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final controller = _controller!;
@@ -102,6 +135,15 @@ class _OverviewPageState extends State<OverviewPage> {
           ],
         ),
         actions: [
+          IconButton(
+            key: const Key('overview-edit-action'),
+            tooltip: '编辑概览',
+            onPressed:
+                initData.userSettings?.synoSDSWidgetInstance?.moduleList == null
+                    ? null
+                    : _openWidgetEditor,
+            icon: const Icon(Icons.tune_outlined),
+          ),
           IconButton(
             key: const Key('new-ui-notifications'),
             tooltip: '通知',
