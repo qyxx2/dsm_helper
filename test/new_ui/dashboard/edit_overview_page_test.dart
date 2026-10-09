@@ -17,8 +17,8 @@ Widget _host(OverviewWidgetConfigController controller) {
       body: Builder(
         builder: (context) => TextButton(
           key: const Key('launch-editor'),
-          onPressed: () => Navigator.of(context).push<void>(
-            MaterialPageRoute<void>(
+          onPressed: () => Navigator.of(context).push<List<String>>(
+            MaterialPageRoute<List<String>>(
               builder: (_) => EditOverviewPage(controller: controller),
             ),
           ),
@@ -106,7 +106,7 @@ void main() {
     await tester.pump();
     await tester.tap(find.byKey(const Key('overview-edit-save')));
     await tester.pump();
-    expect(calls.single, [core, opaque, scheduler]);
+    expect(calls.single, [core, scheduler, opaque]);
     expect(find.byKey(const Key('overview-edit-saving')), findsOneWidget);
     final save = tester.widget<FilledButton>(find.byKey(const Key('overview-edit-save')));
     expect(save.onPressed, isNull);
