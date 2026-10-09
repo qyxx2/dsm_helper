@@ -1,7 +1,9 @@
 import 'dart:async';
 
 import 'package:dsm_helper/apis/dsm_api/dsm_exception.dart';
+import 'package:dsm_helper/models/Syno/Core/CurrentConnection.dart';
 import 'package:dsm_helper/models/Syno/Core/Notify.dart';
+import 'package:dsm_helper/models/Syno/Core/TaskScheduler.dart';
 import 'package:dsm_helper/models/Syno/Core/System.dart';
 import 'package:dsm_helper/models/Syno/Core/System/Utilization.dart';
 import 'package:dsm_helper/models/Syno/Storage/Cgi/Storage.dart';
@@ -10,11 +12,18 @@ import 'package:dsm_helper/new_ui/dashboard/overview_data_source.dart';
 import 'package:dsm_helper/new_ui/dashboard/overview_source_state.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+const currentConnectionModuleId =
+    'SYNO.SDS.SystemInfoApp.ConnectionLogWidget';
+const taskSchedulerModuleId =
+    'SYNO.SDS.TaskScheduler.TaskSchedulerWidget';
+
 OverviewDataSource source({
   OverviewSystemLoader? system,
   OverviewUtilizationLoader? utilization,
   OverviewStorageLoader? storage,
   OverviewNotificationLoader? notifications,
+  OverviewCurrentConnectionLoader? currentConnections,
+  OverviewTaskSchedulerLoader? taskScheduler,
 }) =>
     OverviewDataSource(
       loadSystem: system ?? () async => System(model: 'NAS'),
@@ -22,6 +31,9 @@ OverviewDataSource source({
       loadStorage: storage ?? () async => Storage(),
       loadNotifications:
           notifications ?? () async => DsmNotify(items: <DsmNotifyItems>[]),
+      loadCurrentConnections:
+          currentConnections ?? () async => CurrentConnection(),
+      loadTaskScheduler: taskScheduler ?? () async => TaskScheduler(),
     );
 
 OverviewController controller(
@@ -349,4 +361,196 @@ void main() {
     expect(identical(c.notifications.value, notificationV1), isTrue);
     c.dispose();
   });
+
+  test('disabled extensions never invoke their loaders', () async {
+    var connectionCalls = 0;
+    var schedulerCalls = 0;
+    final c = controller(source(
+      currentConnections: () async {
+        connectionCalls++;
+        return CurrentConnection();
+      },
+      taskScheduler: () async {
+        schedulerCalls++;
+        return TaskScheduler();
+      },
+    ));
+
+    await c.loadInitial();
+
+    expect(connectionCalls, 0);
+    expect(schedulerCalls, 0);
+    expect(c.currentConnections.phase, OverviewSourcePhase.initial);
+    expect(c.taskScheduler.phase, OverviewSourcePhase.initial);
+    c.dispose();
+  });
+
+  test('each extension can be selected independently', () async {
+    for (final selected in <String>[
+      currentConnectionModuleId,
+      taskSchedulerModuleId,
+    ]) {
+      var connectionCalls = 0;
+      var schedulerCalls = 0;
+      final c = controller(source(
+        currentConnections: () async {
+          connectionCalls++;
+          return CurrentConnection();
+        },
+        taskScheduler: () async {
+          schedulerCalls++;
+          return TaskScheduler();
+        },
+      ));
+      c.updateEnabledExtensions(<String>{selected});
+
+      await c.loadInitial();
+
+      expect(
+        connectionCalls,
+        selected == currentConnectionModuleId ? 1 : 0,
+      );
+      expect(
+        schedulerCalls,
+        selected == taskSchedulerModuleId ? 1 : 0,
+      );
+      c.dispose();
+    }
+  });
+
+  test('both selected extensions publish successful empty values', () async {
+    final c = controller(source(
+      currentConnections: () async =>
+          CurrentConnection(items: <UserItems>[], total: 0),
+      taskScheduler: () async => TaskScheduler(tasks: <Tasks>[], total: 0),
+    ));
+    c.updateEnabledExtensions(
+      <String>{currentConnectionModuleId, taskSchedulerModuleId},
+    );
+
+    await c.loadInitial();
+
+    expect(c.currentConnections.phase, OverviewSourcePhase.valid);
+    expect(c.currentConnections.value?.items, isEmpty);
+    expect(c.taskScheduler.phase, OverviewSourcePhase.valid);
+    expect(c.taskScheduler.value?.tasks, isEmpty);
+    c.dispose();
+  });
+
+  test('extension refresh failures retain stale values independently', () async {
+    var connectionFail = false;
+    var schedulerFail = false;
+    final connectionV1 =
+        CurrentConnection(items: <UserItems>[UserItems(who: 'alice')], total: 1);
+    final schedulerV1 =
+        TaskScheduler(tasks: <Tasks>[Tasks(name: 'backup')], total: 1);
+    final c = controller(source(
+      currentConnections: () async {
+        if (connectionFail) throw StateError('connections failed');
+        return connectionV1;
+      },
+      taskScheduler: () async {
+        if (schedulerFail) throw StateError('scheduler failed');
+        return schedulerV1;
+      },
+    ));
+    c.updateEnabledExtensions(
+      <String>{currentConnectionModuleId, taskSchedulerModuleId},
+    );
+    await c.loadInitial();
+
+    connectionFail = true;
+    await c.refresh();
+    expect(c.currentConnections.phase, OverviewSourcePhase.stale);
+    expect(identical(c.currentConnections.value, connectionV1), isTrue);
+    expect(c.taskScheduler.phase, OverviewSourcePhase.valid);
+
+    connectionFail = false;
+    schedulerFail = true;
+    await c.refresh();
+    expect(c.currentConnections.phase, OverviewSourcePhase.valid);
+    expect(c.taskScheduler.phase, OverviewSourcePhase.stale);
+    expect(identical(c.taskScheduler.value, schedulerV1), isTrue);
+    c.dispose();
+  });
+
+  test('enabling while mounted starts loading and disabling stops future loads',
+      () async {
+    var connectionCalls = 0;
+    final c = controller(source(
+      currentConnections: () async {
+        connectionCalls++;
+        return CurrentConnection(total: connectionCalls);
+      },
+    ));
+    await c.loadInitial();
+    expect(connectionCalls, 0);
+
+    c.updateEnabledExtensions(<String>{currentConnectionModuleId});
+    await Future<void>.delayed(Duration.zero);
+    await Future<void>.delayed(Duration.zero);
+    expect(connectionCalls, 1);
+    expect(c.currentConnections.phase, OverviewSourcePhase.valid);
+
+    c.updateEnabledExtensions(<String>{});
+    expect(c.currentConnections.phase, OverviewSourcePhase.initial);
+    expect(c.currentConnections.value, isNull);
+    await c.refresh();
+    expect(connectionCalls, 1);
+    c.dispose();
+  });
+
+  testWidgets('automatic ticks share the in-flight extension refresh owner',
+      (tester) async {
+    final pending = Completer<CurrentConnection?>();
+    var connectionCalls = 0;
+    final c = controller(
+      source(currentConnections: () {
+        connectionCalls++;
+        return pending.future;
+      }),
+      interval: const Duration(seconds: 1),
+    );
+    c.updateEnabledExtensions(<String>{currentConnectionModuleId});
+
+    final first = c.loadInitial();
+    c.startAutoRefresh();
+    await tester.pump(const Duration(seconds: 4));
+    expect(connectionCalls, 1);
+
+    pending.complete(CurrentConnection(total: 1));
+    await first;
+    expect(c.currentConnections.phase, OverviewSourcePhase.valid);
+    expect(connectionCalls, 1);
+    c.stopAutoRefresh();
+    c.dispose();
+  }, timeout: const Timeout(Duration(seconds: 15)));
+
+  test('disabled extension ignores a delayed result from the old selection',
+      () async {
+    final pending = Completer<CurrentConnection?>();
+    final c = controller(source(
+      currentConnections: () => pending.future,
+    ));
+    c.updateEnabledExtensions(<String>{currentConnectionModuleId});
+
+    final first = c.loadInitial();
+    await Future<void>.delayed(Duration.zero);
+    expect(c.currentConnections.phase, OverviewSourcePhase.loading);
+
+    c.updateEnabledExtensions(<String>{});
+    expect(c.currentConnections.phase, OverviewSourcePhase.initial);
+    pending.complete(
+      CurrentConnection(
+        items: <UserItems>[UserItems(who: 'late-user')],
+        total: 1,
+      ),
+    );
+    await first;
+
+    expect(c.currentConnections.phase, OverviewSourcePhase.initial);
+    expect(c.currentConnections.value, isNull);
+    c.dispose();
+  });
+
 }
