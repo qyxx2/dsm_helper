@@ -92,6 +92,22 @@ Widget _host({
 InitDataProvider _init() => InitDataProvider()
   ..setInitData(InitDataModel(session: Session(hostname: 'NAS-ONE')));
 
+class _WidgetSettingsStub extends UserSettings {
+  _WidgetSettingsStub({
+    required List<String> ids,
+    this.result = true,
+  }) : super(synoSDSWidgetInstance: SynoSdsWidgetInstance(moduleList: ids));
+
+  bool? result;
+  final writes = <List<String>>[];
+
+  @override
+  Future<bool?> apply(List<String> modulelist) async {
+    writes.add(List.of(modulelist));
+    return result;
+  }
+}
+
 void main() {
   testWidgets('initial loading is explicit and valid data appears independently',
       (tester) async {
@@ -473,5 +489,137 @@ void main() {
     expect(selected.single.id, '1:$panel');
     await tester.pumpWidget(const SizedBox.shrink());
   }, timeout: const Timeout(Duration(seconds: 25)));
+
+
+  testWidgets('Overview edit action opens owned-only editor without consuming notifications',
+      (tester) async {
+    final settingsData = _WidgetSettingsStub(ids: [
+      'SYNO.SDS.ResourceMonitor.Widget',
+      'SYNO.SDS.SystemInfoApp.ConnectionLogWidget',
+      'vendor.UnrecognizedWidget',
+    ]);
+    final provider = InitDataProvider()
+      ..setInitData(InitDataModel(
+        session: Session(hostname: 'NAS-ONE'),
+        userSettings: settingsData,
+      ));
+    var notifications = 0;
+    await tester.pumpWidget(_host(
+      initData: provider,
+      settings: SettingProvider(refreshDuration: 30),
+      onNotification: () => notifications++,
+      factory: (interval) => OverviewController(
+        dataSource: _source(),
+        refreshInterval: interval,
+      ),
+    ));
+    await tester.pump();
+    expect(find.byKey(const Key('new-ui-notifications')), findsOneWidget);
+    expect(find.byKey(const Key('overview-edit-action')), findsOneWidget);
+    await tester.tap(find.byKey(const Key('overview-edit-action')));
+    await tester.pumpAndSettle();
+    expect(find.text('编辑概览'), findsOneWidget);
+    expect(find.text('当前连接'), findsOneWidget);
+    expect(find.text('计划任务'), findsOneWidget);
+    await tester.tap(find.byKey(const Key('overview-edit-cancel')));
+    await tester.pumpAndSettle();
+    expect(settingsData.writes, isEmpty);
+    expect(find.byKey(const Key('new-ui-notifications')), findsOneWidget);
+    await tester.tap(find.byKey(const Key('new-ui-notifications')));
+    expect(notifications, 1);
+    await tester.pumpWidget(const SizedBox.shrink());
+  }, timeout: const Timeout(Duration(seconds: 25)));
+
+  testWidgets('Overview successful save writes full list then publishes confirmed DSM modules',
+      (tester) async {
+    const core = 'SYNO.SDS.SystemInfoApp.SystemHealthWidget';
+    const conn = 'SYNO.SDS.SystemInfoApp.ConnectionLogWidget';
+    const scheduler = 'SYNO.SDS.TaskScheduler.TaskSchedulerWidget';
+    const deferred = 'SYNO.SDS.SystemInfoApp.FileChangeLogWidget';
+    const opaque = 'vendor.UnrecognizedWidget';
+    final user = _WidgetSettingsStub(ids: [core, conn, deferred, opaque]);
+    final provider = InitDataProvider()
+      ..setInitData(InitDataModel(
+        session: Session(hostname: 'NAS-ONE'),
+        userSettings: user,
+      ));
+    var notifications = 0;
+    provider.addListener(() => notifications++);
+    await tester.pumpWidget(_host(
+      initData: provider,
+      settings: SettingProvider(refreshDuration: 30),
+      factory: (interval) => OverviewController(
+        dataSource: _source(),
+        refreshInterval: interval,
+      ),
+    ));
+    await tester.pump();
+    await tester.tap(find.byKey(const Key('overview-edit-action')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('overview-visible-$scheduler')));
+    await tester.pump();
+    await tester.tap(find.byKey(const Key('overview-edit-save')));
+    await tester.pumpAndSettle();
+    const expected = [core, conn, scheduler, deferred, opaque];
+    expect(user.writes.single, expected);
+    expect(provider.initData.userSettings!.synoSDSWidgetInstance!.moduleList, expected);
+    expect(notifications, 1);
+    expect(find.byKey(const Key('overview-edit-action')), findsOneWidget);
+    await tester.pumpWidget(const SizedBox.shrink());
+  }, timeout: const Timeout(Duration(seconds: 25)));
+
+  testWidgets('Overview failed save preserves DSM module authority and edit stays open',
+      (tester) async {
+    const core = 'SYNO.SDS.ResourceMonitor.Widget';
+    const conn = 'SYNO.SDS.SystemInfoApp.ConnectionLogWidget';
+    const opaque = 'vendor.UnrecognizedWidget';
+    final original = <String>[core, conn, opaque];
+    final user = _WidgetSettingsStub(ids: original, result: false);
+    final provider = InitDataProvider()
+      ..setInitData(InitDataModel(
+        session: Session(hostname: 'NAS-ONE'),
+        userSettings: user,
+      ));
+    var notifications = 0;
+    provider.addListener(() => notifications++);
+    await tester.pumpWidget(_host(
+      initData: provider,
+      settings: SettingProvider(refreshDuration: 30),
+      factory: (interval) => OverviewController(
+        dataSource: _source(),
+        refreshInterval: interval,
+      ),
+    ));
+    await tester.pump();
+    await tester.tap(find.byKey(const Key('overview-edit-action')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('overview-visible-$conn')));
+    await tester.pump();
+    await tester.tap(find.byKey(const Key('overview-edit-save')));
+    await tester.pumpAndSettle();
+    expect(user.writes.single, [core, opaque]);
+    expect(provider.initData.userSettings!.synoSDSWidgetInstance!.moduleList, original);
+    expect(notifications, 0);
+    expect(find.text('保存失败，请重试'), findsOneWidget);
+    await tester.pumpWidget(const SizedBox.shrink());
+  }, timeout: const Timeout(Duration(seconds: 25)));
+
+  testWidgets('Overview without loaded DSM module list disables edit action',
+      (tester) async {
+    final provider = _init();
+    await tester.pumpWidget(_host(
+      initData: provider,
+      settings: SettingProvider(refreshDuration: 30),
+      factory: (interval) => OverviewController(
+        dataSource: _source(),
+        refreshInterval: interval,
+      ),
+    ));
+    await tester.pump();
+    final action = tester.widget<IconButton>(
+        find.byKey(const Key('overview-edit-action')));
+    expect(action.onPressed, isNull);
+    await tester.pumpWidget(const SizedBox.shrink());
+  }, timeout: const Timeout(Duration(seconds: 20)));
 
 }
