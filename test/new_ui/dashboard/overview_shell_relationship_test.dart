@@ -115,6 +115,10 @@ void main() {
               home: ModernUiRoot(
                 initialAuthRequired: false,
                 initializeDownloader: false,
+                overviewControllerFactory: (interval) => OverviewController(
+                  dataSource: _source(() async => System(model: 'test-only')),
+                  refreshInterval: interval,
+                ),
                 dataSource: _SavedSource(StartupSavedContext(
                   accountId: account.id, serverId: server.id,
                   isDefault: true, baseUrl: server.url,
@@ -150,8 +154,10 @@ void main() {
         expect(shell.onReauthNeeded, isNotNull);
         shell.onReauthNeeded!();
         shell.onReauthNeeded!();
+        await tester.runAsync(() async {
+          await Future<void>.delayed(const Duration(milliseconds: 50));
+        });
         await tester.pump();
-        await tester.pump(const Duration(milliseconds: 100));
         expect(logins, 1);
         final before = (await db.select(db.accounts).get()).single;
         expect(before.id, account.id);
@@ -162,8 +168,10 @@ void main() {
           account: 'alice', deviceId: 'new-device',
           sid: 'renewed-sid', ikMessage: '', synotoken: 'new-token',
         ));
-        await tester.pump(const Duration(milliseconds: 100));
-        await tester.pump(const Duration(milliseconds: 100));
+        await tester.runAsync(() async {
+          await Future<void>.delayed(const Duration(milliseconds: 50));
+        });
+        await tester.pump();
         final updated = (await db.select(db.accounts).get()).single;
         expect(updated.id, account.id);
         expect(updated.sid, 'renewed-sid');
