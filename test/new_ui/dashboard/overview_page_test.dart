@@ -199,7 +199,9 @@ void main() {
     final refreshing = controller!.refresh();
     await tester.pump();
     expect(find.text('43%'), findsOneWidget);
-    expect(find.text('数据刷新中'), findsOneWidget);
+    expect(find.byKey(const Key('overview-refresh-slot')), findsOneWidget);
+    expect(find.byKey(const Key('overview-refresh-indicator')), findsOneWidget);
+    expect(find.text('数据刷新中'), findsNothing);
     pending.completeError(StateError('temporary disconnect'));
     await refreshing;
     await tester.pump();
@@ -621,5 +623,103 @@ void main() {
     expect(action.onPressed, isNull);
     await tester.pumpWidget(const SizedBox.shrink());
   }, timeout: const Timeout(Duration(seconds: 20)));
+
+
+  testWidgets('fixed AppBar refresh slot preserves positions across manual, stale and timer refresh',
+      (tester) async {
+    tester.view.physicalSize = const ui.Size(400, 1000);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final manual = Completer<Utilization?>();
+    final automatic = Completer<Utilization?>();
+    var calls = 0;
+    var notifications = 0;
+    OverviewController? controller;
+    final init = InitDataProvider()
+      ..setInitData(InitDataModel(
+        session: Session(hostname: 'NAS-ONE'),
+        userSettings: _WidgetSettingsStub(ids: []),
+      ));
+    await tester.pumpWidget(_host(
+      initData: init,
+      settings: _MutableSettings(2),
+      onNotification: () => notifications++,
+      factory: (interval) {
+        controller = OverviewController(
+          dataSource: _source(utilization: () {
+            calls++;
+            if (calls == 1) {
+              return Future.value(Utilization(memory: Memory(realUsage: 43)));
+            }
+            if (calls == 2) return manual.future;
+            if (calls == 3) return automatic.future;
+            return Future.value(Utilization(memory: Memory(realUsage: 65)));
+          }),
+          refreshInterval: interval,
+        );
+        return controller!;
+      },
+    ));
+    await tester.pump();
+    expect(calls, 1);
+    final slot = find.byKey(const Key('overview-refresh-slot'));
+    final indicator = find.byKey(const Key('overview-refresh-indicator'));
+    final edit = find.byKey(const Key('overview-edit-action'));
+    final notify = find.byKey(const Key('new-ui-notifications'));
+    expect(slot, findsOneWidget);
+    expect(tester.getSize(slot).width, 20);
+    expect(indicator, findsNothing);
+    expect(find.text('43%'), findsOneWidget);
+    final nameY = tester.getTopLeft(find.text('NAS-ONE')).dy;
+    final resourceY = tester.getTopLeft(find.text('43%')).dy;
+    final editX = tester.getTopLeft(edit).dx;
+    final notifyX = tester.getTopLeft(notify).dx;
+    final slotX = tester.getTopLeft(slot).dx;
+
+    final refresh = controller!.refresh();
+    await tester.pump();
+    expect(indicator, findsOneWidget);
+    expect(find.bySemanticsLabel('数据刷新中'), findsOneWidget);
+    expect(find.text('数据刷新中'), findsNothing);
+    expect(find.text('43%'), findsOneWidget);
+    expect(tester.getTopLeft(find.text('NAS-ONE')).dy, nameY);
+    expect(tester.getTopLeft(find.text('43%')).dy, resourceY);
+    expect(tester.getTopLeft(slot).dx, slotX);
+    expect(tester.getTopLeft(edit).dx, editX);
+    expect(tester.getTopLeft(notify).dx, notifyX);
+
+    manual.completeError(StateError('refresh failed'));
+    await refresh;
+    await tester.pump();
+    expect(indicator, findsNothing);
+    expect(tester.getSize(slot).width, 20);
+    expect(find.text('43%'), findsOneWidget);
+    expect(find.text('资源数据已过期'), findsOneWidget);
+    expect(tester.getTopLeft(find.text('NAS-ONE')).dy, nameY);
+
+    await tester.pump(const Duration(seconds: 2));
+    expect(calls, 3);
+    expect(indicator, findsOneWidget);
+    expect(find.text('43%'), findsOneWidget);
+    expect(find.text('数据刷新中'), findsNothing);
+    expect(tester.getTopLeft(find.text('NAS-ONE')).dy, nameY);
+    expect(tester.getTopLeft(edit).dx, editX);
+    expect(tester.getTopLeft(notify).dx, notifyX);
+
+    automatic.complete(Utilization(memory: Memory(realUsage: 65)));
+    await tester.pump();
+    expect(indicator, findsNothing);
+    expect(find.text('65%'), findsOneWidget);
+    expect(find.text('资源数据已过期'), findsNothing);
+    expect(tester.getTopLeft(find.text('NAS-ONE')).dy, nameY);
+    expect(tester.getTopLeft(edit).dx, editX);
+    expect(tester.getTopLeft(notify).dx, notifyX);
+    await tester.tap(notify);
+    expect(notifications, 1);
+    expect(tester.widget<IconButton>(edit).onPressed, isNotNull);
+    await tester.pumpWidget(const SizedBox.shrink());
+  }, timeout: const Timeout(Duration(seconds: 25)));
 
 }
