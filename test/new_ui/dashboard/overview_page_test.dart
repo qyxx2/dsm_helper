@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ui' as ui;
 
 import 'package:dsm_helper/models/Syno/Core/Desktop/InitData.dart';
 import 'package:dsm_helper/models/Syno/Core/Notify.dart';
@@ -254,7 +255,7 @@ void main() {
 
   testWidgets('notifications callback, light/dark and large text remain usable',
       (tester) async {
-    tester.view.physicalSize = const Size(360, 800);
+    tester.view.physicalSize = const ui.Size(360, 800);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
