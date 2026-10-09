@@ -261,7 +261,7 @@ class _VolumeBlock extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Expanded(
-                    flex: 2,
+                    flex: 1,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -281,10 +281,10 @@ class _VolumeBlock extends StatelessWidget {
                   ),
                   const SizedBox(width: 8),
                   Expanded(
-                    flex: 3,
+                    flex: 2,
                     child: Wrap(
                       alignment: WrapAlignment.end,
-                      spacing: 8,
+                      spacing: 4,
                       runSpacing: 4,
                       children: [
                         for (final temperature in temperatures)
