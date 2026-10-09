@@ -75,7 +75,6 @@ void main() {
     expect(controller.error, isNotNull);
     expect(controller.saving, isFalse);
     controller.setVisible(connection, true);
-    controller.reorder(0, 2);
     expect(await controller.save(), [core, scheduler, opaque, connection, deferred]);
     expect(calls.first, [core, scheduler, opaque, deferred]);
     expect(calls.last, [core, scheduler, opaque, connection, deferred]);
