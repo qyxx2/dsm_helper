@@ -589,6 +589,13 @@ Validation
 
 ## Task 5 — Dashboard
 
+> **Status: COMPLETE — automated gates and declared real-device scope accepted on 2026-10-09.**  
+> Final implementation HEAD: `699157d1dbb16aab34d306589b29ddb4ef1a26ee`  
+> Final CI: Modern UI Android CI #232 / run `37926403702` — 235 tests passed, targeted analyze clean, beta debug APK built, stable package/signing identity verified, artifact uploaded.  
+> Real-device Gate: PASS for the user's declared HTTP LAN DSM scope, including the focused Batch 7 corrective follow-up. HTTPS/self-signed, second-account, OTP and forced-119 scenarios remain explicitly **NOT TESTED**, not accepted by implication.  
+> Acceptance: [Task 5 Dashboard Acceptance](acceptance/2026-10-09-task-5-dashboard-acceptance.md).  
+> Task 6 has not started and is not implied by this completion status.
+
 ### Scope
 
 第一套完整的新核心页面。
@@ -603,6 +610,34 @@ Validation
 - providers / batch calls
 
 重点验证新视觉的信息密度和整体方向。
+
+### Task 5 Preflight authority
+
+Task 5 开始实现前必须读取并遵循：
+
+```text
+docs/modern-ui/specs/2026-10-09-task-5-dashboard-feature-design.md
+docs/modern-ui/contracts/2026-10-09-task-5-dashboard-contract-matrix.md
+```
+
+Preflight 已冻结：
+- 独立 source refresh / partial-failure / last-valid / stale 语义；
+- Overview 固定结构与真实数据 authority；
+- Dashboard core 不依赖弱语义 batch；
+- 运行期 DSM 119 通过一次性信号回到既有 saved-account reauth，不新增认证 authority；
+- shortcut read authority 与 fixed-region 规则；
+- extension widget owned/non-owned 边界及 full-list preservation merge；
+- CurrentConnection / TaskScheduler 在 Task 5 为只读 Modern summary；
+- Recent Log / File Change Log 现代化延期但其配置不得丢失；
+- final Overview shell cutover 与 legacy Dashboard retention 边界。
+
+Task 5 Feature Design / Contract Matrix 已经用户审核批准。正式 Batch Execution Plan：
+
+```text
+docs/modern-ui/plans/2026-10-09-task-5-dashboard-batch-plan.md
+```
+
+实现顺序冻结为 B1 → B2 → B3 → B4 → B5 → B6 → B7。不得因后续 Batch 覆盖相近行为而跳过前置 Batch。
 
 ---
 
@@ -1017,13 +1052,24 @@ docs/modern-ui/acceptance/2026-10-08-task-4-server-auth-acceptance.md
 ### Active
 
 ```text
-No implementation Task is active.
+Task 5 — Dashboard
+Planning complete; implementation has not started.
 ```
+
+Task 5 planning authorities:
+
+```text
+docs/modern-ui/specs/2026-10-09-task-5-dashboard-feature-design.md
+docs/modern-ui/contracts/2026-10-09-task-5-dashboard-contract-matrix.md
+docs/modern-ui/plans/2026-10-09-task-5-dashboard-batch-plan.md
+```
+
+The Feature Design / Contract Matrix review gate is approved. The Batch Plan is frozen on `feature/t5-dashboard`. No production/test code is changed by planning.
 
 ### Next (not automatically started)
 
 ```text
-Task 5 — Dashboard
+Task 5 Batch 1 — Overview Data / Refresh State Foundation
 ```
 
-Task 5 may be planned after the Task 4 integration decision and normal next-Task preflight. No next-Task implementation or branch merge is authorized by this status update.
+Batch 1 requires an explicit execution instruction. Planning completion does not authorize implementation.

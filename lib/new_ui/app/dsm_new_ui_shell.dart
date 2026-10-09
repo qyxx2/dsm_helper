@@ -2,6 +2,10 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:dsm_helper/new_ui/app/new_ui_app_shell.dart';
+import 'package:dsm_helper/new_ui/dashboard/overview_alerts.dart';
+import 'package:dsm_helper/new_ui/dashboard/overview_controller.dart';
+import 'package:dsm_helper/new_ui/dashboard/overview_data_source.dart';
+import 'package:dsm_helper/new_ui/dashboard/overview_page.dart';
 import 'package:dsm_helper/new_ui/intents/external_intent_listener.dart';
 import 'package:dsm_helper/new_ui/intents/external_intent_router.dart';
 import 'package:dsm_helper/new_ui/intents/flutter_sharing_intent_source.dart';
@@ -18,6 +22,7 @@ import 'package:dsm_helper/pages/download_station/add_task.dart';
 import 'package:dsm_helper/pages/file/file_page.dart';
 import 'package:dsm_helper/pages/file/upload.dart';
 import 'package:dsm_helper/pages/setting/setting.dart';
+import 'package:dsm_helper/pages/storage_manager/storage_manager.dart';
 import 'package:dsm_helper/pages/transfer/transfer.dart';
 import 'package:dsm_helper/providers/background_task_provider.dart';
 import 'package:dsm_helper/providers/dark_mode.dart';
@@ -41,6 +46,8 @@ class DsmNewUiShell extends StatefulWidget {
     this.legacyBootstrap,
     this.onManageAccounts,
     this.onLogout,
+    this.onReauthNeeded,
+    this.overviewControllerFactory,
   });
 
   final ActiveContextStatus initialContextStatus;
@@ -48,6 +55,8 @@ class DsmNewUiShell extends StatefulWidget {
   final LegacySharedBootstrap? legacyBootstrap;
   final VoidCallback? onManageAccounts;
   final VoidCallback? onLogout;
+  final VoidCallback? onReauthNeeded;
+  final OverviewControllerFactory? overviewControllerFactory;
 
   @override
   State<DsmNewUiShell> createState() => _DsmNewUiShellState();
@@ -160,6 +169,22 @@ class _DsmNewUiShellState extends State<DsmNewUiShell> {
     }
   }
 
+  void _openOverviewLegacy(
+    BuildContext context,
+    DsmProviderScope providerScope,
+    WidgetBuilder builder,
+  ) {
+    unawaited(
+      Navigator.of(context, rootNavigator: true).push<void>(
+        MaterialPageRoute<void>(
+          builder: (_) => providerScope.wrap(
+            LegacyPageHost(builder: builder),
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final darkMode = context.watch<DarkModeProvider>().darkMode;
@@ -211,6 +236,40 @@ class _DsmNewUiShellState extends State<DsmNewUiShell> {
                         icon: Icons.dashboard_outlined,
                         selectedIcon: Icons.dashboard,
                         legacyBuilder: (_) => Dashboard(),
+                        modernBuilder: (
+                          tabContext, {
+                          required onOpenNotifications,
+                          required connectionStatusText,
+                        }) {
+                          return OverviewPage(
+                            controllerFactory: widget.overviewControllerFactory ??
+                                (refreshInterval) => OverviewController(
+                                      dataSource: OverviewDataSource.production(),
+                                      refreshInterval: refreshInterval,
+                                      onAuthInvalidated: (_) =>
+                                          widget.onReauthNeeded?.call(),
+                                    ),
+                            onOpenNotifications: onOpenNotifications,
+                            connectionStatusText: connectionStatusText,
+                            onOpenShortcut: (shortcut) => _openOverviewLegacy(
+                              tabContext,
+                              providerScope,
+                              shortcut.legacyBuilder,
+                            ),
+                            onOpenAlertDestination: (destination) {
+                              switch (destination) {
+                                case OverviewAlertDestination.notifications:
+                                  onOpenNotifications();
+                                case OverviewAlertDestination.storageManager:
+                                  _openOverviewLegacy(
+                                    tabContext,
+                                    providerScope,
+                                    (_) => StorageManager(),
+                                  );
+                              }
+                            },
+                          );
+                        },
                       ),
                       NewUiAppDestination(
                         label: '文件',

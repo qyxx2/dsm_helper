@@ -8,6 +8,7 @@ import 'package:dsm_helper/database/table_extension.dart';
 import 'package:dsm_helper/database/tables.dart';
 import 'package:dsm_helper/models/api_model.dart';
 import 'package:dsm_helper/new_ui/app/dsm_new_ui_shell.dart';
+import 'package:dsm_helper/new_ui/dashboard/overview_page.dart';
 import 'package:dsm_helper/new_ui/auth/auth_flow_controller.dart';
 import 'package:dsm_helper/new_ui/auth/auth_flow_models.dart';
 import 'package:dsm_helper/new_ui/auth/login_page.dart';
@@ -47,6 +48,7 @@ class ModernUiRoot extends StatefulWidget {
     this.serverProbe,
     this.loginPreparation,
     this.shellBuilder,
+    this.overviewControllerFactory,
     this.gatePolicy,
     this.initializeDownloader = true,
   });
@@ -59,6 +61,7 @@ class ModernUiRoot extends StatefulWidget {
   final ServerFormProbe? serverProbe;
   final ModernLoginPreparation? loginPreparation;
   final StartupShellBuilder? shellBuilder;
+  final OverviewControllerFactory? overviewControllerFactory;
   final Future<bool> Function()? gatePolicy;
   final bool initializeDownloader;
 
@@ -302,15 +305,24 @@ class _ModernUiRootState extends State<ModernUiRoot> {
     }
   }
 
-  Future<void> _reauthSaved(StartupSavedContext saved) async {
+  Future<void> _reauthSaved(StartupSavedContext saved) =>
+      _reauthSavedAccountIds(
+        serverId: saved.serverId,
+        accountId: saved.accountId,
+      );
+
+  Future<void> _reauthSavedAccountIds({
+    required int serverId,
+    required int accountId,
+  }) async {
     final ticket = ++_generation;
     _busy();
     try {
       final server = await (DbUtils.db.select(DbUtils.db.servers)
-            ..where((row) => row.id.equals(saved.serverId)))
+            ..where((row) => row.id.equals(serverId)))
           .getSingleOrNull();
       final account = await (DbUtils.db.select(DbUtils.db.accounts)
-            ..where((row) => row.id.equals(saved.accountId)))
+            ..where((row) => row.id.equals(accountId)))
           .getSingleOrNull();
       if (!mounted || ticket != _generation) return;
       if (server == null ||
@@ -356,7 +368,27 @@ class _ModernUiRootState extends State<ModernUiRoot> {
     return DsmNewUiShell(
       initialContextStatus: result.status,
       contextId: result.contextId,
+      overviewControllerFactory: widget.overviewControllerFactory,
       onManageAccounts: _showSelector,
+      onReauthNeeded: () {
+        // Accept only the shell's current saved context; a stale route
+        // must never start a reauthentication for an older account.
+        if (!mounted ||
+            (_view != _AuthView.startup && _view != _AuthView.shell) ||
+            (_view == _AuthView.shell &&
+                _activeResult?.contextId != result.contextId)) {
+          return;
+        }
+        final parts = result.contextId.split('/');
+        if (parts.length != 2) return;
+        final serverId = int.tryParse(parts[0]);
+        final savedAccountId = int.tryParse(parts[1]);
+        if (serverId == null || savedAccountId == null) return;
+        unawaited(_reauthSavedAccountIds(
+          serverId: serverId,
+          accountId: savedAccountId,
+        ));
+      },
       onLogout: accountId == null
           ? null
           : () => unawaited(_logout(accountId)),

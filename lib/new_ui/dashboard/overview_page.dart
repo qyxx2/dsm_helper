@@ -1,0 +1,366 @@
+import 'dart:async';
+
+import 'package:dsm_helper/new_ui/dashboard/edit_overview_page.dart';
+import 'package:dsm_helper/new_ui/dashboard/overview_alerts.dart';
+import 'package:dsm_helper/new_ui/dashboard/overview_widget_config_controller.dart';
+import 'package:dsm_helper/new_ui/dashboard/overview_controller.dart';
+import 'package:dsm_helper/new_ui/dashboard/overview_shortcuts.dart';
+import 'package:dsm_helper/new_ui/dashboard/overview_source_state.dart';
+import 'package:dsm_helper/new_ui/dashboard/overview_widget_config.dart';
+import 'package:dsm_helper/new_ui/dashboard/widgets/abnormal_summary.dart';
+import 'package:dsm_helper/new_ui/dashboard/widgets/core_resource_section.dart';
+import 'package:dsm_helper/new_ui/dashboard/widgets/current_connection_extension.dart';
+import 'package:dsm_helper/new_ui/dashboard/widgets/device_summary.dart';
+import 'package:dsm_helper/new_ui/dashboard/widgets/task_scheduler_extension.dart';
+import 'package:dsm_helper/new_ui/dashboard/widgets/shortcut_section.dart';
+import 'package:dsm_helper/providers/init_data_provider.dart';
+import 'package:dsm_helper/providers/setting_provider.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+typedef OverviewControllerFactory = OverviewController Function(
+  Duration refreshInterval,
+);
+
+/// Fixed Overview core before the Task 5 shell cutover. The controller is
+/// owned by this page; the existing DSM providers remain read authorities.
+class OverviewPage extends StatefulWidget {
+  const OverviewPage({
+    super.key,
+    required this.controllerFactory,
+    required this.onOpenNotifications,
+    this.onOpenAlertDestination,
+    this.onOpenShortcut,
+    this.connectionStatusText,
+  });
+
+  final OverviewControllerFactory controllerFactory;
+  final VoidCallback onOpenNotifications;
+  final ValueChanged<OverviewAlertDestination>? onOpenAlertDestination;
+  final ValueChanged<OverviewShortcut>? onOpenShortcut;
+  final String? connectionStatusText;
+
+  @override
+  State<OverviewPage> createState() => _OverviewPageState();
+}
+
+class _OverviewPageState extends State<OverviewPage> {
+  OverviewController? _controller;
+  Duration? _refreshInterval;
+  Set<String> _enabledExtensionIds = <String>{};
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final interval = Duration(
+      seconds: context.watch<SettingProvider>().refreshDuration,
+    );
+    final moduleIds = context
+        .watch<InitDataProvider>()
+        .initData
+        .userSettings
+        ?.synoSDSWidgetInstance
+        ?.moduleList;
+    final enabledExtensionIds = <String>{
+      for (final id in moduleIds ?? const <String>[])
+        if (task5OwnedOverviewWidgetIds.contains(id)) id,
+    };
+
+    if (_controller == null) {
+      _refreshInterval = interval;
+      _enabledExtensionIds = enabledExtensionIds;
+      _controller = widget.controllerFactory(interval)
+        ..updateEnabledExtensions(enabledExtensionIds);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        final controller = _controller;
+        if (controller == null) return;
+        unawaited(controller.loadInitial());
+        controller.startAutoRefresh();
+      });
+    } else {
+      if (_refreshInterval != interval) {
+        _refreshInterval = interval;
+        _controller!.updateRefreshInterval(interval);
+      }
+      if (!setEquals(_enabledExtensionIds, enabledExtensionIds)) {
+        _enabledExtensionIds = enabledExtensionIds;
+        final controller = _controller!;
+        final expectedIds = Set<String>.of(enabledExtensionIds);
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!mounted ||
+              !identical(_controller, controller) ||
+              !setEquals(_enabledExtensionIds, expectedIds)) {
+            return;
+          }
+          controller.updateEnabledExtensions(expectedIds);
+        });
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller?.dispose();
+    super.dispose();
+  }
+
+  Future<void> _openWidgetEditor() async {
+    final initProvider = context.read<InitDataProvider>();
+    final settings = initProvider.initData.userSettings;
+    final instance = settings?.synoSDSWidgetInstance;
+    final original = instance?.moduleList;
+    if (settings == null || instance == null || original == null) return;
+
+    final editor = OverviewWidgetConfigController(
+      originalModuleIds: List<String>.of(original),
+      saveModuleIds: settings.apply,
+    );
+    try {
+      final confirmed = await Navigator.of(context).push<List<String>>(
+        MaterialPageRoute<List<String>>(
+          builder: (_) => EditOverviewPage(controller: editor),
+        ),
+      );
+      if (!mounted ||
+          confirmed == null ||
+          !identical(initProvider.initData.userSettings, settings) ||
+          !identical(settings.synoSDSWidgetInstance, instance)) {
+        return;
+      }
+      // Only a confirmed DSM apply may replace the authoritative module list.
+      instance.moduleList = List<String>.of(confirmed);
+      initProvider.notify();
+    } finally {
+      editor.dispose();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final controller = _controller!;
+    final initData = context.watch<InitDataProvider>().initData;
+    final hostname = initData.session?.hostname;
+    final shortcuts = const OverviewShortcutCatalog().build(initData);
+    final extensionIds = <String>[];
+    for (final id
+        in initData.userSettings?.synoSDSWidgetInstance?.moduleList ??
+            const <String>[]) {
+      if (task5OwnedOverviewWidgetIds.contains(id) &&
+          !extensionIds.contains(id)) {
+        extensionIds.add(id);
+      }
+    }
+    final theme = Theme.of(context);
+    return Scaffold(
+      appBar: AppBar(
+        title: Row(
+          children: [
+            const Flexible(
+              child: Text('概览', maxLines: 1, overflow: TextOverflow.ellipsis),
+            ),
+            const SizedBox(width: 8),
+            SizedBox(
+              key: const Key('overview-refresh-slot'),
+              width: 20,
+              height: 20,
+              child: AnimatedBuilder(
+                animation: controller,
+                builder: (context, _) {
+                  final refreshing = [
+                    controller.system.phase,
+                    controller.utilization.phase,
+                    controller.storage.phase,
+                  ].contains(OverviewSourcePhase.refreshing);
+                  if (!refreshing) return const SizedBox.shrink();
+                  return Center(
+                    child: Semantics(
+                      label: '数据刷新中',
+                      child: const SizedBox(
+                        key: Key('overview-refresh-indicator'),
+                        width: 14,
+                        height: 14,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+            if (widget.connectionStatusText != null) ...[
+              const SizedBox(width: 8),
+              Flexible(
+                child: Text(
+                  widget.connectionStatusText!,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.textTheme.labelMedium?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ),
+            ],
+          ],
+        ),
+        actions: [
+          IconButton(
+            key: const Key('overview-edit-action'),
+            tooltip: '编辑概览',
+            onPressed:
+                initData.userSettings?.synoSDSWidgetInstance?.moduleList == null
+                    ? null
+                    : _openWidgetEditor,
+            icon: const Icon(Icons.tune_outlined),
+          ),
+          IconButton(
+            key: const Key('new-ui-notifications'),
+            tooltip: '通知',
+            onPressed: widget.onOpenNotifications,
+            icon: const Icon(Icons.notifications_outlined),
+          ),
+        ],
+      ),
+      body: AnimatedBuilder(
+        animation: controller,
+        builder: (context, _) {
+          final system = controller.system;
+          final utilization = controller.utilization;
+          final storage = controller.storage;
+          final notifications = controller.notifications;
+          final alerts = buildOverviewAlerts(
+            storage: storage.value,
+            notifications: notifications.value,
+          );
+          final hasCoreData =
+              system.hasValue || utilization.hasValue || storage.hasValue;
+          final hasInitialError = [
+            system.phase,
+            utilization.phase,
+            storage.phase,
+          ].every((phase) => phase == OverviewSourcePhase.error);
+
+          return RefreshIndicator(
+            onRefresh: controller.refresh,
+            child: ListView(
+              key: const Key('overview-scroll'),
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.all(16),
+              children: [
+                DeviceSummary(
+                  hostname: hostname,
+                  uptime: system.value?.upTime,
+                ),
+                if (!hasCoreData && hasInitialError) ...[
+                  const Text('概览数据加载失败'),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: TextButton(
+                      onPressed: () => unawaited(controller.refresh()),
+                      child: const Text('重试'),
+                    ),
+                  ),
+                ],
+                _SourceFeedback(label: '系统信息', state: system),
+                _SourceFeedback(label: '资源', state: utilization),
+                _SourceFeedback(label: '存储', state: storage),
+                CoreResourceSection(
+                  system: system.value,
+                  utilization: utilization.value,
+                  storage: storage.value,
+                ),
+                if (alerts.isNotEmpty) ...[
+                  const SizedBox(height: 16),
+                  AbnormalSummary(
+                    alerts: alerts,
+                    notificationsStale:
+                        notifications.phase == OverviewSourcePhase.stale,
+                    onOpenDestination: widget.onOpenAlertDestination,
+                  ),
+                ],
+                const SizedBox(height: 16),
+                ShortcutSection(
+                  shortcuts: shortcuts,
+                  onOpenShortcut: widget.onOpenShortcut,
+                ),
+                for (final id in extensionIds) ...[
+                  const SizedBox(height: 16),
+                  if (id == task5OwnedOverviewWidgetIds[0])
+                    CurrentConnectionExtension(
+                      state: controller.currentConnections,
+                    )
+                  else if (id == task5OwnedOverviewWidgetIds[1])
+                    TaskSchedulerExtension(
+                      state: controller.taskScheduler,
+                    ),
+                ],
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+/// Loading/error/offline information belongs to its source, never another
+/// source or an indiscriminate full-page replacement.
+class _SourceFeedback extends StatelessWidget {
+  const _SourceFeedback({required this.label, required this.state});
+
+  final String label;
+  final OverviewSourceState<dynamic> state;
+
+  @override
+  Widget build(BuildContext context) {
+    final String? message;
+    final bool busy;
+    switch (state.phase) {
+      case OverviewSourcePhase.initial:
+      case OverviewSourcePhase.loading:
+        message = '$label加载中';
+        busy = true;
+      case OverviewSourcePhase.stale:
+        message = '$label数据已过期';
+        busy = false;
+      case OverviewSourcePhase.error:
+        message = '$label加载失败';
+        busy = false;
+      case OverviewSourcePhase.unavailable:
+        message = '$label不可用';
+        busy = false;
+      case OverviewSourcePhase.valid:
+      case OverviewSourcePhase.refreshing:
+        message = null;
+        busy = false;
+    }
+    if (message == null) return const SizedBox.shrink();
+
+    final theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Row(
+        children: [
+          if (busy) ...[
+            const SizedBox(
+              height: 16,
+              width: 16,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            ),
+            const SizedBox(width: 8),
+          ],
+          Flexible(
+            child: Text(
+              message,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: state.phase == OverviewSourcePhase.error
+                    ? theme.colorScheme.error
+                    : theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}

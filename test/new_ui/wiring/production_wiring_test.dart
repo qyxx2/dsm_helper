@@ -89,4 +89,44 @@ void main() {
       greaterThanOrEqualTo(2),
     );
   });
+
+  test('only Overview opts into the Modern shell root and retains legacy Dashboard fallback', () {
+    final shell = _read('lib/new_ui/app/dsm_new_ui_shell.dart');
+    final overviewDestination = RegExp(
+      r"NewUiAppDestination\(\s*label: '概览',[\s\S]*?\),\s*NewUiAppDestination\(\s*label: '文件'",
+    ).firstMatch(shell);
+    expect(overviewDestination, isNotNull);
+    final overview = overviewDestination!.group(0)!;
+    expect(overview, contains('legacyBuilder: (_) => Dashboard()'));
+    expect(overview, contains('modernBuilder:'));
+    expect(overview, contains('OverviewPage('));
+    expect(RegExp(r'modernBuilder\s*:').allMatches(shell).length, 1);
+    for (final legacy in ['FilePage(', 'Applications(', 'Transfer(', 'Setting(']) {
+      expect(shell, contains(legacy));
+    }
+  });
+
+  test('production Overview uses real DSM loaders, persisted cadence and active-context auth signal', () {
+    final shell = _read('lib/new_ui/app/dsm_new_ui_shell.dart');
+    expect(shell, contains('OverviewDataSource.production()'));
+    expect(shell, contains('OverviewController('));
+    expect(shell, contains('refreshInterval:'));
+    expect(shell, contains('onAuthInvalidated:'));
+    expect(shell, contains('onReauthNeeded'));
+    final page = _read('lib/new_ui/dashboard/overview_page.dart');
+    expect(page, contains('context.watch<SettingProvider>().refreshDuration'));
+    expect(shell, contains('controllerFactory:'));
+  });
+
+  test('Modern Overview routes notifications and legacy shortcuts through the existing shell host', () {
+    final shell = _read('lib/new_ui/app/dsm_new_ui_shell.dart');
+    expect(shell, contains('onOpenNotifications: onOpenNotifications'));
+    expect(shell, contains('connectionStatusText: connectionStatusText'));
+    expect(shell, contains('onOpenShortcut:'));
+    expect(shell, contains('onOpenAlertDestination:'));
+    expect(shell, contains('LegacyPageHost('));
+    expect(shell, contains('providerScope.wrap('));
+    expect(shell, contains('StorageManager('));
+    expect(shell, contains('LegacyNotificationEntry('));
+  });
 }
