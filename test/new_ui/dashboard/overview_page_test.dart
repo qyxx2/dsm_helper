@@ -10,6 +10,7 @@ import 'package:dsm_helper/new_ui/dashboard/overview_alerts.dart';
 import 'package:dsm_helper/new_ui/dashboard/overview_controller.dart';
 import 'package:dsm_helper/new_ui/dashboard/overview_data_source.dart';
 import 'package:dsm_helper/new_ui/dashboard/overview_page.dart';
+import 'package:dsm_helper/new_ui/dashboard/overview_shortcuts.dart';
 import 'package:dsm_helper/new_ui/theme/new_ui_theme.dart';
 import 'package:dsm_helper/providers/init_data_provider.dart';
 import 'package:dsm_helper/providers/setting_provider.dart';
@@ -63,6 +64,7 @@ Widget _host({
   double scale = 1,
   VoidCallback? onNotification,
   ValueChanged<OverviewAlertDestination>? onAlertDestination,
+  ValueChanged<OverviewShortcut>? onShortcut,
 }) {
   return MultiProvider(
     providers: [
@@ -79,6 +81,7 @@ Widget _host({
           controllerFactory: factory,
           onOpenNotifications: onNotification ?? () {},
           onOpenAlertDestination: onAlertDestination,
+          onOpenShortcut: onShortcut,
           connectionStatusText: '离线',
         ),
       ),
@@ -410,4 +413,65 @@ void main() {
     expect(find.text('通知数据已过期'), findsOneWidget);
     await tester.pumpWidget(const SizedBox.shrink());
   }, timeout: const Timeout(Duration(seconds: 25)));
+  testWidgets('Modern fixed shortcut region ignores legacy showShortcut false and stays when empty',
+      (tester) async {
+    final init = _init();
+    final settings = SettingProvider(refreshDuration: 30, showShortcut: false);
+    await tester.pumpWidget(_host(
+      initData: init,
+      settings: settings,
+      factory: (interval) => OverviewController(
+        dataSource: _source(),
+        refreshInterval: interval,
+      ),
+    ));
+    await tester.pump();
+    expect(find.byKey(const Key('overview-shortcuts')), findsOneWidget);
+    expect(find.text('快捷方式'), findsOneWidget);
+    expect(find.textContaining('暂无可用快捷方式'), findsOneWidget);
+    await tester.pumpWidget(const SizedBox.shrink());
+  }, timeout: const Timeout(Duration(seconds: 20)));
+
+  testWidgets('Overview reads DSM shortcuts in source order and forwards exact selected entry',
+      (tester) async {
+    tester.view.physicalSize = const ui.Size(420, 1500);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final init = _init();
+    const pkg = 'SYNO.SDS.PkgManApp.Instance';
+    const panel = 'SYNO.SDS.AdminCenter.Application';
+    init.setInitData(InitDataModel(
+      session: Session(hostname: 'NAS-ONE'),
+      userSettings: UserSettings(desktop: Desktop(
+        shortcutItems: [
+          ShortcutItems(className: 'unsupported'),
+          ShortcutItems(className: panel),
+          ShortcutItems(className: pkg),
+        ],
+        validAppviewOrder: [pkg, panel],
+      )),
+    ));
+    final selected = <OverviewShortcut>[];
+    await tester.pumpWidget(_host(
+      initData: init,
+      settings: SettingProvider(refreshDuration: 30, showShortcut: false),
+      onShortcut: selected.add,
+      factory: (interval) => OverviewController(
+        dataSource: _source(),
+        refreshInterval: interval,
+      ),
+    ));
+    await tester.pump();
+    expect(find.text('控制面板'), findsOneWidget);
+    expect(find.text('套件中心'), findsOneWidget);
+    final panelTile = find.byKey(const Key('overview-shortcut-1:SYNO.SDS.AdminCenter.Application'));
+    await tester.ensureVisible(panelTile);
+    await tester.tap(panelTile);
+    expect(selected.single.label, '控制面板');
+    expect(selected.single.routeName, '/control_panel');
+    expect(selected.single.id, '1:$panel');
+    await tester.pumpWidget(const SizedBox.shrink());
+  }, timeout: const Timeout(Duration(seconds: 25)));
+
 }
