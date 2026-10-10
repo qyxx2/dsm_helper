@@ -4,6 +4,7 @@ import 'package:dsm_helper/new_ui/applications/application_catalog.dart';
 import 'package:dsm_helper/new_ui/applications/application_favorites_controller.dart';
 import 'package:dsm_helper/new_ui/applications/application_favorites_store.dart';
 import 'package:dsm_helper/new_ui/applications/application_launcher_tile.dart';
+import 'package:dsm_helper/new_ui/applications/edit_application_favorites_page.dart';
 import 'package:dsm_helper/providers/init_data_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -169,7 +170,35 @@ class _ApplicationsPageState extends State<ApplicationsPage> {
             key: const Key('applications-scroll'),
             padding: const EdgeInsets.all(16),
             children: [
-              Text('常用', style: theme.textTheme.titleMedium),
+              Row(
+                children: [
+                  Text('常用', style: theme.textTheme.titleMedium),
+                  const Spacer(),
+                  if (favoriteItems.length >= 2 ||
+                      (snapshot.availability ==
+                              ApplicationCatalogAvailability.unavailable &&
+                          _favoritesController.storedIds.length >= 2))
+                    TextButton.icon(
+                      key: const Key('edit-common-applications'),
+                      onPressed: favoriteItems.length >= 2
+                          ? () {
+                              unawaited(
+                                Navigator.of(context).push<void>(
+                                  MaterialPageRoute(
+                                    builder: (_) => EditApplicationFavoritesPage(
+                                      controller: _favoritesController,
+                                      catalogItems: snapshot.items,
+                                    ),
+                                  ),
+                                ),
+                              );
+                            }
+                          : null,
+                      icon: const Icon(Icons.edit_outlined, size: 18),
+                      label: const Text('编辑'),
+                    ),
+                ],
+              ),
               const SizedBox(height: 8),
               if (favoriteItems.isEmpty)
                 Text(
