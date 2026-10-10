@@ -12,6 +12,8 @@ import 'package:dsm_helper/models/Syno/Core/System/Utilization.dart';
 import 'package:dsm_helper/models/Syno/Storage/Cgi/Storage.dart';
 import 'package:dsm_helper/new_ui/app/dsm_new_ui_shell.dart';
 import 'package:dsm_helper/new_ui/app/modern_ui_root.dart';
+import 'package:dsm_helper/new_ui/applications/applications_page.dart';
+import 'package:dsm_helper/new_ui/settings/settings_page.dart';
 import 'package:dsm_helper/new_ui/dashboard/overview_controller.dart';
 import 'package:dsm_helper/new_ui/dashboard/overview_data_source.dart';
 import 'package:dsm_helper/new_ui/dashboard/overview_page.dart';
@@ -332,12 +334,14 @@ void main() {
         await openNotifications();
         expect(tester.widget<NavigationBar>(find.byType(NavigationBar))
             .selectedIndex, 2);
-        expect(find.byKey(const Key('open-legacy-feature')), findsOneWidget);
+        expect(find.byType(ApplicationsPage), findsOneWidget);
 
         await tester.tap(find.text('我的'));
         await tester.pumpAndSettle();
-        await tester.tap(find.byKey(const Key('modern-manage-accounts')));
-        await tester.tap(find.byKey(const Key('modern-logout')));
+        expect(find.byType(SettingsPage), findsOneWidget);
+        await tester.tap(find.text('服务器与账号管理'));
+        await tester.pump();
+        await tester.tap(find.text('退出登录'));
         expect(manageCalls, 1);
         expect(logoutCalls, 1);
         expect(tester.widget<NavigationBar>(find.byType(NavigationBar))

@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:dsm_helper/new_ui/app/new_ui_app_shell.dart';
+import 'package:dsm_helper/new_ui/applications/application_destination_catalog.dart';
+import 'package:dsm_helper/new_ui/applications/applications_page.dart';
 import 'package:dsm_helper/new_ui/dashboard/overview_alerts.dart';
 import 'package:dsm_helper/new_ui/dashboard/overview_controller.dart';
 import 'package:dsm_helper/new_ui/dashboard/overview_data_source.dart';
@@ -14,6 +16,7 @@ import 'package:dsm_helper/new_ui/legacy/legacy_shared_bootstrap.dart';
 import 'package:dsm_helper/new_ui/notifications/legacy_notification_entry.dart';
 import 'package:dsm_helper/new_ui/session/active_context_coordinator.dart';
 import 'package:dsm_helper/new_ui/session/dsm_provider_scope.dart';
+import 'package:dsm_helper/new_ui/settings/settings_page.dart';
 import 'package:dsm_helper/new_ui/system/new_ui_system_bars.dart';
 import 'package:dsm_helper/new_ui/theme/new_ui_theme.dart';
 import 'package:dsm_helper/pages/applications/applications.dart';
@@ -22,6 +25,9 @@ import 'package:dsm_helper/pages/download_station/add_task.dart';
 import 'package:dsm_helper/pages/file/file_page.dart';
 import 'package:dsm_helper/pages/file/upload.dart';
 import 'package:dsm_helper/pages/setting/setting.dart';
+import 'package:dsm_helper/pages/setting/about.dart';
+import 'package:dsm_helper/pages/setting/helper_setting.dart';
+import 'package:dsm_helper/pages/user/setting.dart';
 import 'package:dsm_helper/pages/storage_manager/storage_manager.dart';
 import 'package:dsm_helper/pages/transfer/transfer.dart';
 import 'package:dsm_helper/providers/background_task_provider.dart';
@@ -169,7 +175,7 @@ class _DsmNewUiShellState extends State<DsmNewUiShell> {
     }
   }
 
-  void _openOverviewLegacy(
+  void _openLegacyFeature(
     BuildContext context,
     DsmProviderScope providerScope,
     WidgetBuilder builder,
@@ -251,7 +257,7 @@ class _DsmNewUiShellState extends State<DsmNewUiShell> {
                                     ),
                             onOpenNotifications: onOpenNotifications,
                             connectionStatusText: connectionStatusText,
-                            onOpenShortcut: (shortcut) => _openOverviewLegacy(
+                            onOpenShortcut: (shortcut) => _openLegacyFeature(
                               tabContext,
                               providerScope,
                               shortcut.legacyBuilder,
@@ -261,7 +267,7 @@ class _DsmNewUiShellState extends State<DsmNewUiShell> {
                                 case OverviewAlertDestination.notifications:
                                   onOpenNotifications();
                                 case OverviewAlertDestination.storageManager:
-                                  _openOverviewLegacy(
+                                  _openLegacyFeature(
                                     tabContext,
                                     providerScope,
                                     (_) => StorageManager(),
@@ -283,6 +289,27 @@ class _DsmNewUiShellState extends State<DsmNewUiShell> {
                         icon: Icons.apps_outlined,
                         selectedIcon: Icons.apps,
                         legacyBuilder: (_) => Applications(),
+                        modernBuilder: (
+                          tabContext, {
+                          required onOpenNotifications,
+                          required connectionStatusText,
+                        }) {
+                          const destinations = ModernApplicationDestinationCatalog();
+                          return ApplicationsPage(
+                            onOpenNotifications: onOpenNotifications,
+                            connectionStatusText: connectionStatusText,
+                            onOpenApplication: (id) {
+                              final builder = destinations.builderFor(id);
+                              if (builder == null) {
+                                ScaffoldMessenger.of(tabContext).showSnackBar(
+                                  const SnackBar(content: Text('无法打开应用')),
+                                );
+                                return;
+                              }
+                              _openLegacyFeature(tabContext, providerScope, builder);
+                            },
+                          );
+                        },
                       ),
                       NewUiAppDestination(
                         label: '任务',
@@ -298,6 +325,36 @@ class _DsmNewUiShellState extends State<DsmNewUiShell> {
                           onManageAccounts: widget.onManageAccounts,
                           onLogout: widget.onLogout,
                         ),
+                        modernBuilder: (
+                          tabContext, {
+                          required onOpenNotifications,
+                          required connectionStatusText,
+                        }) {
+                          return SettingsPage(
+                            onOpenNotifications: onOpenNotifications,
+                            connectionStatusText: connectionStatusText,
+                            onOpenAccountManagement: () =>
+                                widget.onManageAccounts?.call(),
+                            onLogout: () => widget.onLogout?.call(),
+                            onOpenUserSettings: () => _openLegacyFeature(
+                              tabContext, providerScope, (_) => UserSetting(),
+                            ),
+                            onOpenHelperSettings: () => _openLegacyFeature(
+                              tabContext, providerScope, (_) => HelperSetting(),
+                            ),
+                            onOpenAbout: () => _openLegacyFeature(
+                              tabContext, providerScope, (_) => About(),
+                            ),
+                            onOpenLegacySettings: () => _openLegacyFeature(
+                              tabContext,
+                              providerScope,
+                              (_) => Setting(
+                                onManageAccounts: widget.onManageAccounts,
+                                onLogout: widget.onLogout,
+                              ),
+                            ),
+                          );
+                        },
                       ),
                     ],
                   ),

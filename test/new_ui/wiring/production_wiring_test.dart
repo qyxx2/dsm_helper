@@ -90,7 +90,7 @@ void main() {
     );
   });
 
-  test('only Overview opts into the Modern shell root and retains legacy Dashboard fallback', () {
+  test('Overview, Applications and My use Modern roots while keeping all five legacy fallbacks', () {
     final shell = _read('lib/new_ui/app/dsm_new_ui_shell.dart');
     final overviewDestination = RegExp(
       r"NewUiAppDestination\(\s*label: '概览',[\s\S]*?\),\s*NewUiAppDestination\(\s*label: '文件'",
@@ -100,7 +100,9 @@ void main() {
     expect(overview, contains('legacyBuilder: (_) => Dashboard()'));
     expect(overview, contains('modernBuilder:'));
     expect(overview, contains('OverviewPage('));
-    expect(RegExp(r'modernBuilder\s*:').allMatches(shell).length, 1);
+    expect(shell, contains('ApplicationsPage('));
+    expect(shell, contains('SettingsPage('));
+    expect(RegExp(r'modernBuilder\s*:').allMatches(shell).length, 3);
     for (final legacy in ['FilePage(', 'Applications(', 'Transfer(', 'Setting(']) {
       expect(shell, contains(legacy));
     }
