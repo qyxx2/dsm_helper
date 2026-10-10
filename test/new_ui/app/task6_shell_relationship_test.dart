@@ -177,7 +177,12 @@ void main() {
 
       // BuiltIn is the DSM7 alias that legacy enum-only launchers missed.
       await tester.tap(find.descendant(of: apps, matching: find.text('日志中心')));
+      // Navigator.push builds its first route on the next frame. Advancing
+      // animation time before that frame may observe the old root instead.
+      // Avoid pumpAndSettle: LogCenter has its own asynchronous DSM request.
+      await tester.pump();
       await tester.pump(const Duration(milliseconds: 350));
+      await tester.pump();
       expect(find.byType(LegacyPageHost), findsOneWidget);
       expect(find.byType(LogCenter), findsOneWidget);
       await tester.binding.handlePopRoute();
