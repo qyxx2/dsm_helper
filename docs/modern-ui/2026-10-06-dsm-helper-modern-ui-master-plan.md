@@ -643,6 +643,10 @@ docs/modern-ui/plans/2026-10-09-task-5-dashboard-batch-plan.md
 
 ## Task 6 — Applications Hub + Settings Shell
 
+> **Status: PRE-FLIGHT COMPLETE — Batch planning authorized; implementation not started.**  
+> Planning branch: `feature/t6-applications-settings`  
+> Base: `modern-ui@1e0c74b9a85b7bd2d0c5f49fc5f7661d7f638c4c`
+
 ### Scope
 
 - 新 Applications 聚合页。
@@ -651,6 +655,30 @@ docs/modern-ui/plans/2026-10-09-task-5-dashboard-batch-plan.md
 - 建立后续模块迁移入口。
 
 此 Task 不要求重做所有应用详情。
+
+### Task 6 Preflight authority
+
+Task 6 实现与 Batch 规划必须读取并遵循：
+
+```text
+docs/modern-ui/specs/2026-10-10-task-6-applications-settings-feature-design.md
+docs/modern-ui/contracts/2026-10-10-task-6-applications-settings-contract-matrix.md
+```
+
+Preflight 已冻结：
+
+- DSM application order 使用非空 `validAppviewOrder`，否则回退 `appviewOrder`；
+- Modern catalog 只发出 DSM Helper 实际可打开的应用，显式处理 Log Center 与 Docker/Container Manager alias；
+- Applications “常用”是独立本地有序 canonical-ID preference，不修改 DSM application order 或 Task 5 shortcuts；
+- 当前 DSM 不可用的收藏保留在持久化列表中，仅从当前可见投影过滤；
+- 最多显示 8 个常用应用，reorder 必须 preservation-merge，不能删除当前上下文不可见收藏；
+- Application/detail 继续通过 `LegacyPageHost` 与当前 provider scope 打开；
+- Settings root 复用 Task 4 account/logout authority 与现有 theme/detail authorities；
+- 当前 legacy shutdown/reboot 请求实际未实现，Task 6 不提供伪造的 Modern 电源操作；
+- Dynamic Color 保持可选但不在 Task 6 实现；
+- legacy Applications / Settings 源码保留，详情迁移继续渐进进行。
+
+Preflight 没有未解决的 blocking Contract Gap。下一步仅允许编写 Task 6 Batch Execution Plan，不代表任何 Batch 已获准实现。
 
 ---
 
@@ -1052,24 +1080,23 @@ docs/modern-ui/acceptance/2026-10-08-task-4-server-auth-acceptance.md
 ### Active
 
 ```text
-Task 5 — Dashboard
-Planning complete; implementation has not started.
+Task 6 — Applications Hub + Settings Shell
+Preflight complete; Batch planning is the only authorized next step.
 ```
 
-Task 5 planning authorities:
+Task 6 Preflight authorities:
 
 ```text
-docs/modern-ui/specs/2026-10-09-task-5-dashboard-feature-design.md
-docs/modern-ui/contracts/2026-10-09-task-5-dashboard-contract-matrix.md
-docs/modern-ui/plans/2026-10-09-task-5-dashboard-batch-plan.md
+docs/modern-ui/specs/2026-10-10-task-6-applications-settings-feature-design.md
+docs/modern-ui/contracts/2026-10-10-task-6-applications-settings-contract-matrix.md
 ```
 
-The Feature Design / Contract Matrix review gate is approved. The Batch Plan is frozen on `feature/t5-dashboard`. No production/test code is changed by planning.
+The Task 6 Preflight is frozen on `feature/t6-applications-settings`. No production/test code has been changed by Task 6 planning work.
 
 ### Next (not automatically started)
 
 ```text
-Task 5 Batch 1 — Overview Data / Refresh State Foundation
+Task 6 — write and review Batch Execution Plan
 ```
 
-Batch 1 requires an explicit execution instruction. Planning completion does not authorize implementation.
+Preflight completion does not authorize Batch 1 implementation.
