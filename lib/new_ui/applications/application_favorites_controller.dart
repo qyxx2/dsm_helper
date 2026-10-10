@@ -92,8 +92,54 @@ class ApplicationFavoritesController extends ChangeNotifier {
   Future<FavoriteMutationOutcome> reorderVisible(
     List<ModernApplicationId> edited, {
     required List<ModernApplicationItem> catalog,
-  }) {
-    throw UnimplementedError('Implemented in Task 6 Batch 2 Task 2.3.');
+  }) async {
+    final visible = visibleFor(catalog);
+    final visibleSet = visible.toSet();
+    final editedSet = edited.toSet();
+
+    if (edited.length != visible.length ||
+        editedSet.length != edited.length ||
+        editedSet.length != visibleSet.length ||
+        !editedSet.containsAll(visibleSet)) {
+      throw ArgumentError.value(
+        edited,
+        'edited',
+        'Must contain exactly the current visible favorite membership.',
+      );
+    }
+
+    if (listEquals(edited, visible)) {
+      return FavoriteMutationOutcome.unchanged;
+    }
+
+    final visibleKeys = <String>{
+      for (final id in visible) id.storageKey,
+    };
+    final editedKeys = edited.map((id) => id.storageKey).iterator;
+    final next = <String>[];
+
+    for (final storedId in _storedIds) {
+      if (!visibleKeys.contains(storedId)) {
+        next.add(storedId);
+        continue;
+      }
+
+      if (!editedKeys.moveNext()) {
+        throw StateError(
+          'Stored visible favorite slots do not match the visible projection.',
+        );
+      }
+      next.add(editedKeys.current);
+    }
+
+    if (editedKeys.moveNext()) {
+      throw StateError(
+        'Stored visible favorite slots do not match the visible projection.',
+      );
+    }
+
+    await _persistAndPublish(next);
+    return FavoriteMutationOutcome.changed;
   }
 
   Future<void> _persistAndPublish(List<String> next) async {
