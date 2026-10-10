@@ -11,13 +11,10 @@ InitDataModel _loaded({
   List<String> valid = const [],
   List<String> fallback = const [],
 }) {
+  final desktop = Desktop(validAppviewOrder: valid)
+    ..appviewOrder = fallback;
   return InitDataModel(
-    userSettings: UserSettings(
-      desktop: Desktop(
-        validAppviewOrder: valid,
-        appviewOrder: fallback,
-      ),
-    ),
+    userSettings: UserSettings(desktop: desktop),
   );
 }
 
