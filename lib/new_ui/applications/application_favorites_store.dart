@@ -26,7 +26,7 @@ class SpUtilApplicationFavoritesStore implements ApplicationFavoritesStore {
   }
 
   static Future<bool> _writeToSpUtil(List<String> ids) async {
-    return await SpUtil.putStringList(storageKey, ids);
+    return await SpUtil.putStringList(storageKey, ids) ?? false;
   }
 
   @override
