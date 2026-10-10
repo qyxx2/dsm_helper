@@ -678,7 +678,15 @@ Preflight 已冻结：
 - Dynamic Color 保持可选但不在 Task 6 实现；
 - legacy Applications / Settings 源码保留，详情迁移继续渐进进行。
 
-Preflight 没有未解决的 blocking Contract Gap。下一步仅允许编写 Task 6 Batch Execution Plan，不代表任何 Batch 已获准实现。
+Preflight 没有未解决的 blocking Contract Gap。
+
+正式 Batch Execution Plan：
+
+```text
+docs/modern-ui/plans/2026-10-10-task-6-applications-settings-batch-plan.md
+```
+
+实现顺序冻结为 B1 → B2 → B3 → B4 → B5。规划完成不代表任何 Batch 已获准实现。
 
 ---
 
@@ -1081,22 +1089,23 @@ docs/modern-ui/acceptance/2026-10-08-task-4-server-auth-acceptance.md
 
 ```text
 Task 6 — Applications Hub + Settings Shell
-Preflight complete; Batch planning is the only authorized next step.
+Planning complete; implementation has not started.
 ```
 
-Task 6 Preflight authorities:
+Task 6 planning authorities:
 
 ```text
 docs/modern-ui/specs/2026-10-10-task-6-applications-settings-feature-design.md
 docs/modern-ui/contracts/2026-10-10-task-6-applications-settings-contract-matrix.md
+docs/modern-ui/plans/2026-10-10-task-6-applications-settings-batch-plan.md
 ```
 
-The Task 6 Preflight is frozen on `feature/t6-applications-settings`. No production/test code has been changed by Task 6 planning work.
+The Preflight and Batch Plan are frozen on `feature/t6-applications-settings`. Task 6 planning has changed docs only; no production/test code has been implemented.
 
 ### Next (not automatically started)
 
 ```text
-Task 6 — write and review Batch Execution Plan
+Task 6 Batch 1 — Canonical Application Catalog / Destination Foundation
 ```
 
-Preflight completion does not authorize Batch 1 implementation.
+Batch 1 requires an explicit execution instruction. Planning completion does not authorize implementation.
