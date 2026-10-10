@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:dsm_helper/models/Syno/Core/Desktop/InitData.dart';
 import 'package:dsm_helper/new_ui/settings/settings_page.dart';
 import 'package:dsm_helper/new_ui/theme/new_ui_theme.dart';
@@ -61,6 +63,18 @@ Future<void> _tapRow(WidgetTester tester, String label) async {
 }
 
 void main() {
+  test('Task 6 Settings sources have no DSM power transport or power callbacks', () {
+    final sources = [
+      File('lib/new_ui/settings/settings_page.dart').readAsStringSync(),
+      File('lib/new_ui/settings/settings_theme_mode_sheet.dart').readAsStringSync(),
+    ].join('\n');
+    expect(sources, isNot(contains('SYNO.Core.System')));
+    expect(sources, isNot(contains('shutdown')));
+    expect(sources, isNot(contains('reboot')));
+    expect(sources, isNot(contains('onShutdown')));
+    expect(sources, isNot(contains('onReboot')));
+  });
+
   testWidgets('Settings is a continuous ordered root with current DSM metadata',
       (tester) async {
     await _pumpSettings(
