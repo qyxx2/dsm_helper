@@ -232,6 +232,8 @@ void main() {
     );
     await tester.pump();
 
+    await tester.ensureVisible(_allApplicationLabel('Download Station'));
+    await tester.pumpAndSettle();
     await tester.longPress(_allApplicationLabel('Download Station'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('添加到常用'));
