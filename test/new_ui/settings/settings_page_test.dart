@@ -73,13 +73,20 @@ void main() {
     expect(find.text('当前设备与账号'), findsOneWidget);
     expect(find.text('外观'), findsOneWidget);
     expect(find.text('应用设置'), findsOneWidget);
-    expect(find.text('关于'), findsWidgets);
     expect(find.text('NAS-01'), findsOneWidget);
     expect(find.text('alice'), findsOneWidget);
     expect(find.text('离线'), findsOneWidget);
     expect(find.byType(Card), findsNothing);
     expect(find.text('关机'), findsNothing);
     expect(find.text('重启'), findsNothing);
+    // ListView lazily builds the About section only after it scrolls into view.
+    await tester.scrollUntilVisible(
+      find.widgetWithText(ListTile, '关于'),
+      120,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.pump();
+    expect(find.widgetWithText(ListTile, '关于'), findsOneWidget);
   }, timeout: const Timeout(Duration(seconds: 20)));
 
   testWidgets('Sparse context still renders settings and does not invent NAS metadata',
