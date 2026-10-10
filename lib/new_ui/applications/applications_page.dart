@@ -31,6 +31,11 @@ class ApplicationsPage extends StatefulWidget {
   State<ApplicationsPage> createState() => _ApplicationsPageState();
 }
 
+enum _FavoriteAction {
+  pin,
+  unpin,
+}
+
 class _ApplicationsPageState extends State<ApplicationsPage> {
   late final ApplicationFavoritesController _favoritesController =
       widget.favoritesControllerFactory?.call() ??
@@ -48,6 +53,63 @@ class _ApplicationsPageState extends State<ApplicationsPage> {
   void dispose() {
     _favoritesController.dispose();
     super.dispose();
+  }
+
+  Future<void> _showFavoriteActions(
+    ModernApplicationItem item,
+    List<ModernApplicationItem> catalogItems,
+  ) async {
+    final pinned = _favoritesController.isPinned(item.id);
+    final action = await showModalBottomSheet<_FavoriteAction>(
+      context: context,
+      builder: (sheetContext) {
+        return SafeArea(
+          child: ListTile(
+            leading: Icon(
+              pinned ? Icons.star_outline : Icons.star_border,
+            ),
+            title: Text(pinned ? '从常用移除' : '添加到常用'),
+            onTap: () => Navigator.of(sheetContext).pop(
+              pinned ? _FavoriteAction.unpin : _FavoriteAction.pin,
+            ),
+          ),
+        );
+      },
+    );
+
+    if (action == null || !mounted) {
+      return;
+    }
+
+    try {
+      final outcome = switch (action) {
+        _FavoriteAction.pin => await _favoritesController.pin(
+            item.id,
+            catalog: catalogItems,
+          ),
+        _FavoriteAction.unpin => await _favoritesController.unpin(item.id),
+      };
+
+      if (!mounted) {
+        return;
+      }
+      if (outcome == FavoriteMutationOutcome.limitReached) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('最多可添加 8 个常用应用'),
+          ),
+        );
+      }
+    } catch (_) {
+      if (!mounted) {
+        return;
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('保存常用应用失败'),
+        ),
+      );
+    }
   }
 
   @override
@@ -119,6 +181,8 @@ class _ApplicationsPageState extends State<ApplicationsPage> {
                   gridKey: const Key('favorite-applications-grid'),
                   items: favoriteItems,
                   onOpenApplication: widget.onOpenApplication,
+                  onLongPressApplication: (item) =>
+                      _showFavoriteActions(item, snapshot.items),
                 ),
               const SizedBox(height: 24),
               Text('全部应用', style: theme.textTheme.titleMedium),
@@ -139,6 +203,8 @@ class _ApplicationsPageState extends State<ApplicationsPage> {
                   gridKey: const Key('all-applications-grid'),
                   items: snapshot.items,
                   onOpenApplication: widget.onOpenApplication,
+                  onLongPressApplication: (item) =>
+                      _showFavoriteActions(item, snapshot.items),
                 ),
             ],
           );
@@ -153,11 +219,13 @@ class _ApplicationGrid extends StatelessWidget {
     required this.gridKey,
     required this.items,
     required this.onOpenApplication,
+    required this.onLongPressApplication,
   });
 
   final Key gridKey;
   final List<ModernApplicationItem> items;
   final ValueChanged<ModernApplicationId> onOpenApplication;
+  final ValueChanged<ModernApplicationItem> onLongPressApplication;
 
   @override
   Widget build(BuildContext context) {
@@ -177,7 +245,7 @@ class _ApplicationGrid extends StatelessWidget {
         return ApplicationLauncherTile(
           item: item,
           onTap: () => onOpenApplication(item.id),
-          onLongPress: () {},
+          onLongPress: () => onLongPressApplication(item),
         );
       },
     );
