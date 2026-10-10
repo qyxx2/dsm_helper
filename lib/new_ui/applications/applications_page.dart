@@ -116,7 +116,7 @@ class _ApplicationsPageState extends State<ApplicationsPage> {
                 )
               else
                 _ApplicationGrid(
-                  key: const Key('favorite-applications-grid'),
+                  gridKey: const Key('favorite-applications-grid'),
                   items: favoriteItems,
                   onOpenApplication: widget.onOpenApplication,
                 ),
@@ -136,7 +136,7 @@ class _ApplicationsPageState extends State<ApplicationsPage> {
                 )
               else
                 _ApplicationGrid(
-                  key: const Key('all-applications-grid'),
+                  gridKey: const Key('all-applications-grid'),
                   items: snapshot.items,
                   onOpenApplication: widget.onOpenApplication,
                 ),
@@ -150,18 +150,19 @@ class _ApplicationsPageState extends State<ApplicationsPage> {
 
 class _ApplicationGrid extends StatelessWidget {
   const _ApplicationGrid({
-    super.key,
+    required this.gridKey,
     required this.items,
     required this.onOpenApplication,
   });
 
+  final Key gridKey;
   final List<ModernApplicationItem> items;
   final ValueChanged<ModernApplicationId> onOpenApplication;
 
   @override
   Widget build(BuildContext context) {
     return GridView.builder(
-      key: key,
+      key: gridKey,
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       itemCount: items.length,
