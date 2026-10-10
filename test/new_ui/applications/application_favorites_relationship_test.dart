@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:io';
+
 import 'package:dsm_helper/new_ui/applications/application_catalog.dart';
 import 'package:dsm_helper/new_ui/applications/application_favorites_controller.dart';
 import 'package:dsm_helper/new_ui/applications/application_favorites_store.dart';
@@ -24,6 +27,157 @@ class RelationshipFavoritesStore implements ApplicationFavoritesStore {
     }
     persisted = List<String>.of(ids);
   }
+  test('favorites authority is independent from DSM and Task 5 shortcut writes',
+      () {
+    final controllerSource = File(
+      'lib/new_ui/applications/application_favorites_controller.dart',
+    ).readAsStringSync();
+    final storeSource = File(
+      'lib/new_ui/applications/application_favorites_store.dart',
+    ).readAsStringSync();
+    final combined = '$controllerSource\n$storeSource';
+
+    for (final forbidden in const <String>[
+      'UserSettings.apply',
+      'showShortcut',
+      'shortcutItems',
+      'validAppviewOrder',
+      'appviewOrder',
+      'models/Syno/Core/Desktop',
+      'overview_shortcuts',
+    ]) {
+      expect(combined, isNot(contains(forbidden)), reason: forbidden);
+    }
+  });
+
+  test('catalog context projection never rewrites the global stored list',
+      () async {
+    final original = <String>[
+      'future_unknown',
+      'control_panel',
+      'storage_manager',
+      'package_center',
+      'photos',
+    ];
+    final store = RelationshipFavoritesStore(initial: original);
+    final controller = ApplicationFavoritesController(store: store);
+    await controller.load();
+
+    final contextA = relationshipCatalog(const <ModernApplicationId>[
+      ModernApplicationId.controlPanel,
+      ModernApplicationId.packageCenter,
+    ]);
+    final contextB = relationshipCatalog(const <ModernApplicationId>[
+      ModernApplicationId.storageManager,
+      ModernApplicationId.photos,
+    ]);
+
+    expect(
+      controller.visibleFor(contextA),
+      const <ModernApplicationId>[
+        ModernApplicationId.controlPanel,
+        ModernApplicationId.packageCenter,
+      ],
+    );
+    expect(
+      controller.visibleFor(contextB),
+      const <ModernApplicationId>[
+        ModernApplicationId.storageManager,
+        ModernApplicationId.photos,
+      ],
+    );
+    expect(controller.storedIds, original);
+    expect(store.persisted, original);
+    expect(store.writes, isEmpty);
+  });
+
+  test('rapid duplicate pin publishes one change and performs one write',
+      () async {
+    final store = BlockingRelationshipFavoritesStore(
+      initial: const <String>['control_panel'],
+    );
+    final controller = ApplicationFavoritesController(store: store);
+    await controller.load();
+
+    var notifications = 0;
+    controller.addListener(() => notifications++);
+    final catalog = relationshipCatalog(const <ModernApplicationId>[
+      ModernApplicationId.controlPanel,
+      ModernApplicationId.packageCenter,
+    ]);
+
+    final first = controller.pin(
+      ModernApplicationId.packageCenter,
+      catalog: catalog,
+    );
+    await store.firstSaveStarted.future;
+
+    final second = controller.pin(
+      ModernApplicationId.packageCenter,
+      catalog: catalog,
+    );
+    await Future<void>.delayed(Duration.zero);
+    final writesBeforeRelease = store.writes.length;
+    store.releaseFirstSave.complete();
+
+    final outcomes = await Future.wait(<Future<FavoriteMutationOutcome>>[
+      first,
+      second,
+    ]);
+
+    expect(writesBeforeRelease, 1);
+    expect(outcomes, const <FavoriteMutationOutcome>[
+      FavoriteMutationOutcome.changed,
+      FavoriteMutationOutcome.unchanged,
+    ]);
+    expect(controller.storedIds, const <String>[
+      'control_panel',
+      'package_center',
+    ]);
+    expect(store.writes, hasLength(1));
+    expect(notifications, 1);
+  });
+
+  test('rapid pin then unpin is applied in invocation order', () async {
+    final store = BlockingRelationshipFavoritesStore(
+      initial: const <String>['control_panel'],
+    );
+    final controller = ApplicationFavoritesController(store: store);
+    await controller.load();
+
+    var notifications = 0;
+    controller.addListener(() => notifications++);
+    final catalog = relationshipCatalog(const <ModernApplicationId>[
+      ModernApplicationId.controlPanel,
+      ModernApplicationId.packageCenter,
+    ]);
+
+    final pin = controller.pin(
+      ModernApplicationId.packageCenter,
+      catalog: catalog,
+    );
+    await store.firstSaveStarted.future;
+
+    final unpin = controller.unpin(ModernApplicationId.packageCenter);
+    await Future<void>.delayed(Duration.zero);
+    store.releaseFirstSave.complete();
+
+    final outcomes = await Future.wait(<Future<FavoriteMutationOutcome>>[
+      pin,
+      unpin,
+    ]);
+
+    expect(outcomes, const <FavoriteMutationOutcome>[
+      FavoriteMutationOutcome.changed,
+      FavoriteMutationOutcome.changed,
+    ]);
+    expect(controller.storedIds, const <String>['control_panel']);
+    expect(store.persisted, controller.storedIds);
+    expect(store.writes, hasLength(2));
+    expect(notifications, 2);
+  });
+
+
 }
 
 ModernApplicationItem relationshipItem(ModernApplicationId id) =>
@@ -38,6 +192,32 @@ List<ModernApplicationItem> relationshipCatalog(
   Iterable<ModernApplicationId> ids,
 ) =>
     ids.map(relationshipItem).toList();
+
+
+class BlockingRelationshipFavoritesStore
+    implements ApplicationFavoritesStore {
+  BlockingRelationshipFavoritesStore({
+    List<String> initial = const <String>[],
+  }) : persisted = List<String>.of(initial);
+
+  List<String> persisted;
+  final List<List<String>> writes = <List<String>>[];
+  final Completer<void> firstSaveStarted = Completer<void>();
+  final Completer<void> releaseFirstSave = Completer<void>();
+
+  @override
+  Future<List<String>> load() async => List<String>.of(persisted);
+
+  @override
+  Future<void> save(List<String> ids) async {
+    writes.add(List<String>.of(ids));
+    if (writes.length == 1) {
+      firstSaveStarted.complete();
+      await releaseFirstSave.future;
+    }
+    persisted = List<String>.of(ids);
+  }
+}
 
 void main() {
   test('reorder replaces only current visible slots and preserves hidden data',
