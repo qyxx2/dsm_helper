@@ -1,5 +1,6 @@
 import 'package:dsm_helper/models/Syno/Core/Desktop/InitData.dart';
 import 'package:dsm_helper/new_ui/app/dsm_new_ui_shell.dart';
+import 'package:dsm_helper/new_ui/applications/applications_page.dart';
 import 'package:dsm_helper/new_ui/legacy/legacy_shared_bootstrap.dart';
 import 'package:dsm_helper/new_ui/session/active_context_coordinator.dart';
 import 'package:dsm_helper/providers/dark_mode.dart';
@@ -63,8 +64,8 @@ Future<void> _pumpShell(
 Future<void> _openApplications(WidgetTester tester) async {
   await tester.tap(find.text('应用'));
   await tester.pumpAndSettle();
-  await tester.tap(find.byKey(const Key('open-legacy-feature')));
-  await tester.pumpAndSettle();
+  expect(find.byType(ApplicationsPage), findsOneWidget);
+  expect(find.byKey(const Key('open-legacy-feature')), findsNothing);
 }
 
 void main() {
@@ -111,9 +112,9 @@ void main() {
 
       await _openApplications(tester);
       expect(find.text('控制中心'), findsOneWidget);
-      await tester.binding.handlePopRoute();
-      await tester.pumpAndSettle();
 
+      // Switching identity remounts the context-keyed shell directly; the
+      // Modern Applications root does not require a legacy route pop.
       await _pumpShell(tester, loader: loaderB, contextId: 'B');
       expect(Utils.version, 6);
 
