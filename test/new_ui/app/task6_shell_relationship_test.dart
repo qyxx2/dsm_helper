@@ -38,6 +38,13 @@ String _destination(String source, String label, {String? before}) {
 }
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  setUpAll(() async {
+    SharedPreferences.setMockInitialValues(<String, Object>{});
+    await SpUtil.getInstance();
+  });
+
   test('Applications and My are Modern production roots, not placeholder roots', () {
     final source = _shellSource();
     final apps = _destination(source, '应用', before: '任务');
