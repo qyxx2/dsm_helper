@@ -64,6 +64,9 @@ class ApplicationCatalogSnapshot {
 class ModernApplicationCatalog {
   const ModernApplicationCatalog();
 
+  static const _containerManagerPackage =
+      'SYNO.SDS.ContainerManager.Application';
+
   ApplicationCatalogSnapshot build(InitDataModel initData) {
     final desktop = initData.userSettings?.desktop;
     if (desktop == null) {
@@ -77,11 +80,16 @@ class ModernApplicationCatalog {
     final source = validOrder.isNotEmpty
         ? validOrder
         : (desktop.appviewOrder ?? const <String>[]);
+    final preferContainerManager = source.contains(_containerManagerPackage);
 
     final items = <ModernApplicationItem>[];
+    final seen = <ModernApplicationId>{};
     for (final packageName in source) {
-      final item = _resolve(packageName);
-      if (item != null) {
+      final item = _resolve(
+        packageName,
+        preferContainerManager: preferContainerManager,
+      );
+      if (item != null && seen.add(item.id)) {
         items.add(item);
       }
     }
@@ -92,7 +100,10 @@ class ModernApplicationCatalog {
     );
   }
 
-  ModernApplicationItem? _resolve(String packageName) {
+  ModernApplicationItem? _resolve(
+    String packageName, {
+    required bool preferContainerManager,
+  }) {
     switch (packageName) {
       case 'SYNO.SDS.AdminCenter.Application':
         return const ModernApplicationItem(
@@ -121,6 +132,30 @@ class ModernApplicationCatalog {
           sourcePackageName: 'SYNO.SDS.StorageManager.Instance',
           label: '存储管理器',
           assetPath: 'assets/applications/7/storage_manager.png',
+        );
+      case 'SYNO.SDS.LogCenter.Instance':
+      case 'SYNO.SDS.LogCenter.BuiltIn':
+        return ModernApplicationItem(
+          id: ModernApplicationId.logCenter,
+          sourcePackageName: packageName,
+          label: '日志中心',
+          assetPath: 'assets/applications/7/log_center.png',
+        );
+      case 'SYNO.SDS.Docker.Application':
+      case _containerManagerPackage:
+        if (preferContainerManager) {
+          return const ModernApplicationItem(
+            id: ModernApplicationId.containerManager,
+            sourcePackageName: _containerManagerPackage,
+            label: 'Container Manager',
+            assetPath: 'assets/applications/container_manager.png',
+          );
+        }
+        return const ModernApplicationItem(
+          id: ModernApplicationId.containerManager,
+          sourcePackageName: 'SYNO.SDS.Docker.Application',
+          label: 'Docker',
+          assetPath: 'assets/applications/docker.png',
         );
       default:
         return null;
