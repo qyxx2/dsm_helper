@@ -1,5 +1,6 @@
 import 'package:dsm_helper/models/Syno/Core/Desktop/InitData.dart';
 import 'package:dsm_helper/new_ui/applications/application_catalog.dart';
+import 'package:dsm_helper/utils/utils.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 const control = 'SYNO.SDS.AdminCenter.Application';
@@ -8,8 +9,14 @@ const resource = 'SYNO.SDS.ResourceMonitor.Instance';
 const storage = 'SYNO.SDS.StorageManager.Instance';
 const logInstance = 'SYNO.SDS.LogCenter.Instance';
 const logBuiltIn = 'SYNO.SDS.LogCenter.BuiltIn';
+const security = 'SYNO.SDS.SecurityScan.Instance';
+const xunlei = 'SYNO.SDS.XLPan.Application';
 const docker = 'SYNO.SDS.Docker.Application';
 const containerManager = 'SYNO.SDS.ContainerManager.Application';
+const downloadStation = 'SYNO.SDS.DownloadStation.Application';
+const moments = 'SYNO.Photo.AppInstance';
+const photos = 'SYNO.Foto.AppInstance';
+const virtualMachine = 'SYNO.SDS.Virtualization.Application';
 
 InitDataModel _loaded({
   List<String> valid = const [],
@@ -170,5 +177,42 @@ void main() {
         ModernApplicationId.controlPanel,
       ],
     );
+  });
+
+  test('all remaining supported one-to-one DSM applications resolve', () {
+    final snapshot = catalog.build(
+      _loaded(
+        valid: [
+          security,
+          xunlei,
+          downloadStation,
+          moments,
+          photos,
+          virtualMachine,
+        ],
+      ),
+    );
+
+    expect(
+      snapshot.items.map((item) => item.id).toList(),
+      [
+        ModernApplicationId.securityAdvisor,
+        ModernApplicationId.xunlei,
+        ModernApplicationId.downloadStation,
+        ModernApplicationId.moments,
+        ModernApplicationId.photos,
+        ModernApplicationId.virtualMachineManager,
+      ],
+    );
+  });
+
+  test('versioned legacy application assets follow the active DSM version', () {
+    final previousVersion = Utils.version;
+    addTearDown(() => Utils.version = previousVersion);
+    Utils.version = 6;
+
+    final snapshot = catalog.build(_loaded(valid: [control]));
+
+    expect(snapshot.items.single.assetPath, 'assets/applications/6/control_panel.png');
   });
 }
