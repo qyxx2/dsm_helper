@@ -1,6 +1,28 @@
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:dsm_helper/models/Syno/Core/Desktop/InitData.dart';
+import 'package:dsm_helper/models/Syno/Core/Notify.dart';
+import 'package:dsm_helper/models/Syno/Core/System.dart';
+import 'package:dsm_helper/models/Syno/Core/System/Utilization.dart';
+import 'package:dsm_helper/models/Syno/Storage/Cgi/Storage.dart';
+import 'package:dsm_helper/new_ui/app/dsm_new_ui_shell.dart';
+import 'package:dsm_helper/new_ui/applications/applications_page.dart';
+import 'package:dsm_helper/new_ui/dashboard/overview_controller.dart';
+import 'package:dsm_helper/new_ui/dashboard/overview_data_source.dart';
+import 'package:dsm_helper/new_ui/legacy/legacy_page_host.dart';
+import 'package:dsm_helper/new_ui/legacy/legacy_shared_bootstrap.dart';
+import 'package:dsm_helper/new_ui/notifications/legacy_notification_entry.dart';
+import 'package:dsm_helper/pages/control_panel/control_panel.dart';
+import 'package:dsm_helper/pages/log_center/log_center.dart';
+import 'package:dsm_helper/providers/dark_mode.dart';
+import 'package:dsm_helper/providers/setting_provider.dart';
+import 'package:dsm_helper/themes/light.dart' as legacy_light;
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sp_util/sp_util.dart';
 
 String _shellSource() =>
     File('lib/new_ui/app/dsm_new_ui_shell.dart').readAsStringSync();
@@ -70,4 +92,112 @@ void main() {
     expect(source, contains('widget.onManageAccounts'));
     expect(source, contains('widget.onLogout'));
   });
+  // 5.3 exercises the real production shell/destination mapping. Only DSM
+  // transport and unrelated Overview loads are replaced by deterministic data.
+  testWidgets('5.3 Applications opens ordinary and Log Center aliases via legacy host, Back returns and notifications preserve tab',
+      (tester) async {
+    final messenger = TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
+    const sharing = MethodChannel('flutter_sharing_intent');
+    const sharingEvents = MethodChannel('flutter_sharing_intent/events-sharing');
+    messenger.setMockMethodCallHandler(
+      sharing,
+      (call) async => call.method == 'getInitialSharing' ? '[]' : null,
+    );
+    messenger.setMockMethodCallHandler(sharingEvents, (_) async => null);
+
+    final data = InitDataModel.fromJson({
+      'Session': {'majorversion': '7', 'hostname': 'NAS-APP', 'user': 'alice'},
+      'UserSettings': {
+        'Desktop': {
+          'valid_appview_order': [
+            'SYNO.SDS.AdminCenter.Application',
+            'SYNO.SDS.LogCenter.BuiltIn',
+          ],
+        },
+      },
+    });
+
+    try {
+      await tester.pumpWidget(
+        MultiProvider(
+          providers: [
+            ChangeNotifierProvider(create: (_) => DarkModeProvider(0)),
+            ChangeNotifierProvider(
+              create: (_) => SettingProvider(refreshDuration: 3600),
+            ),
+          ],
+          child: MaterialApp(
+            home: DsmNewUiShell(
+              contextId: 'nas/app',
+              legacyBootstrap: LegacySharedBootstrap(
+                loadInitData: () async => data,
+              ),
+              overviewControllerFactory: (interval) => OverviewController(
+                refreshInterval: interval,
+                dataSource: OverviewDataSource(
+                  loadSystem: () async => System(),
+                  loadUtilization: () async => Utilization(),
+                  loadStorage: () async => Storage(),
+                  loadNotifications: () async => DsmNotify(),
+                  loadCurrentConnections: () async => null,
+                  loadTaskScheduler: () async => null,
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('应用'));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(ApplicationsPage), findsOneWidget);
+      final apps = find.byKey(const Key('all-applications-grid'));
+      expect(find.descendant(of: apps, matching: find.text('控制中心')),
+          findsOneWidget);
+      expect(find.descendant(of: apps, matching: find.text('日志中心')),
+          findsOneWidget);
+
+      await tester.tap(find.descendant(of: apps, matching: find.text('控制中心')));
+      await tester.pumpAndSettle();
+      expect(find.byType(LegacyPageHost), findsOneWidget);
+      expect(find.byType(ControlPanel), findsOneWidget);
+      expect(Theme.of(tester.element(find.byType(ControlPanel))).colorScheme.primary,
+          legacy_light.lightTheme.colorScheme.primary);
+      await tester.binding.handlePopRoute();
+      await tester.pumpAndSettle();
+      expect(find.byType(ApplicationsPage), findsOneWidget);
+
+      // BuiltIn is the DSM7 alias that legacy enum-only launchers missed.
+      await tester.tap(find.descendant(of: apps, matching: find.text('日志中心')));
+      await tester.pump(const Duration(milliseconds: 350));
+      expect(find.byType(LegacyPageHost), findsOneWidget);
+      expect(find.byType(LogCenter), findsOneWidget);
+      await tester.binding.handlePopRoute();
+      await tester.pumpAndSettle();
+      expect(find.byType(ApplicationsPage), findsOneWidget);
+
+      await tester.tap(find.byKey(const Key('new-ui-notifications')));
+      await tester.pumpAndSettle();
+      expect(find.byType(LegacyPageHost), findsOneWidget);
+      expect(find.byType(LegacyNotificationEntry), findsOneWidget);
+      await tester.binding.handlePopRoute();
+      await tester.pumpAndSettle();
+      expect(tester.widget<NavigationBar>(find.byType(NavigationBar))
+          .selectedIndex, 2);
+
+      await tester.tap(find.text('我的'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('应用').last);
+      await tester.pumpAndSettle();
+      expect(find.byType(ApplicationsPage), findsOneWidget);
+      expect(tester.widget<NavigationBar>(find.byType(NavigationBar))
+          .selectedIndex, 2);
+    } finally {
+      await tester.pumpWidget(const SizedBox.shrink());
+      messenger.setMockMethodCallHandler(sharing, null);
+      messenger.setMockMethodCallHandler(sharingEvents, null);
+    }
+  }, timeout: const Timeout(Duration(seconds: 50)));
+
 }
