@@ -1,5 +1,4 @@
 import 'package:dsm_helper/models/Syno/Core/Desktop/InitData.dart';
-import 'package:dsm_helper/new_ui/applications/application_catalog.dart';
 import 'package:dsm_helper/new_ui/applications/application_favorites_controller.dart';
 import 'package:dsm_helper/new_ui/applications/application_favorites_store.dart';
 import 'package:dsm_helper/new_ui/applications/applications_page.dart';
