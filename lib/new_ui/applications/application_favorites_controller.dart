@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:dsm_helper/new_ui/applications/application_catalog.dart';
 import 'package:dsm_helper/new_ui/applications/application_favorites_store.dart';
 import 'package:flutter/foundation.dart';
@@ -15,6 +17,7 @@ class ApplicationFavoritesController extends ChangeNotifier {
 
   final ApplicationFavoritesStore _store;
   List<String> _storedIds = const <String>[];
+  Future<void> _mutationTail = Future<void>.value();
   bool _loaded = false;
 
   bool get loaded => _loaded;
@@ -62,84 +65,102 @@ class ApplicationFavoritesController extends ChangeNotifier {
   Future<FavoriteMutationOutcome> pin(
     ModernApplicationId id, {
     required List<ModernApplicationItem> catalog,
-  }) async {
-    if (isPinned(id)) {
-      return FavoriteMutationOutcome.unchanged;
-    }
-    if (visibleFor(catalog).length >= 8) {
-      return FavoriteMutationOutcome.limitReached;
-    }
+  }) {
+    return _serializeMutation(() async {
+      if (isPinned(id)) {
+        return FavoriteMutationOutcome.unchanged;
+      }
+      if (visibleFor(catalog).length >= 8) {
+        return FavoriteMutationOutcome.limitReached;
+      }
 
-    final next = List<String>.of(_storedIds)..add(id.storageKey);
-    await _persistAndPublish(next);
-    return FavoriteMutationOutcome.changed;
+      final next = List<String>.of(_storedIds)..add(id.storageKey);
+      await _persistAndPublish(next);
+      return FavoriteMutationOutcome.changed;
+    });
   }
 
   Future<FavoriteMutationOutcome> unpin(
     ModernApplicationId id,
-  ) async {
-    if (!isPinned(id)) {
-      return FavoriteMutationOutcome.unchanged;
-    }
+  ) {
+    return _serializeMutation(() async {
+      if (!isPinned(id)) {
+        return FavoriteMutationOutcome.unchanged;
+      }
 
-    final next = _storedIds
-        .where((storedId) => storedId != id.storageKey)
-        .toList(growable: false);
-    await _persistAndPublish(next);
-    return FavoriteMutationOutcome.changed;
+      final next = _storedIds
+          .where((storedId) => storedId != id.storageKey)
+          .toList(growable: false);
+      await _persistAndPublish(next);
+      return FavoriteMutationOutcome.changed;
+    });
   }
 
   Future<FavoriteMutationOutcome> reorderVisible(
     List<ModernApplicationId> edited, {
     required List<ModernApplicationItem> catalog,
-  }) async {
-    final visible = visibleFor(catalog);
-    final visibleSet = visible.toSet();
-    final editedSet = edited.toSet();
+  }) {
+    return _serializeMutation(() async {
+      final visible = visibleFor(catalog);
+      final visibleSet = visible.toSet();
+      final editedSet = edited.toSet();
 
-    if (edited.length != visible.length ||
-        editedSet.length != edited.length ||
-        editedSet.length != visibleSet.length ||
-        !editedSet.containsAll(visibleSet)) {
-      throw ArgumentError.value(
-        edited,
-        'edited',
-        'Must contain exactly the current visible favorite membership.',
-      );
-    }
-
-    if (listEquals(edited, visible)) {
-      return FavoriteMutationOutcome.unchanged;
-    }
-
-    final visibleKeys = <String>{
-      for (final id in visible) id.storageKey,
-    };
-    final editedKeys = edited.map((id) => id.storageKey).iterator;
-    final next = <String>[];
-
-    for (final storedId in _storedIds) {
-      if (!visibleKeys.contains(storedId)) {
-        next.add(storedId);
-        continue;
+      if (edited.length != visible.length ||
+          editedSet.length != edited.length ||
+          editedSet.length != visibleSet.length ||
+          !editedSet.containsAll(visibleSet)) {
+        throw ArgumentError.value(
+          edited,
+          'edited',
+          'Must contain exactly the current visible favorite membership.',
+        );
       }
 
-      if (!editedKeys.moveNext()) {
+      if (listEquals(edited, visible)) {
+        return FavoriteMutationOutcome.unchanged;
+      }
+
+      final visibleKeys = <String>{
+        for (final id in visible) id.storageKey,
+      };
+      final editedKeys = edited.map((id) => id.storageKey).iterator;
+      final next = <String>[];
+
+      for (final storedId in _storedIds) {
+        if (!visibleKeys.contains(storedId)) {
+          next.add(storedId);
+          continue;
+        }
+
+        if (!editedKeys.moveNext()) {
+          throw StateError(
+            'Stored visible favorite slots do not match the visible projection.',
+          );
+        }
+        next.add(editedKeys.current);
+      }
+
+      if (editedKeys.moveNext()) {
         throw StateError(
           'Stored visible favorite slots do not match the visible projection.',
         );
       }
-      next.add(editedKeys.current);
-    }
 
-    if (editedKeys.moveNext()) {
-      throw StateError(
-        'Stored visible favorite slots do not match the visible projection.',
-      );
-    }
+      await _persistAndPublish(next);
+      return FavoriteMutationOutcome.changed;
+    });
+  }
 
-    await _persistAndPublish(next);
-    return FavoriteMutationOutcome.changed;
+  Future<T> _serializeMutation<T>(Future<T> Function() action) {
+    final completer = Completer<T>();
+    _mutationTail = _mutationTail.then((_) async {
+      try {
+        completer.complete(await action());
+      } catch (error, stackTrace) {
+        completer.completeError(error, stackTrace);
+      }
+    });
+    return completer.future;
   }
 
   Future<void> _persistAndPublish(List<String> next) async {
