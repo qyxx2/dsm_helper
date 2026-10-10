@@ -6,6 +6,10 @@ const control = 'SYNO.SDS.AdminCenter.Application';
 const packages = 'SYNO.SDS.PkgManApp.Instance';
 const resource = 'SYNO.SDS.ResourceMonitor.Instance';
 const storage = 'SYNO.SDS.StorageManager.Instance';
+const logInstance = 'SYNO.SDS.LogCenter.Instance';
+const logBuiltIn = 'SYNO.SDS.LogCenter.BuiltIn';
+const docker = 'SYNO.SDS.Docker.Application';
+const containerManager = 'SYNO.SDS.ContainerManager.Application';
 
 InitDataModel _loaded({
   List<String> valid = const [],
@@ -94,6 +98,76 @@ void main() {
         ModernApplicationId.controlPanel,
         ModernApplicationId.storageManager,
         ModernApplicationId.resourceMonitor,
+      ],
+    );
+  });
+
+  test('Log Center aliases canonicalize to one launcher item', () {
+    final snapshot = catalog.build(
+      _loaded(valid: [logInstance, logBuiltIn]),
+    );
+
+    expect(
+      snapshot.items.map((item) => item.id).toList(),
+      [ModernApplicationId.logCenter],
+    );
+  });
+
+  test('Docker and Container Manager aliases canonicalize to one product', () {
+    final snapshot = catalog.build(
+      _loaded(valid: [docker, containerManager]),
+    );
+
+    expect(
+      snapshot.items.map((item) => item.id).toList(),
+      [ModernApplicationId.containerManager],
+    );
+  });
+
+  test('first alias occurrence defines the canonical product position', () {
+    final snapshot = catalog.build(
+      _loaded(valid: [docker, storage, containerManager, control]),
+    );
+
+    expect(
+      snapshot.items.map((item) => item.id).toList(),
+      [
+        ModernApplicationId.containerManager,
+        ModernApplicationId.storageManager,
+        ModernApplicationId.controlPanel,
+      ],
+    );
+  });
+
+  test('Container Manager presentation wins when that package is available', () {
+    final snapshot = catalog.build(
+      _loaded(valid: [docker, containerManager]),
+    );
+
+    expect(snapshot.items, hasLength(1));
+    expect(snapshot.items.single.id, ModernApplicationId.containerManager);
+    expect(snapshot.items.single.sourcePackageName, containerManager);
+    expect(snapshot.items.single.label, 'Container Manager');
+    expect(
+      snapshot.items.single.assetPath,
+      'assets/applications/container_manager.png',
+    );
+  });
+
+  test('canonicalization preserves neighboring supported DSM order', () {
+    final snapshot = catalog.build(
+      _loaded(
+        valid: [resource, docker, storage, containerManager, control],
+      ),
+    );
+
+    expect(
+      snapshot.items.map((item) => item.id).toList(),
+      [
+        ModernApplicationId.resourceMonitor,
+        ModernApplicationId.containerManager,
+        ModernApplicationId.storageManager,
+        ModernApplicationId.controlPanel,
       ],
     );
   });
