@@ -1,4 +1,5 @@
 import 'package:dsm_helper/models/Syno/Core/Desktop/InitData.dart';
+import 'package:dsm_helper/new_ui/applications/application_catalog.dart';
 import 'package:dsm_helper/new_ui/applications/application_favorites_controller.dart';
 import 'package:dsm_helper/new_ui/applications/application_favorites_store.dart';
 import 'package:dsm_helper/new_ui/applications/applications_page.dart';
@@ -12,18 +13,31 @@ const _control = 'SYNO.SDS.AdminCenter.Application';
 const _packages = 'SYNO.SDS.PkgManApp.Instance';
 const _storage = 'SYNO.SDS.StorageManager.Instance';
 const _resource = 'SYNO.SDS.ResourceMonitor.Instance';
+const _log = 'SYNO.SDS.LogCenter.Instance';
+const _security = 'SYNO.SDS.SecurityScan.Instance';
+const _xunlei = 'SYNO.SDS.XLPan.Application';
+const _container = 'SYNO.SDS.ContainerManager.Application';
+const _download = 'SYNO.SDS.DownloadStation.Application';
 
 class _MemoryFavoritesStore implements ApplicationFavoritesStore {
-  _MemoryFavoritesStore([List<String> initial = const <String>[]])
-      : _ids = List<String>.of(initial);
+  _MemoryFavoritesStore(
+    [List<String> initial = const <String>[]],
+    {this.failSave = false}
+  ) : _ids = List<String>.of(initial);
 
   List<String> _ids;
+  final bool failSave;
+
+  List<String> get ids => List<String>.unmodifiable(_ids);
 
   @override
   Future<List<String>> load() async => List<String>.of(_ids);
 
   @override
   Future<void> save(List<String> ids) async {
+    if (failSave) {
+      throw StateError('synthetic favorites write failure');
+    }
     _ids = List<String>.of(ids);
   }
 }
@@ -37,6 +51,7 @@ Widget _host({
   required InitDataModel initData,
   Brightness brightness = Brightness.light,
   String? connectionStatusText = '离线',
+  ApplicationFavoritesStore? favoritesStore,
 }) {
   final provider = InitDataProvider()..setInitData(initData);
   return ChangeNotifierProvider<InitDataProvider>.value(
@@ -50,12 +65,22 @@ Widget _host({
         onOpenApplication: (_) {},
         connectionStatusText: connectionStatusText,
         favoritesControllerFactory: () => ApplicationFavoritesController(
-          store: _MemoryFavoritesStore(),
+          store: favoritesStore ?? _MemoryFavoritesStore(),
         ),
       ),
     ),
   );
 }
+
+Finder _allApplicationLabel(String label) => find.descendant(
+      of: find.byKey(const Key('all-applications-grid')),
+      matching: find.text(label),
+    );
+
+Finder _favoriteApplicationLabel(String label) => find.descendant(
+      of: find.byKey(const Key('favorite-applications-grid')),
+      matching: find.text(label),
+    );
 
 void main() {
   testWidgets('Applications app bar shows title connection status and notification action',
@@ -144,4 +169,128 @@ void main() {
     expect(find.text('应用数据暂不可用'), findsOneWidget);
     expect(find.text('没有可用应用'), findsNothing);
   }, timeout: const Timeout(Duration(seconds: 20)));
+  testWidgets('Long press unpinned application offers add to Common',
+      (tester) async {
+    final store = _MemoryFavoritesStore();
+    await tester.pumpWidget(
+      _host(
+        initData: _loaded(const [_control, _packages]),
+        favoritesStore: store,
+      ),
+    );
+    await tester.pump();
+
+    await tester.longPress(_allApplicationLabel('控制中心'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('添加到常用'), findsOneWidget);
+  }, timeout: const Timeout(Duration(seconds: 20)));
+
+  testWidgets('Long press pinned application offers removal from Common',
+      (tester) async {
+    final store = _MemoryFavoritesStore(const ['control_panel']);
+    await tester.pumpWidget(
+      _host(
+        initData: _loaded(const [_control, _packages]),
+        favoritesStore: store,
+      ),
+    );
+    await tester.pump();
+
+    await tester.longPress(_allApplicationLabel('控制中心'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('从常用移除'), findsOneWidget);
+  }, timeout: const Timeout(Duration(seconds: 20)));
+
+  testWidgets('Favorite limit shows local feedback and leaves Common unchanged',
+      (tester) async {
+    final store = _MemoryFavoritesStore(const [
+      'control_panel',
+      'package_center',
+      'resource_monitor',
+      'storage_manager',
+      'log_center',
+      'security_advisor',
+      'xunlei',
+      'container_manager',
+    ]);
+    await tester.pumpWidget(
+      _host(
+        initData: _loaded(const [
+          _control,
+          _packages,
+          _resource,
+          _storage,
+          _log,
+          _security,
+          _xunlei,
+          _container,
+          _download,
+        ]),
+        favoritesStore: store,
+      ),
+    );
+    await tester.pump();
+
+    await tester.longPress(_allApplicationLabel('Download Station'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('添加到常用'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('最多可添加 8 个常用应用'), findsOneWidget);
+    expect(store.ids, hasLength(8));
+    expect(store.ids, isNot(contains('download_station')));
+    expect(_favoriteApplicationLabel('Download Station'), findsNothing);
+  }, timeout: const Timeout(Duration(seconds: 20)));
+
+  testWidgets('Favorite write failure shows feedback and retains prior Common',
+      (tester) async {
+    final store = _MemoryFavoritesStore(
+      const ['control_panel'],
+      failSave: true,
+    );
+    await tester.pumpWidget(
+      _host(
+        initData: _loaded(const [_control, _packages]),
+        favoritesStore: store,
+      ),
+    );
+    await tester.pump();
+
+    expect(_favoriteApplicationLabel('控制中心'), findsOneWidget);
+
+    await tester.longPress(_allApplicationLabel('套件中心'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('添加到常用'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('保存常用应用失败'), findsOneWidget);
+    expect(store.ids, const ['control_panel']);
+    expect(_favoriteApplicationLabel('控制中心'), findsOneWidget);
+    expect(_favoriteApplicationLabel('套件中心'), findsNothing);
+  }, timeout: const Timeout(Duration(seconds: 20)));
+
+  testWidgets('Successful favorite mutation updates Common immediately',
+      (tester) async {
+    final store = _MemoryFavoritesStore();
+    await tester.pumpWidget(
+      _host(
+        initData: _loaded(const [_control, _packages]),
+        favoritesStore: store,
+      ),
+    );
+    await tester.pump();
+
+    expect(_favoriteApplicationLabel('控制中心'), findsNothing);
+
+    await tester.longPress(_allApplicationLabel('控制中心'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('添加到常用'));
+    await tester.pumpAndSettle();
+
+    expect(store.ids, const ['control_panel']);
+    expect(_favoriteApplicationLabel('控制中心'), findsOneWidget);
+  }, timeout: const Timeout(Duration(seconds: 20)));
+
 }
