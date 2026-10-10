@@ -1,5 +1,4 @@
 import 'package:dsm_helper/models/Syno/Core/Desktop/InitData.dart';
-import 'package:dsm_helper/new_ui/applications/application_catalog.dart';
 import 'package:dsm_helper/new_ui/applications/application_favorites_controller.dart';
 import 'package:dsm_helper/new_ui/applications/application_favorites_store.dart';
 import 'package:dsm_helper/new_ui/applications/applications_page.dart';
@@ -20,10 +19,10 @@ const _container = 'SYNO.SDS.ContainerManager.Application';
 const _download = 'SYNO.SDS.DownloadStation.Application';
 
 class _MemoryFavoritesStore implements ApplicationFavoritesStore {
-  _MemoryFavoritesStore(
-    [List<String> initial = const <String>[]],
-    {this.failSave = false}
-  ) : _ids = List<String>.of(initial);
+  _MemoryFavoritesStore({
+    List<String> initial = const <String>[],
+    this.failSave = false,
+  }) : _ids = List<String>.of(initial);
 
   List<String> _ids;
   final bool failSave;
@@ -188,7 +187,7 @@ void main() {
 
   testWidgets('Long press pinned application offers removal from Common',
       (tester) async {
-    final store = _MemoryFavoritesStore(const ['control_panel']);
+    final store = _MemoryFavoritesStore(initial: const ['control_panel']);
     await tester.pumpWidget(
       _host(
         initData: _loaded(const [_control, _packages]),
@@ -205,7 +204,7 @@ void main() {
 
   testWidgets('Favorite limit shows local feedback and leaves Common unchanged',
       (tester) async {
-    final store = _MemoryFavoritesStore(const [
+    final store = _MemoryFavoritesStore(initial: const [
       'control_panel',
       'package_center',
       'resource_monitor',
@@ -247,7 +246,7 @@ void main() {
   testWidgets('Favorite write failure shows feedback and retains prior Common',
       (tester) async {
     final store = _MemoryFavoritesStore(
-      const ['control_panel'],
+      initial: const ['control_panel'],
       failSave: true,
     );
     await tester.pumpWidget(
