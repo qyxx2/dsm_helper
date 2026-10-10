@@ -28,34 +28,71 @@ class SettingsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final initData = context.watch<InitDataProvider>().initData;
+    final session = context.watch<InitDataProvider>().initData.session;
     final darkMode = context.watch<DarkModeProvider>();
+    final hostname = session?.hostname?.trim();
+    final username = session?.user?.trim();
+    final hasHostname = hostname != null && hostname.isNotEmpty;
+    final hasUsername = username != null && username.isNotEmpty;
+    final theme = Theme.of(context);
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('我的'),
+        title: Row(
+          children: [
+            const Flexible(
+              child: Text('我的', maxLines: 1, overflow: TextOverflow.ellipsis),
+            ),
+            if (connectionStatusText != null) ...[
+              const SizedBox(width: 8),
+              Flexible(
+                child: Text(
+                  connectionStatusText!,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.textTheme.labelMedium?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ),
+            ],
+          ],
+        ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.notifications_none),
+            key: const Key('new-ui-notifications'),
+            tooltip: '通知',
+            icon: const Icon(Icons.notifications_outlined),
             onPressed: onOpenNotifications,
           ),
         ],
       ),
       body: ListView(
         children: [
-          if (connectionStatusText != null)
-            ListTile(
-              title: Text(connectionStatusText!),
-              subtitle: Text(_hostLabel(initData)),
-            ),
           _section(
             context,
             '当前设备与账号',
             [
+              if (hasHostname)
+                ListTile(
+                  dense: true,
+                  title: Text(hostname),
+                  subtitle: hasUsername ? Text(username) : null,
+                )
+              else if (hasUsername)
+                ListTile(dense: true, title: Text(username)),
               ListTile(
                 leading: const Icon(Icons.account_circle_outlined),
-                title: const Text('账号管理'),
+                title: const Text('服务器与账号管理'),
                 onTap: onOpenAccountManagement,
+              ),
+              ListTile(
+                title: const Text('个人设置'),
+                onTap: onOpenUserSettings,
+              ),
+              ListTile(
+                title: const Text('退出登录'),
+                onTap: onLogout,
               ),
             ],
           ),
@@ -75,9 +112,11 @@ class SettingsPage extends StatelessWidget {
             context,
             '应用设置',
             [
-              ListTile(title: const Text('个人设置'), onTap: onOpenUserSettings),
-              ListTile(title: const Text('辅助设置'), onTap: onOpenHelperSettings),
-              ListTile(title: const Text('兼容设置'), onTap: onOpenLegacySettings),
+              ListTile(title: const Text('助手设置'), onTap: onOpenHelperSettings),
+              ListTile(
+                title: const Text('更多现有设置'),
+                onTap: onOpenLegacySettings,
+              ),
             ],
           ),
           _section(
@@ -85,7 +124,6 @@ class SettingsPage extends StatelessWidget {
             '关于',
             [
               ListTile(title: const Text('关于'), onTap: onOpenAbout),
-              ListTile(title: const Text('退出登录'), onTap: onLogout),
             ],
           ),
         ],
@@ -104,10 +142,6 @@ class SettingsPage extends StatelessWidget {
         ...children,
       ],
     );
-  }
-
-  String _hostLabel(dynamic initData) {
-    return initData.systemInfo?.hostname?.toString() ?? '';
   }
 
   String _modeText(int mode) {
