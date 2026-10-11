@@ -755,6 +755,18 @@ Do not substitute an earlier SHA's CI for the final implementation SHA.
 - [ ] Re-read the Task 6 Contract Matrix and map every row to an executable test or explicit final device check.
 - [ ] Confirm all previous B1–B4 acceptance records remain accurate and are not retroactively broadened.
 
+### Task 5.7a — User-approved UI corrective follow-up (2026-10-11)
+
+During the B5 device review, the user approved the original acceptance scenarios but required these five presentation corrections before repeating the final device Gate:
+
+1. Remove the always-visible 常用 编辑 control; preserve reorder using the existing editor via a pinned favorite's long-press 调整常用顺序 menu (when two or more favorites are visible).
+2. Match Applications long-press Bottom Sheet background to the bottom NavigationBar surface in both Light and Dark modes.
+3. Remove all My section/category headings.
+4. Use one compact device/account card, placing icon-only 个人设置 and 退出登录 actions inside it; keep established callbacks.
+5. Make remaining My settings entries consistent text-first rows without mixed leading icons.
+
+These **final-B5 presentation** requirements supersede the older B3 edit-entry and B4 Settings section-layout descriptions, without retroactively editing the B3/B4 historical acceptance files or changing their frozen business/session semantics. Require failing corrective tests, a passing final implementation-HEAD CI, and renewed device verification; the pre-correction B5 APK is not the final acceptance build.
+
 ### Task 5.8 — Real-device Gate
 
 Install the final B5 CI APK **over** the accepted Task 5 APK without uninstalling.
@@ -764,16 +776,16 @@ Required user-visible checks:
 1. overlay install succeeds and existing login/app data remains;
 2. 应用 opens directly as the Modern hub;
 3. four-column All applications layout is visually acceptable in portrait;
-4. pin at least one application, reorder Common, restart app, and verify persistence/order;
+4. pin at least two applications; confirm no persistent Edit button, open pinned favorite long-press → 调整常用顺序, reorder, restart, and verify persistence/order;
 5. open at least one real supported application and Back to Applications;
-6. 我的 opens directly as the Modern sectioned page;
+6. 我的 opens directly as the ungrouped Modern page, with a compact device/account card containing personal/logout icons;
 7. theme mode change works and survives restart;
 8. Server/Account management entry opens the established Task 4 flow and returns normally;
 9. at least one legacy settings detail opens and returns normally;
 10. global notification entry works from Applications and My;
 11. normal tab switching preserves expected stacks;
 12. no Modern shutdown/reboot action is shown;
-13. Light/Dark layout has no material visual breakage at the user's normal phone width.
+13. Light/Dark layout has no material visual breakage at the user's normal phone width; application contextual sheets match bottom NavigationBar colors and My rows have uniform icon-free leading alignment.
 
 Only scenarios actually performed are recorded as device PASS. Omitted scenarios are recorded as not tested, not implicitly accepted.
 
