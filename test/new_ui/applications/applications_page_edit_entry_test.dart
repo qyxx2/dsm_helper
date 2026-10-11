@@ -20,7 +20,7 @@ class _Store implements ApplicationFavoritesStore {
 }
 
 void main() {
-  testWidgets('Common section exposes edit action when favorites exist',
+  testWidgets('Common section does not expose a persistent edit action',
       (tester) async {
     final provider = InitDataProvider()
       ..setInitData(InitDataModel());
@@ -41,6 +41,7 @@ void main() {
     );
     await tester.pump();
 
-    expect(find.byKey(const Key('edit-common-applications')), findsOneWidget);
+    expect(find.byKey(const Key('edit-common-applications')), findsNothing);
+    expect(find.text('编辑'), findsNothing);
   }, timeout: const Timeout(Duration(seconds: 20)));
 }

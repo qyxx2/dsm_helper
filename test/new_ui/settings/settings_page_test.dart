@@ -51,6 +51,11 @@ Future<void> _pumpSettings(
 }
 
 Future<void> _tapRow(WidgetTester tester, String label) async {
+  if (label == '个人设置' || label == '退出登录') {
+    await tester.tap(find.byTooltip(label));
+    await tester.pump();
+    return;
+  }
   final row = find.widgetWithText(ListTile, label);
   await tester.scrollUntilVisible(
     row,
@@ -84,13 +89,15 @@ void main() {
     );
 
     expect(find.text('我的'), findsOneWidget);
-    expect(find.text('当前设备与账号'), findsOneWidget);
-    expect(find.text('外观'), findsOneWidget);
-    expect(find.text('应用设置'), findsOneWidget);
+    expect(find.text('当前设备与账号'), findsNothing);
+    expect(find.text('外观'), findsNothing);
+    expect(find.text('应用设置'), findsNothing);
     expect(find.text('NAS-01'), findsOneWidget);
     expect(find.text('alice'), findsOneWidget);
     expect(find.text('离线'), findsOneWidget);
-    expect(find.byType(Card), findsNothing);
+    expect(find.byKey(const Key('current-device-account-card')), findsOneWidget);
+    expect(find.byTooltip('个人设置'), findsOneWidget);
+    expect(find.byTooltip('退出登录'), findsOneWidget);
     expect(find.text('关机'), findsNothing);
     expect(find.text('重启'), findsNothing);
     // ListView lazily builds the About section only after it scrolls into view.
@@ -107,7 +114,7 @@ void main() {
       (tester) async {
     await _pumpSettings(tester, status: '连接异常');
 
-    expect(find.text('当前设备与账号'), findsOneWidget);
+    expect(find.text('当前设备与账号'), findsNothing);
     expect(find.text('主题模式'), findsOneWidget);
     expect(find.text('NAS-01'), findsNothing);
     expect(find.text('alice'), findsNothing);

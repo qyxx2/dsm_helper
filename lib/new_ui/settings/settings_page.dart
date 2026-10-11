@@ -68,79 +68,106 @@ class SettingsPage extends StatelessWidget {
         ],
       ),
       body: ListView(
+        key: const Key('settings-scroll'),
+        padding: const EdgeInsets.symmetric(vertical: 12),
         children: [
-          _section(
-            context,
-            '当前设备与账号',
-            [
-              if (hasHostname)
-                ListTile(
-                  dense: true,
-                  title: Text(hostname),
-                  subtitle: hasUsername ? Text(username) : null,
-                )
-              else if (hasUsername)
-                ListTile(dense: true, title: Text(username)),
-              ListTile(
-                leading: const Icon(Icons.account_circle_outlined),
-                title: const Text('服务器与账号管理'),
-                onTap: onOpenAccountManagement,
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Card(
+              key: const Key('current-device-account-card'),
+              margin: EdgeInsets.zero,
+              elevation: 0,
+              color: theme.colorScheme.surfaceContainerLow,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            hasHostname
+                                ? hostname!
+                                : (hasUsername ? username! : '设备信息暂不可用'),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: theme.textTheme.titleSmall,
+                          ),
+                          if (hasHostname && hasUsername)
+                            Text(
+                              username!,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: theme.textTheme.bodySmall,
+                            ),
+                        ],
+                      ),
+                    ),
+                    IconButton(
+                      key: const Key('my-user-settings'),
+                      tooltip: '个人设置',
+                      onPressed: onOpenUserSettings,
+                      icon: const Icon(Icons.manage_accounts_outlined),
+                    ),
+                    IconButton(
+                      key: const Key('my-logout'),
+                      tooltip: '退出登录',
+                      onPressed: onLogout,
+                      icon: const Icon(Icons.logout_outlined),
+                    ),
+                  ],
+                ),
               ),
-              ListTile(
-                title: const Text('个人设置'),
-                onTap: onOpenUserSettings,
-              ),
-              ListTile(
-                title: const Text('退出登录'),
-                onTap: onLogout,
-              ),
-            ],
+            ),
           ),
-          _section(
+          const SizedBox(height: 12),
+          _entry(context, '服务器与账号管理', onOpenAccountManagement),
+          _entry(
             context,
-            '外观',
-            [
-              ListTile(
-                leading: const Icon(Icons.palette_outlined),
-                title: const Text('主题模式'),
-                subtitle: Text(_modeText(darkMode.darkMode)),
-                onTap: () => showSettingsThemeModeSheet(context),
-              ),
-            ],
+            '主题模式',
+            () => showSettingsThemeModeSheet(context),
+            value: _modeText(darkMode.darkMode),
           ),
-          _section(
-            context,
-            '应用设置',
-            [
-              ListTile(title: const Text('助手设置'), onTap: onOpenHelperSettings),
-              ListTile(
-                title: const Text('更多现有设置'),
-                onTap: onOpenLegacySettings,
-              ),
-            ],
-          ),
-          _section(
-            context,
-            '关于',
-            [
-              ListTile(title: const Text('关于'), onTap: onOpenAbout),
-            ],
-          ),
+          _entry(context, '助手设置', onOpenHelperSettings),
+          _entry(context, '更多现有设置', onOpenLegacySettings),
+          _entry(context, '关于', onOpenAbout),
         ],
       ),
     );
   }
 
-  Widget _section(BuildContext context, String title, List<Widget> children) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 18, 16, 8),
-          child: Text(title, style: Theme.of(context).textTheme.titleMedium),
-        ),
-        ...children,
-      ],
+  Widget _entry(
+    BuildContext context,
+    String label,
+    VoidCallback onTap, {
+    String? value,
+  }) {
+    final theme = Theme.of(context);
+    return ListTile(
+      dense: true,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+      minVerticalPadding: 8,
+      title: Text(label, style: theme.textTheme.titleSmall),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (value != null) ...[
+            Text(value, style: theme.textTheme.bodySmall),
+            const SizedBox(width: 8),
+          ],
+          Icon(
+            Icons.chevron_right,
+            size: 20,
+            color: theme.colorScheme.onSurfaceVariant,
+          ),
+        ],
+      ),
+      onTap: onTap,
     );
   }
 

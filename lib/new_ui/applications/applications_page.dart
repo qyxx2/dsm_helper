@@ -35,6 +35,7 @@ class ApplicationsPage extends StatefulWidget {
 enum _FavoriteAction {
   pin,
   unpin,
+  reorder,
 }
 
 class _ApplicationsPageState extends State<ApplicationsPage> {
@@ -63,22 +64,48 @@ class _ApplicationsPageState extends State<ApplicationsPage> {
     final pinned = _favoritesController.isPinned(item.id);
     final action = await showModalBottomSheet<_FavoriteAction>(
       context: context,
+      backgroundColor: Theme.of(context).navigationBarTheme.backgroundColor ??
+          Theme.of(context).colorScheme.surfaceContainer,
       builder: (sheetContext) {
         return SafeArea(
-          child: ListTile(
-            leading: Icon(
-              pinned ? Icons.star_outline : Icons.star_border,
-            ),
-            title: Text(pinned ? '从常用移除' : '添加到常用'),
-            onTap: () => Navigator.of(sheetContext).pop(
-              pinned ? _FavoriteAction.unpin : _FavoriteAction.pin,
-            ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: Icon(
+                  pinned ? Icons.star_outline : Icons.star_border,
+                ),
+                title: Text(pinned ? '从常用移除' : '添加到常用'),
+                onTap: () => Navigator.of(sheetContext).pop(
+                  pinned ? _FavoriteAction.unpin : _FavoriteAction.pin,
+                ),
+              ),
+              if (pinned &&
+                  _favoritesController.visibleFor(catalogItems).length >= 2)
+                ListTile(
+                  leading: const Icon(Icons.swap_vert_outlined),
+                  title: const Text('调整常用顺序'),
+                  onTap: () => Navigator.of(sheetContext)
+                      .pop(_FavoriteAction.reorder),
+                ),
+            ],
           ),
         );
       },
     );
 
     if (action == null || !mounted) {
+      return;
+    }
+    if (action == _FavoriteAction.reorder) {
+      unawaited(Navigator.of(context).push<void>(
+        MaterialPageRoute(
+          builder: (_) => EditApplicationFavoritesPage(
+            controller: _favoritesController,
+            catalogItems: catalogItems,
+          ),
+        ),
+      ));
       return;
     }
 
@@ -89,6 +116,7 @@ class _ApplicationsPageState extends State<ApplicationsPage> {
             catalog: catalogItems,
           ),
         _FavoriteAction.unpin => await _favoritesController.unpin(item.id),
+        _FavoriteAction.reorder => FavoriteMutationOutcome.unchanged,
       };
 
       if (!mounted) {
@@ -170,35 +198,7 @@ class _ApplicationsPageState extends State<ApplicationsPage> {
             key: const Key('applications-scroll'),
             padding: const EdgeInsets.all(16),
             children: [
-              Row(
-                children: [
-                  Text('常用', style: theme.textTheme.titleMedium),
-                  const Spacer(),
-                  if (favoriteItems.length >= 2 ||
-                      (snapshot.availability ==
-                              ApplicationCatalogAvailability.unavailable &&
-                          _favoritesController.storedIds.length >= 2))
-                    TextButton.icon(
-                      key: const Key('edit-common-applications'),
-                      onPressed: favoriteItems.length >= 2
-                          ? () {
-                              unawaited(
-                                Navigator.of(context).push<void>(
-                                  MaterialPageRoute(
-                                    builder: (_) => EditApplicationFavoritesPage(
-                                      controller: _favoritesController,
-                                      catalogItems: snapshot.items,
-                                    ),
-                                  ),
-                                ),
-                              );
-                            }
-                          : null,
-                      icon: const Icon(Icons.edit_outlined, size: 18),
-                      label: const Text('编辑'),
-                    ),
-                ],
-              ),
+              Text('常用', style: theme.textTheme.titleMedium),
               const SizedBox(height: 8),
               if (favoriteItems.isEmpty)
                 Text(

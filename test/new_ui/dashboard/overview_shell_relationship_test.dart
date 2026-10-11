@@ -341,7 +341,7 @@ void main() {
         expect(find.byType(SettingsPage), findsOneWidget);
         await tester.tap(find.text('服务器与账号管理'));
         await tester.pump();
-        await tester.tap(find.text('退出登录'));
+        await tester.tap(find.byTooltip('退出登录'));
         expect(manageCalls, 1);
         expect(logoutCalls, 1);
         expect(tester.widget<NavigationBar>(find.byType(NavigationBar))

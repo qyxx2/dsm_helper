@@ -90,11 +90,15 @@ void main() {
         ('关于', 'about'),
         ('更多现有设置', 'compatibility'),
       ]) {
-        final row = find.widgetWithText(ListTile, entry.$1);
-        await tester.scrollUntilVisible(
-          row, 120, scrollable: find.byType(Scrollable).first,
-        );
-        await tester.pump();
+        final row = entry.$1 == '个人设置'
+            ? find.byTooltip('个人设置')
+            : find.widgetWithText(ListTile, entry.$1);
+        if (entry.$1 != '个人设置') {
+          await tester.scrollUntilVisible(
+            row, 120, scrollable: find.byType(Scrollable).first,
+          );
+          await tester.pump();
+        }
         await tester.tap(row);
         await tester.pumpAndSettle();
 
@@ -190,7 +194,7 @@ void main() {
 
         await tester.tap(find.text('服务器与账号管理'));
         await tester.pump();
-        await tester.tap(find.text('退出登录'));
+        await tester.tap(find.byTooltip('退出登录'));
         await tester.pump();
         expect(manageCalls, 1);
         expect(logoutCalls, 1);
