@@ -90,7 +90,7 @@ lib/new_ui/applications/**
 
 lib/new_ui/settings/**
     existing local/context state
-    → Modern sectioned Settings root
+    → Modern compact, ungrouped Settings root
     → Task 4 account/logout callbacks
     → legacy detail handoffs
 ```
@@ -225,7 +225,7 @@ This permits a favorite to reappear if a later DSM context again exposes that ap
 
 ### 7.4 Reorder
 
-The “常用” section exposes a restrained **编辑** action when reordering is meaningful.
+The “常用” heading does not show a persistent 编辑 action. Instead, long-pressing a pinned favorite (when at least two are visible) offers 调整常用顺序 alongside 从常用移除. The existing reorder page and preservation merge remain intact.
 
 Editing uses a dedicated Modern edit surface with a `ReorderableListView`; the normal four-column launcher grid does not expose persistent drag handles.
 
@@ -258,37 +258,22 @@ Visual rules:
 - label below, maximum two lines;
 - medium-high density using Task 2 spacing/typography;
 - Light and Dark must be equally usable;
+- favorite-action Bottom Sheets match the bottom NavigationBar background in each theme;
 - large font may grow labels/row height but must not collapse to oversized three-column legacy presentation.
 
 If no favorites are currently visible, “常用” remains understandable as an empty local convenience section; the complete “全部应用” section remains usable.
 
 ## 9. Modern Settings Root
 
-### 9.1 Structure
+### 9.1 Structure — approved Batch 5 corrective amendment (2026-10-11)
 
-“我的” becomes one visually continuous sectioned-management page, not a wallpaper/profile hero and not a card wall.
+“我的” is one continuous **ungrouped** list. No category headings are shown.
 
-Required Task 6 sections:
+A single compact, low-elevation tonal card at the top shows the current DSM device and account metadata when available. The **个人设置** and **退出登录** actions are icon buttons inside that card, with accessible tooltips, reusing their existing legacy and Task 4 callbacks. The card must not become a tall hero/profile section or a card wall.
 
-**当前设备与账号**
-- compact current DSM/account context when available;
-- 服务器与账号管理 → existing Task 4 callback;
-- 个人设置 → legacy `UserSetting` handoff where available;
-- 退出登录 → existing Task 4 logout flow.
+Below the card, every Settings item has consistent text typography, left alignment and trailing affordances **without a leading icon**. The rows are, in order: 服务器与账号管理, 主题模式 (with its current mode), 助手设置, 更多现有设置 and 关于. All callbacks, theme mode persistence and compatibility routing remain unchanged.
 
-**外观**
-- theme mode: System / Light / Dark;
-- current `DarkModeProvider` is the authority;
-- changing mode is presentation-only and must preserve route/session/business state.
-
-**应用设置**
-- 助手设置 → legacy `HelperSetting`;
-- one low-emphasis “更多现有设置” compatibility entry may open the retained legacy Settings root so currently unported low-frequency capabilities remain reachable.
-
-**关于**
-- About → legacy `About`.
-
-The compatibility entry is temporary migration infrastructure, not a second permanent Settings shell.
+This approved presentation amendment supersedes only the earlier Batch 4 sectioned layout and the Batch 3 persistent edit-button presentation. Their historical acceptance records continue to describe the code at their own verified commits.
 
 ### 9.2 No Dynamic Color expansion
 
@@ -394,7 +379,7 @@ Must prove:
 - Common empty/nonempty states;
 - long labels and large font do not overflow;
 - Light/Dark render with Task 2 components;
-- Settings uses one continuous sectioned page;
+- Settings uses one ungrouped list with a compact device/account card and uniform rows;
 - theme mode control exposes System/Light/Dark;
 - no Modern shutdown/reboot action exists.
 
