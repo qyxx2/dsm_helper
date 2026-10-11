@@ -92,15 +92,15 @@ class SettingsPage extends StatelessWidget {
                         children: [
                           Text(
                             hasHostname
-                                ? hostname!
-                                : (hasUsername ? username! : '设备信息暂不可用'),
+                                ? hostname
+                                : (hasUsername ? username : '设备信息暂不可用'),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: theme.textTheme.titleSmall,
                           ),
                           if (hasHostname && hasUsername)
                             Text(
-                              username!,
+                              username,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: theme.textTheme.bodySmall,
