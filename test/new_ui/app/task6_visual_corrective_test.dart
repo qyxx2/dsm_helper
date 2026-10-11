@@ -27,6 +27,7 @@ InitDataModel _catalog() => InitDataModel.fromJson({
           'valid_appview_order': [
             'SYNO.SDS.AdminCenter.Application',
             'SYNO.SDS.PkgManApp.Instance',
+            'SYNO.SDS.StorageManager.Instance',
           ],
         },
       },
@@ -112,9 +113,10 @@ void main() {
 
       final all = find.byKey(const Key('all-applications-grid'));
       await tester.longPress(find.descendant(
-        of: all, matching: find.text('控制中心'),
+        of: all, matching: find.text('存储管理器'),
       ));
       await tester.pumpAndSettle();
+      expect(find.text('添加到常用'), findsOneWidget);
 
       final bottomSheet = tester.widget<BottomSheet>(find.byType(BottomSheet));
       expect(
