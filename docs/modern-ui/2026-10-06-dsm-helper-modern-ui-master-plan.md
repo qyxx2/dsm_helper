@@ -715,7 +715,7 @@ The reviewed design audits actual legacy listing/pagination, full-path identity,
 
 **Historical preflight status (2026-10-11):** the feature design and 18 contracts were technically frozen and the five-Batch plan drafted before separate Batch implementation authorization. This paragraph records only the historical starting boundary; the subsequent user-authorized B1–B5 work is closed under the acceptance record below.
 
-**Task 7A / B1–B5 status (2026-10-12): PASS — user-authorized, read-only opt-in browse foundation, with documented untested device cases and unresolved Debug scrolling smoothness.** The final feature-code SHA is `255a01b600352bc8eecb0d3ca76fbf353707cfa3`, full [CI #337](https://github.com/qyxx2/dsm_helper/actions/runs/38230645699) **371 tests passed**, analyze clean, fixed-signature beta Debug APK verified/uploaded. The user explicitly stated B5 acceptance after earlier real-device functionality feedback. Scope and residual device/performance limitations: `docs/modern-ui/acceptance/2026-10-11-task-7a-batch-5-acceptance.md`. The isolated Release comparison [CI #338](https://github.com/qyxx2/dsm_helper/actions/runs/38232447755) succeeded on a separate experiment branch; no on-device FPS improvement has yet been verified. Existing legacy File Station remains the main complete-feature route; **Task 7B/7C are not started**. No PR/merge is authorized by this status.
+**Task 7A / B1–B5 status (2026-10-12): PASS — user-authorized, read-only opt-in browse foundation, with documented untested device cases and unresolved Debug scrolling smoothness.** The final feature-code SHA is `255a01b600352bc8eecb0d3ca76fbf353707cfa3`, full [CI #337](https://github.com/qyxx2/dsm_helper/actions/runs/38230645699) **371 tests passed**, analyze clean, fixed-signature beta Debug APK verified/uploaded. The user explicitly stated B5 acceptance after earlier real-device functionality feedback. Scope and residual device/performance limitations: `docs/modern-ui/acceptance/2026-10-11-task-7a-batch-5-acceptance.md`. The isolated Release comparison [CI #338](https://github.com/qyxx2/dsm_helper/actions/runs/38232447755) succeeded on a separate experiment branch; no on-device FPS improvement has yet been verified. Existing legacy File Station remains the main complete-feature route. **Task 7A subsequently merged into modern-ui via PR #9 at `dc5a96f2a3006db75a0e7ebe9aa4a479b144f057` (2026-10-12); merge-HEAD Android CI #340 passed.** Task 7B implementation/7C remain not started.
 
 ---
 
@@ -726,11 +726,21 @@ The reviewed design audits actual legacy listing/pagination, full-path identity,
 - search
 - select
 - rename
+- create folder (existing legacy operation, explicitly deferred by Task 7A)
 - delete
 - favorite/share
 - move/copy where already supported
 
 不改变 legacy backend semantics。
+
+### Task 7B planning preflight (2026-10-12; no implementation)
+
+- Planning branch: `feature/t7b-file-operations`, based on accepted `modern-ui@dc5a96f2a3006db75a0e7ebe9aa4a479b144f057` (Task 7A merged through PR #9; CI #340 success).
+- Feature design: `docs/modern-ui/specs/2026-10-12-task-7b-file-operations-feature-design.md`.
+- Feature contracts: `docs/modern-ui/contracts/2026-10-12-task-7b-file-operations-contract-matrix.md`.
+- Batch execution plan: `docs/modern-ui/plans/2026-10-12-task-7b-file-operations-batch-plan.md` — **six independent Batches** (B1 authority/safety → B2 Search → B3 Favorite/Share → B4 Rename/Create/Delete → B5 Copy/Move → B6 integration/device Gate).
+- **All Task 7B Batches are NOT STARTED.** Planning-only authorization does not include B1 implementation, PR or merge. CopyMove has a real legacy `overwrite=true` collision risk; B5 enabling requires explicit decision + controlled real-DSM proof.
+- Task 7C retains download/upload/preview/background-task UI and later default Files cutover. Legacy Files remains the complete primary entry and T7B is confined to the opt-in Modern browser.
 
 ---
 
@@ -1129,7 +1139,7 @@ docs/modern-ui/plans/2026-10-10-task-6-applications-settings-batch-plan.md
 
 Task 7A B1–B5 **PASS** on `feature/t7a-file-browse`, feature source `255a01b600352bc8eecb0d3ca76fbf353707cfa3`; automated CI **#337**: 371 tests passed, analyzer clean, signed Debug beta APK and artifact. User explicitly accepted B5 after reporting real DSM/Android functional testing without issues. The opt-in Modern browse foundation is read-only; the ordinary Files feature still opens complete legacy File Station. Final animation/scroll-only-pagination corrective changes passed CI, but a repeat physical-device test at the precise #337 SHA is **not individually documented**. Low Debug scrolling smoothness is an **unresolved performance observation**, not an accepted FPS target.
 
-Acceptance: `docs/modern-ui/acceptance/2026-10-11-task-7a-batch-5-acceptance.md`. Separate optional beta Release performance comparison [#338](https://github.com/qyxx2/dsm_helper/actions/runs/38232447755) completed successfully on an isolated workflow-only branch; actual Android Release/Debug frame-rate comparison remains **NOT TESTED**. No feature-branch PR or merge to `modern-ui` is implied.
+Acceptance: `docs/modern-ui/acceptance/2026-10-11-task-7a-batch-5-acceptance.md`. Separate optional beta Release performance comparison [#338](https://github.com/qyxx2/dsm_helper/actions/runs/38232447755) completed successfully on an isolated workflow-only branch; actual Android Release/Debug frame-rate comparison remains **NOT TESTED**. The B5 acceptance itself did not authorize merging. The separately approved integration later merged PR #9 to `modern-ui@dc5a96f2a3006db75a0e7ebe9aa4a479b144f057`; CI #340 succeeded.
 
 ### Next (not automatically started)
 
@@ -1138,4 +1148,4 @@ Task 7B — File Station: File Operations
 Task 7C — File Station: Transfer / Preview / Background Tasks
 ```
 
-Both are **NOT STARTED**. Each needs its own explicit authorization and scope/contract Gate. Production Files cutover is **not** authorized by Task 7A acceptance; keep the legacy route and existing external intents intact. Do not merge `feature/t7a-file-browse` without separate user approval.
+Task 7B is **planning-only** on `feature/t7b-file-operations`; B1–B6 implementation is **NOT STARTED**. Task 7C is **NOT STARTED**. Each Batch requires separate authorization and Gate. Production Files cutover is **not** authorized by Task 7A acceptance or Task 7B planning; keep the legacy route and existing external intents intact. Task 7A's merge was already completed via PR #9.

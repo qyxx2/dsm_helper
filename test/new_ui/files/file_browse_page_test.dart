@@ -472,4 +472,41 @@ void main() {
     expect(tester.takeException(), isNull);
   }, timeout: const Timeout(Duration(seconds: 30)));
 
+
+  testWidgets('folder AppBar exposes direct search, root disables it, and sort stays secondary',
+      (tester) async {
+    final requests = <String>[];
+    final source = testSource((path, offset) async => FileStationList(
+      files: <FileItem>[],
+      offset: offset,
+      total: 0,
+    ), requests);
+
+    await tester.pumpWidget(browser(source, path: '/share'));
+    await tester.pump();
+    final folderSearch = tester.widget<IconButton>(
+      find.byKey(const Key('file-browse-search')),
+    );
+    expect(folderSearch.onPressed, isNotNull);
+    expect(find.descendant(
+      of: find.byType(AppBar),
+      matching: find.byKey(const Key('file-browse-search')),
+    ), findsOneWidget);
+    expect(find.descendant(
+      of: find.byType(AppBar),
+      matching: find.byKey(const Key('file-browse-sort')),
+    ), findsNothing);
+    expect(find.byKey(const Key('file-browse-sort')), findsOneWidget);
+    expect(find.byKey(const Key('new-ui-notifications')), findsOneWidget);
+
+    await tester.pumpWidget(browser(source));
+    await tester.pump();
+    final rootSearch = tester.widget<IconButton>(
+      find.byKey(const Key('file-browse-search')),
+    );
+    expect(rootSearch.onPressed, isNull,
+      reason: 'Search root scope is not verified in Task 7B Batch 2');
+    expect(tester.takeException(), isNull);
+  }, timeout: const Timeout(Duration(seconds: 30)));
+
 }

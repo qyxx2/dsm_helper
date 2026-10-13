@@ -8,6 +8,8 @@ import 'package:dsm_helper/new_ui/files/file_browse_path.dart';
 import 'package:dsm_helper/new_ui/files/file_browse_preferences.dart';
 import 'package:dsm_helper/new_ui/files/file_browse_row.dart';
 import 'package:dsm_helper/new_ui/files/file_browse_selection_bar.dart';
+import 'package:dsm_helper/new_ui/files/file_search_data_source.dart' show FileSearchDataSource;
+import 'package:dsm_helper/new_ui/files/file_search_page.dart';
 import 'package:dsm_helper/pages/file/enums/list_type_enums.dart';
 import 'package:dsm_helper/pages/file/enums/sort_enums.dart';
 import 'package:flutter/material.dart';
@@ -20,6 +22,7 @@ class FileBrowsePage extends StatefulWidget {
     required this.onOpenNotifications,
     this.connectionStatusText,
     this.dataSource,
+    this.searchDataSource,
     this.path,
     this.ancestors = const <FileBrowseAncestor>[],
     this.onReauthNeeded,
@@ -29,6 +32,7 @@ class FileBrowsePage extends StatefulWidget {
   final String? path;
   final List<FileBrowseAncestor> ancestors;
   final FileBrowseDataSource? dataSource;
+  final FileSearchDataSource? searchDataSource;
   final VoidCallback onOpenNotifications;
   final String? connectionStatusText;
   final VoidCallback? onReauthNeeded;
@@ -200,8 +204,29 @@ class _FileBrowsePageState extends State<FileBrowsePage> {
           onOpenNotifications: widget.onOpenNotifications,
           connectionStatusText: widget.connectionStatusText,
           dataSource: widget.dataSource,
+          searchDataSource: widget.searchDataSource,
           path: path,
           ancestors: <FileBrowseAncestor>[...trail, current],
+          onReauthNeeded: widget.onReauthNeeded,
+        ),
+      ),
+    ));
+  }
+
+  void _openSearch() {
+    final path = widget.path;
+    if (path == null || path.isEmpty) return;
+    unawaited(Navigator.of(context).push<void>(
+      PageRouteBuilder<void>(
+        settings: RouteSettings(name: 't7b-search:$path'),
+        transitionDuration: Duration.zero,
+        reverseTransitionDuration: Duration.zero,
+        pageBuilder: (_, __, ___) => FileSearchPage(
+          contextId: widget.contextId,
+          folderPath: path,
+          dataSource: widget.searchDataSource,
+          onOpenNotifications: widget.onOpenNotifications,
+          connectionStatusText: widget.connectionStatusText,
           onReauthNeeded: widget.onReauthNeeded,
         ),
       ),
@@ -335,20 +360,11 @@ class _FileBrowsePageState extends State<FileBrowsePage> {
               ],
             ]),
             actions: [
-              PopupMenuButton<String>(
-                key: const Key('file-browse-sort'),
-                popUpAnimationStyle: AnimationStyle.noAnimation,
-                tooltip: '排序',
-                icon: const Icon(Icons.sort_outlined),
-                onSelected: (command) => unawaited(_changeSort(command)),
-                itemBuilder: (_) => <PopupMenuEntry<String>>[
-                  for (final by in SortByEnum.values)
-                    PopupMenuItem<String>(value: by.name, child: Text(by.label)),
-                  PopupMenuItem<String>(
-                    value: 'direction',
-                    child: Text('排序方向：${_viewPreferences.direction.label}'),
-                  ),
-                ],
+              IconButton(
+                key: const Key('file-browse-search'),
+                tooltip: widget.path == null ? '搜索仅支持文件夹' : '搜索当前文件夹',
+                onPressed: widget.path == null ? null : _openSearch,
+                icon: const Icon(Icons.search_outlined),
               ),
               IconButton(
                 key: const Key('new-ui-notifications'),
@@ -367,6 +383,26 @@ class _FileBrowsePageState extends State<FileBrowsePage> {
                     ancestors: _breadcrumbTrail,
                     onNavigate: _navigateToAncestor,
                   )),
+                  PopupMenuButton<String>(
+                    key: const Key('file-browse-sort'),
+                    popUpAnimationStyle: AnimationStyle.noAnimation,
+                    tooltip: '排序',
+                    icon: const Icon(Icons.sort_outlined),
+                    onSelected: (command) => unawaited(_changeSort(command)),
+                    itemBuilder: (_) => <PopupMenuEntry<String>>[
+                      for (final by in SortByEnum.values)
+                        PopupMenuItem<String>(
+                          value: by.name,
+                          child: Text(by.label),
+                        ),
+                      PopupMenuItem<String>(
+                        value: 'direction',
+                        child: Text(
+                          '排序方向：${_viewPreferences.direction.label}',
+                        ),
+                      ),
+                    ],
+                  ),
                   IconButton(
                     key: const Key('file-browse-view-toggle'),
                     tooltip: _viewPreferences.view == ListType.list
